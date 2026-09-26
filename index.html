@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>정을균 | JOUNG EUL KYUN</title>
+  <meta name="description" content="코칭, 연구, 공공혁신과 AI를 연결하는 정을균의 개인 홈페이지" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home"><span>JEK</span><strong>JOUNG EUL KYUN</strong></a>
+    <button class="menuBtn" id="menuBtn" aria-label="메뉴 열기">☰</button>
+    <nav id="nav">
+      <a href="#philosophy">생각과 철학</a>
+      <a href="#research">연구</a>
+      <a href="#coaching">코칭</a>
+      <a href="#public-ai">공공혁신×AI</a>
+      <a href="#insights">글과 기록</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="heroText">
+        <p class="eyebrow" id="heroRoles"></p>
+        <h1><span id="heroNameKo"></span><small id="heroNameEn"></small></h1>
+        <h2 id="heroHeadline"></h2>
+        <p class="lead" id="heroIntro"></p>
+        <div class="heroActions"><a class="btn primary" href="#insights">글 읽기</a><a class="btn" href="#about">소개 보기</a></div>
+      </div>
+      <div class="heroPhoto"><img id="heroPhoto" alt="프로필 사진"></div>
+    </section>
+
+    <section class="quoteSection" id="philosophy">
+      <p class="eyebrow" id="philEyebrow"></p>
+      <h2 id="philTitle"></h2>
+      <p id="philBody"></p>
+    </section>
+
+    <section class="section" id="about">
+      <div class="sectionHead"><p class="eyebrow">WHAT I WORK ON</p><h2>세 개의 영역을 하나의 질문으로 연결합니다.</h2><p>사람은 어떻게 성장하고, 조직은 어떻게 변화하며, 기술은 그 변화를 어떻게 돕는가.</p></div>
+      <div class="cards" id="areaCards"></div>
+    </section>
+
+    <section class="section alt" id="research">
+      <div class="sectionHead"><p class="eyebrow">RESEARCH</p><h2>연구</h2><p>현장의 경험을 연구로 검증하고, 연구의 통찰을 다시 현장으로 가져옵니다.</p></div>
+      <div id="researchList" class="timeline"></div>
+    </section>
+
+    <section class="section" id="coaching">
+      <div class="split">
+        <div><p class="eyebrow">COACHING</p><h2>답을 주기보다,<br>스스로 답을 발견하도록.</h2></div>
+        <div class="prose"><p>코칭은 사람 안에 이미 존재하는 가능성과 자원을 발견하도록 돕는 대화라고 생각합니다.</p><p>리더십, 자기효능감, 변화와 실행을 중심으로 개인과 조직이 더 나은 선택을 만들어 갈 수 있도록 함께 탐색합니다.</p></div>
+      </div>
+    </section>
+
+    <section class="section dark" id="public-ai">
+      <div class="sectionHead left"><p class="eyebrow">PUBLIC INNOVATION × AI</p><h2>공공의 문제를 기술과 사람의 관점에서 다시 봅니다.</h2><p>현장 행정의 불편을 발견하고, AI와 바이브코딩을 이용해 작지만 실제로 작동하는 개선을 만들어 갑니다.</p></div>
+      <div id="activityGrid" class="activityGrid"></div>
+    </section>
+
+    <section class="section" id="insights">
+      <div class="sectionHead"><p class="eyebrow">INSIGHTS & NOTES</p><h2>글과 기록</h2><p>코칭, 연구, 공공행정, AI를 직접 경험하며 배운 것을 기록합니다.</p></div>
+      <div id="articleGrid" class="articleGrid"></div>
+    </section>
+
+    <section class="section contact" id="contact">
+      <p class="eyebrow">CONTACT</p><h2>함께 대화하고 연구하고 실험할 수 있습니다.</h2><p id="contactMessage"></p><div id="contactLinks" class="contactLinks"></div>
+    </section>
+  </main>
+
+  <footer><span>© <span id="year"></span> JOUNG EUL KYUN</span><a href="admin.html">관리자 편집도구</a></footer>
+
+  <dialog id="articleDialog"><button class="closeBtn" id="closeDialog">×</button><p class="eyebrow" id="modalMeta"></p><h2 id="modalTitle"></h2><div id="modalBody" class="modalBody"></div></dialog>
+
+  <script src="content.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
