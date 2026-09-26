@@ -16,24 +16,31 @@ let currentArticles = [];
 function normalized(data){
   if(!data) return DEFAULT_CONTENT;
   return {
-    profile: data.profile || DEFAULT_CONTENT.profile,
-    philosophy: data.philosophy || DEFAULT_CONTENT.philosophy,
+    profile: {...DEFAULT_CONTENT.profile,...(data.profile||{})},
+    philosophy: {...DEFAULT_CONTENT.philosophy,...(data.philosophy||{})},
     areas: (Array.isArray(data.areas)?data.areas:values(data.areas)).sort(byOrder),
     research: (Array.isArray(data.research)?data.research:values(data.research)).sort(byYearDesc),
     activities: (Array.isArray(data.activities)?data.activities:values(data.activities)).sort(byDateDesc),
     articles: (Array.isArray(data.articles)?data.articles:values(data.articles)).sort(byDateDesc),
-    contact: data.contact || DEFAULT_CONTENT.contact
+    contact: {...DEFAULT_CONTENT.contact,...(data.contact||{})}
   };
 }
 function render(C){
-  $('#heroRoles').textContent=C.profile.roles||''; $('#heroNameKo').textContent=C.profile.nameKo||''; $('#heroNameEn').textContent=C.profile.nameEn||''; $('#heroHeadline').textContent=C.profile.headline||''; $('#heroIntro').textContent=C.profile.intro||''; $('#heroPhoto').src=C.profile.photo||'assets/images/profile.jpg';
+  $('#heroRoles').textContent=C.profile.roles||'';
+  $('#heroNameKo').textContent=C.profile.nameKo||'';
+  $('#heroNameEn').textContent=C.profile.nameEn||'';
+  $('#heroDegree').textContent=C.profile.degree||'';
+  $('#heroCredentials').textContent=C.profile.credentials||'';
+  $('#heroHeadline').textContent=C.profile.headline||'';
+  $('#heroIntro').textContent=C.profile.intro||'';
+  $('#heroPhoto').src=C.profile.photo||'assets/images/profile.jpg';
   $('#philEyebrow').textContent=C.philosophy.eyebrow||''; $('#philTitle').textContent=C.philosophy.title||''; $('#philBody').textContent=C.philosophy.body||'';
-  $('#areaCards').innerHTML=C.areas.map(x=>`<article class="card"><h3>${esc(x.title)}</h3><strong>${esc(x.subtitle)}</strong><p>${esc(x.body)}</p></article>`).join('');
+  $('#areaCards').innerHTML=C.areas.map((x,i)=>`<article class="card"><div class="cardNo">0${i+1}</div><h3>${esc(x.title)}</h3><strong>${esc(x.subtitle)}</strong><p>${esc(x.body)}</p></article>`).join('');
   $('#researchList').innerHTML=C.research.map(x=>`<article class="timelineItem"><div class="year">${esc(x.year)}</div><div><h3>${esc(x.title)}</h3><div class="meta">${esc(x.meta)}</div><p>${esc(x.desc)}</p></div></article>`).join('');
   $('#activityGrid').innerHTML=C.activities.map(x=>`<article class="activity">${x.image?`<img src="${esc(x.image)}" alt="">`:''}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${esc(x.title)}</h3><p>${esc(x.desc)}</p></div></article>`).join('');
   currentArticles=C.articles;
   $('#articleGrid').innerHTML=C.articles.map((x,i)=>`<article class="article" data-index="${i}">${x.image?`<img class="articleThumb" src="${esc(x.image)}" alt="">`:''}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${esc(x.title)}</h3><p>${esc(x.summary)}</p></article>`).join('');
-  $('#contactMessage').textContent=C.contact.message||''; const links=[]; if(C.contact.email) links.push(`<a href="mailto:${esc(C.contact.email)}">Email</a>`); if(C.contact.linkedin) links.push(`<a target="_blank" rel="noopener" href="${esc(C.contact.linkedin)}">LinkedIn</a>`); $('#contactLinks').innerHTML=links.join('');
+  $('#contactMessage').textContent=C.contact.message||''; const links=[]; if(C.contact.email) links.push(`<a href="mailto:${esc(C.contact.email)}">Email ↗</a>`); if(C.contact.linkedin) links.push(`<a target="_blank" rel="noopener" href="${esc(C.contact.linkedin)}">LinkedIn ↗</a>`); $('#contactLinks').innerHTML=links.join('');
 }
 render(DEFAULT_CONTENT);
 $('#year').textContent=new Date().getFullYear();

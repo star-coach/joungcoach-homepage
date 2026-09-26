@@ -3,6 +3,8 @@ export const DEFAULT_CONTENT = {
     nameKo: "정을균",
     nameEn: "JOUNG EUL KYUN",
     roles: "COACH · RESEARCHER · PUBLIC INNOVATOR",
+    degree: "Ph.D. in Coaching",
+    credentials: "KSC · ICF PCC",
     headline: "사람의 성장과 조직의 변화를 연구합니다",
     intro: "코칭, 공공행정, AI를 연결해 사람과 조직의 더 나은 변화를 탐구하고 기록합니다.",
     photo: "assets/images/profile.jpg"
