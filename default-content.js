@@ -11,8 +11,35 @@ export const DEFAULT_CONTENT = {
   },
   philosophy: {
     eyebrow: "PHILOSOPHY",
-    title: "사람을 깊이 이해하고, 변화가 실행되도록 돕습니다.",
+    title: "사람을 깊이 이해하고,\n변화가 실행되도록 돕습니다.",
     body: "좋은 코칭은 답을 대신 주는 일이 아니라, 스스로 보고 선택하고 실행할 수 있도록 사고의 공간을 넓히는 일이라고 믿습니다. 연구와 공공현장의 경험을 바탕으로 개인의 성장과 조직의 혁신이 만나는 지점을 탐구합니다."
+  },
+  sectionCopy: {
+    aboutTitle: "연구와 현장을 잇는\n세 개의 축.",
+    researchTitle: "연구는\n현장을 더 정확히\n이해하는 방법입니다.",
+    coachingTitle: "답을 주기보다,\n생각의 깊이를\n넓히는 코칭.",
+    publicAiTitle: "공공의 문제를\n기술과 사람의 관점에서\n다시 봅니다.",
+    insightsTitle: "연구하고, 실험하고,\n기록합니다.",
+    contactTitle: "좋은 질문에서\n새로운 변화가 시작됩니다."
+  },
+  theme: {
+    ink: "#111522",
+    muted: "#667085",
+    paper: "#f5f7fb",
+    blue: "#2457ff",
+    blue2: "#173ccf",
+    orange: "#ff6b35",
+    navy: "#0b1020"
+  },
+  typography: {
+    heroHeadline: {fontFamily:"sans",desktopSize:48,mobileSize:32,weight:800,letterSpacing:-0.045,lineHeight:1.22,maxWidth:690,color:"#111522",align:"left"},
+    philosophyTitle: {fontFamily:"sans",desktopSize:68,mobileSize:38,weight:800,letterSpacing:-0.045,lineHeight:1.17,maxWidth:900,color:"#ffffff",align:"left"},
+    aboutTitle: {fontFamily:"sans",desktopSize:64,mobileSize:39,weight:800,letterSpacing:-0.05,lineHeight:1.16,maxWidth:900,color:"#111522",align:"left"},
+    researchTitle: {fontFamily:"sans",desktopSize:54,mobileSize:38,weight:800,letterSpacing:-0.05,lineHeight:1.15,maxWidth:600,color:"#111522",align:"left"},
+    coachingTitle: {fontFamily:"sans",desktopSize:66,mobileSize:39,weight:800,letterSpacing:-0.05,lineHeight:1.2,maxWidth:680,color:"#111522",align:"left"},
+    publicAiTitle: {fontFamily:"sans",desktopSize:64,mobileSize:39,weight:800,letterSpacing:-0.05,lineHeight:1.16,maxWidth:760,color:"#ffffff",align:"left"},
+    insightsTitle: {fontFamily:"sans",desktopSize:64,mobileSize:39,weight:800,letterSpacing:-0.05,lineHeight:1.16,maxWidth:900,color:"#111522",align:"left"},
+    contactTitle: {fontFamily:"sans",desktopSize:66,mobileSize:39,weight:800,letterSpacing:-0.05,lineHeight:1.14,maxWidth:720,color:"#ffffff",align:"left"}
   },
   areas: [
     {id:"area-coaching", sortOrder:1, title:"Coaching",subtitle:"사람의 가능성을 행동으로 연결",body:"리더십, 자기효능감, 질문과 경청, 변화와 실행을 주제로 코칭하고 연구합니다."},

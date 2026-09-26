@@ -7,7 +7,7 @@
   <meta name="description" content="코칭, 연구, 공공혁신과 AI를 연결하는 정을균의 개인 홈페이지" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Noto+Sans+KR:wght@400;500;600;700;800&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -32,7 +32,7 @@
           <span class="credential degree" id="heroDegree"></span>
           <span class="credential" id="heroCredentials"></span>
         </div>
-        <h2 id="heroHeadline"></h2>
+        <h2 id="heroHeadline" class="editableTitle" data-typo="heroHeadline"></h2>
         <p class="lead" id="heroIntro"></p>
         <div class="heroActions"><a class="btn primary" href="#research">연구 보기 <b>↗</b></a><a class="btn ghost" href="#about">프로필 보기</a></div>
         <div class="heroKeywords" aria-label="연구 및 활동 키워드">
@@ -48,40 +48,40 @@
 
     <section class="manifesto" id="philosophy">
       <div class="manifestoIndex">01</div>
-      <div class="manifestoCopy"><p class="eyebrow light" id="philEyebrow"></p><h2 id="philTitle"></h2><p id="philBody"></p></div>
+      <div class="manifestoCopy"><p class="eyebrow light" id="philEyebrow"></p><h2 id="philTitle" class="editableTitle" data-typo="philosophyTitle"></h2><p id="philBody"></p></div>
       <div class="manifestoMark" aria-hidden="true">“</div>
     </section>
 
     <section class="section areasSection" id="about">
-      <div class="sectionHead left wide"><p class="eyebrow">FIELD OF WORK</p><h2>연구와 현장을 잇는<br><em>세 개의 축.</em></h2><p>이론을 연구로 검증하고, 연구를 다시 사람과 조직의 실제 변화로 연결합니다.</p></div>
+      <div class="sectionHead left wide"><p class="eyebrow">FIELD OF WORK</p><h2 id="aboutTitle" class="editableTitle" data-typo="aboutTitle"></h2><p>이론을 연구로 검증하고, 연구를 다시 사람과 조직의 실제 변화로 연결합니다.</p></div>
       <div class="cards" id="areaCards"></div>
     </section>
 
     <section class="section researchSection" id="research">
-      <div class="researchIntro"><p class="eyebrow">SELECTED RESEARCH</p><h2>연구는<br>현장을 더 정확히<br>이해하는 방법입니다.</h2><p>코칭학과 조직행동의 관점에서 공공조직의 성장, 자기효능감, 혁신행동을 탐구합니다.</p></div>
+      <div class="researchIntro"><p class="eyebrow">SELECTED RESEARCH</p><h2 id="researchTitle" class="editableTitle" data-typo="researchTitle"></h2><p>코칭학과 조직행동의 관점에서 공공조직의 성장, 자기효능감, 혁신행동을 탐구합니다.</p></div>
       <div id="researchList" class="timeline"></div>
     </section>
 
     <section class="section coachingSection" id="coaching">
       <div class="coachingNumber">02</div>
       <div class="split">
-        <div><p class="eyebrow">COACHING</p><h2>답을 주기보다,<br><em>생각의 깊이</em>를<br>넓히는 코칭.</h2></div>
+        <div><p class="eyebrow">COACHING</p><h2 id="coachingTitle" class="editableTitle" data-typo="coachingTitle"></h2></div>
         <div class="prose"><p>코칭은 사람 안에 이미 존재하는 가능성과 자원을 발견하도록 돕는 대화라고 생각합니다.</p><p>리더십, 자기효능감, 변화와 실행을 중심으로 개인과 조직이 더 나은 선택을 만들어 갈 수 있도록 함께 탐색합니다.</p><a class="textLink" href="#contact">코칭·강의 협업 문의 ↗</a></div>
       </div>
     </section>
 
     <section class="section dark" id="public-ai">
-      <div class="darkTop"><div class="sectionHead left"><p class="eyebrow warm">PUBLIC INNOVATION × AI</p><h2>공공의 문제를<br>기술과 사람의 관점에서<br>다시 봅니다.</h2></div><p class="darkLead">현장 행정의 작은 불편을 발견하고, AI와 바이브코딩으로 실제 작동하는 개선을 만듭니다. 기술 자체보다 문제 정의와 현장 적용을 중요하게 봅니다.</p></div>
+      <div class="darkTop"><div class="sectionHead left"><p class="eyebrow warm">PUBLIC INNOVATION × AI</p><h2 id="publicAiTitle" class="editableTitle" data-typo="publicAiTitle"></h2></div><p class="darkLead">현장 행정의 작은 불편을 발견하고, AI와 바이브코딩으로 실제 작동하는 개선을 만듭니다. 기술 자체보다 문제 정의와 현장 적용을 중요하게 봅니다.</p></div>
       <div id="activityGrid" class="activityGrid"></div>
     </section>
 
     <section class="section insightsSection" id="insights">
-      <div class="sectionHead left wide"><p class="eyebrow">INSIGHTS & NOTES</p><h2>연구하고, 실험하고,<br><em>기록합니다.</em></h2><p>코칭, 연구, 공공행정, AI를 직접 경험하며 얻은 질문과 통찰을 정리합니다.</p></div>
+      <div class="sectionHead left wide"><p class="eyebrow">INSIGHTS & NOTES</p><h2 id="insightsTitle" class="editableTitle" data-typo="insightsTitle"></h2><p>코칭, 연구, 공공행정, AI를 직접 경험하며 얻은 질문과 통찰을 정리합니다.</p></div>
       <div id="articleGrid" class="articleGrid"></div>
     </section>
 
     <section class="contactBand" id="contact">
-      <div><p class="eyebrow light">CONTACT</p><h2>좋은 질문에서<br>새로운 변화가 시작됩니다.</h2></div>
+      <div><p class="eyebrow light">CONTACT</p><h2 id="contactTitle" class="editableTitle" data-typo="contactTitle"></h2></div>
       <div class="contactRight"><p id="contactMessage"></p><div id="contactLinks" class="contactLinks"></div></div>
     </section>
   </main>
