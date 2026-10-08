@@ -1,125 +1,120 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>정코치닷컴 | JOUNG COACH</title>
-  <meta name="description" content="정코치 정을균의 코칭리더십, 공직코칭, 공익코칭, 코칭교육, 연구와 칼럼을 기록하는 공간입니다." />
-  <meta name="naver-site-verification" content="ed2851f303432ad5b807ad3eaf097e248089c114" />
-  <meta name="google-site-verification" content="ky_rl79LzB84GwSLvSbQVPPrMo9DmiGACP45KpTJKhY" />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://joungcoach.com/" />
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="ko_KR" />
-  <meta property="og:site_name" content="정코치닷컴 | JOUNG COACH" />
-  <meta property="og:title" content="정코치닷컴 | 정코치 JOUNG COACH" />
-  <meta property="og:description" content="코칭리더십·공직코칭·코칭교육·연구와 칼럼을 기록하는 정코치의 베이스캠프" />
-  <meta property="og:url" content="https://joungcoach.com/" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Noto+Sans+KR:wght@400;500;600;700;800&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
-</head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>정코치닷컴 | JOUNG COACH</title>
+<meta content="정을균의 개인 연구 홈페이지. 코칭학 연구, 코칭교육·교재, 코칭사례, 칼럼과 공공혁신의 경험을 기록하고 공유합니다." name="description"/>
+<meta content="ed2851f303432ad5b807ad3eaf097e248089c114" name="naver-site-verification"/>
+<meta content="ky_rl79LzB84GwSLvSbQVPPrMo9DmiGACP45KpTJKhY" name="google-site-verification"/>
+<meta content="index, follow" name="robots"/>
+<link href="https://joungcoach.com/" rel="canonical"/>
+<meta content="website" property="og:type"/>
+<meta content="ko_KR" property="og:locale"/>
+<meta content="정코치닷컴 | JOUNG COACH" property="og:site_name"/>
+<meta content="정코치닷컴 | 정코치 JOUNG COACH" property="og:title"/>
+<meta content="정을균의 개인 연구 홈페이지 · 코칭 연구, 교육자료, 현장사례와 칼럼 아카이브" property="og:description"/>
+<meta content="https://joungcoach.com/" property="og:url"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Newsreader:opsz,wght@6..72,500;6..72,600&amp;family=Noto+Sans+KR:wght@400;500;600;700;800&amp;family=Noto+Serif+KR:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="styles.css" rel="stylesheet">
+</link></head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="#home" aria-label="정코치 홈페이지 홈">
-      <span class="brandMark" aria-hidden="true"><span class="brandMonogram">J<span class="brandDot">.</span></span></span>
-      <span class="brandWords"><strong>JOUNG COACH <em>정코치</em></strong><small>COACHING · LEADERSHIP · EDUCATION</small></span>
-    </a>
-    <button class="menuBtn" id="menuBtn" aria-label="메뉴 열기">☰</button>
-    <nav id="nav">
-      <a href="#philosophy">철학</a><a href="#specialties">전문분야</a><a href="#research">연구</a><a href="#coaching">코칭</a><a href="#public-ai">공공혁신×AI</a><a href="instructor-profile.html">강사 프로필 ↗</a><a href="#now">요즘의 관심</a><a href="#columns">칼럼·기고</a><a href="#insights">글과 기록</a><a href="#contact">Contact</a>
-    </nav>
-  </header>
-
-  <main>
-    <section class="hero" id="home">
-      <div class="heroGlow heroGlowOne"></div><div class="heroGlow heroGlowTwo"></div>
-      <div class="heroText">
-        <p class="eyebrow" id="heroRoles"></p>
-        <h1><span id="heroNameKo"></span><small id="heroNameEn"></small></h1>
-        <div class="credentials" aria-label="학위 및 자격">
-          <span class="credential degree" id="heroDegree"></span>
-          <span class="credential" id="heroCredentials"></span>
-        </div>
-        <h2 id="heroHeadline" class="editableTitle" data-typo="heroHeadline"></h2>
-        <p class="lead" id="heroIntro"></p>
-        <div class="heroActions"><a class="btn primary" href="instructor-profile.html">강사 프로필 보기 <b>↗</b></a><a class="btn ghost" href="#specialties">전문 분야 보기</a></div>
-        <div class="heroKeywords" aria-label="연구 및 활동 키워드">
-          <span>Coaching Leadership</span><span>Public Service Coaching</span><span>Coaching Education</span><span>Research & AI</span>
-        </div>
-      </div>
-      <div class="heroVisual">
-        <div class="portraitFrame"><img id="heroPhoto" alt="정을균 프로필 사진"></div>
-        <div class="portraitNote"><span>COACHING</span><span>LEADERSHIP</span><span>EDUCATION</span></div>
-        <div class="portraitAccent" aria-hidden="true"></div>
-      </div>
-    </section>
+<header class="topbar">
+<a aria-label="정코치 홈페이지 홈" class="brand" href="#home">
+<span aria-hidden="true" class="brandMark"><span class="brandMonogram">J<span class="brandDot">.</span></span></span>
+<span class="brandWords"><strong>JOUNG COACH <em>정코치</em></strong><small>PERSONAL RESEARCH · COACHING · EDUCATION</small></span>
+</a>
+<button aria-label="메뉴 열기" class="menuBtn" id="menuBtn">☰</button>
+<nav id="nav">
+<a href="#home">소개</a><a href="#research">연구</a><a href="#education">교육·교재</a><a href="#cases">코칭사례</a><a href="#columns">칼럼</a><a href="#insights">연구노트</a><a href="#public-ai">공공혁신</a><a href="#contact">연락처</a>
+</nav>
+</header>
+<main>
 
 
-    <section class="section specialtySection" id="specialties">
-      <div class="sectionHead left wide"><p class="eyebrow">JOUNG COACH · EXPERTISE</p><h2>사람과 조직의 성장을 돕는<br>코칭 전문영역</h2><p>이론에 기반한 전문성과 공직·조직현장의 경험을 결합합니다.</p></div>
-      <div class="specialtyGrid">
-        <article class="specialtyCard"><span>01 / LEADERSHIP</span><h3>코칭리더십</h3><p>질문과 경청, 피드백, 성찰을 통해 리더와 구성원의 잠재력과 실행력을 이끌어내는 리더십 코칭</p></article>
-        <article class="specialtyCard"><span>02 / PUBLIC SERVICE</span><h3>공직코칭</h3><p>공무원과 공직 리더의 역할·책임·협업·조직변화를 이해하는 공직 현장 중심 코칭</p></article>
-        <article class="specialtyCard"><span>03 / ORGANIZATIONS</span><h3>공공기관 코칭</h3><p>공공기관의 리더십, 조직문화, 소통 및 성과 향상을 위한 맞춤형 코칭</p></article>
-        <article class="specialtyCard"><span>04 / EDUCATION</span><h3>코칭교육 · 강의</h3><p>코칭 역량과 코칭리더십을 교육현장에서 학습·실습·적용으로 연결하는 전문 강의</p></article>
-      </div>
-      <a class="specialtyLink" href="instructor-profile.html">강사 프로필 자세히 보기 <span>↗</span></a>
-    </section>
 
-    <section class="manifesto" id="philosophy">
-      <div class="manifestoIndex">01</div>
-      <div class="manifestoCopy"><p class="eyebrow light" id="philEyebrow"></p><h2 id="philTitle" class="editableTitle" data-typo="philosophyTitle"></h2><p id="philBody"></p></div>
-      <div class="manifestoMark" aria-hidden="true">“</div>
-    </section>
 
-    <section class="section areasSection" id="about">
-      <div class="sectionHead left wide"><p class="eyebrow">FIELD OF WORK</p><h2 id="aboutTitle" class="editableTitle" data-typo="aboutTitle"></h2><p>이론을 연구로 검증하고, 연구를 다시 사람과 조직의 실제 변화로 연결합니다.</p></div>
-      <div class="cards" id="areaCards"></div>
-    </section>
 
-    <section class="section researchSection" id="research">
-      <div class="researchIntro"><p class="eyebrow">SELECTED RESEARCH</p><h2 id="researchTitle" class="editableTitle" data-typo="researchTitle"></h2><p>코칭학과 조직행동의 관점에서 공공조직의 성장, 자기효능감, 혁신행동을 탐구합니다.</p></div>
-      <div id="researchList" class="timeline"></div>
-    </section>
 
-    <section class="section coachingSection" id="coaching">
-      <div class="coachingNumber">02</div>
-      <div class="split">
-        <div><p class="eyebrow">COACHING</p><h2 id="coachingTitle" class="editableTitle" data-typo="coachingTitle"></h2></div>
-        <div class="prose"><p>코칭은 사람 안에 이미 존재하는 가능성과 자원을 발견하도록 돕는 대화라고 생각합니다.</p><p>리더십, 자기효능감, 변화와 실행을 중심으로 개인과 조직이 더 나은 선택을 만들어 갈 수 있도록 함께 탐색합니다.</p><a class="textLink" href="#insights">코칭에 관한 기록 읽기 ↗</a></div>
-      </div>
-    </section>
 
-    <section class="section dark" id="public-ai">
-      <div class="darkTop"><div class="sectionHead left"><p class="eyebrow warm">PUBLIC INNOVATION × AI</p><h2 id="publicAiTitle" class="editableTitle" data-typo="publicAiTitle"></h2></div><p class="darkLead">현장 행정의 작은 불편을 발견하고, AI와 바이브코딩으로 실제 작동하는 개선을 만듭니다. 기술 자체보다 문제 정의와 현장 적용을 중요하게 봅니다.</p></div>
-      <div id="activityGrid" class="activityGrid"></div>
-    </section>
 
-    <section class="section nowSection" id="now"><div class="sectionHead left wide"><p class="eyebrow">NOW / CURRENT FOCUS</p><h2>요즘의 관심과 생각</h2><p>현재 탐구하고 있는 주제와 진행 중인 활동을 기록합니다.</p></div><div id="nowContent" class="nowContent"></div></section>
 
-    <section class="section columnsSection" id="columns">
-      <div class="sectionHead left wide"><p class="eyebrow">COLUMNS & PUBLICATIONS</p><h2>칼럼·기고</h2><p>외부 기관과 매체에 기고한 글을 기록합니다. 원문은 게재 기관의 홈페이지에서 확인할 수 있습니다.</p></div>
-      <div class="columnTools"><label>칼럼 검색 <input id="columnSearch" type="search" placeholder="제목 · 기관 · 주제로 검색"></label><label>주제 선택 <select id="columnCategory"><option value="">전체 주제</option></select></label></div>
-      <div id="columnGrid" class="columnGrid" aria-live="polite"></div>
-    </section>
 
-    <section class="section insightsSection" id="insights">
-      <div class="sectionHead left wide"><p class="eyebrow">INSIGHTS & NOTES</p><h2 id="insightsTitle" class="editableTitle" data-typo="insightsTitle"></h2><p>코칭, 연구, 공공행정, AI를 직접 경험하며 얻은 질문과 통찰을 정리합니다.</p></div>
-      <label class="searchLabel">글 찾기 <input id="articleSearch" type="search" placeholder="제목 · 본문 · 주제로 검색"></label><div id="articleGrid" class="articleGrid"></div>
-    </section>
 
-    <section class="contactBand" id="contact">
-      <div><p class="eyebrow light">CONTACT</p><h2 id="contactTitle" class="editableTitle" data-typo="contactTitle"></h2></div>
-      <div class="contactRight"><p id="contactMessage"></p><div id="contactLinks" class="contactLinks"></div><div id="socialLinks" class="socialLinks"></div></div>
-    </section>
-  </main>
 
-  <footer><div><b>J.</b><span>정코치 · JOUNG COACH</span></div><span>© <span id="year"></span> · Coaching Leadership · Public Service Coaching · Education</span><a href="admin.html">Admin</a></footer>
 
-  <dialog id="articleDialog"><button class="closeBtn" id="closeDialog">×</button><p class="eyebrow" id="modalMeta"></p><h2 id="modalTitle"></h2><img id="modalImage" class="modalImage" alt=""><div id="modalBody" class="modalBody"></div></dialog>
-  <div id="loadBadge" class="loadBadge">Firebase 연결 중…</div>
-  <script type="module" src="app-v4.js"></script>
+<section class="hero" id="home">
+<div class="heroGlow heroGlowOne"></div><div class="heroGlow heroGlowTwo"></div>
+<div class="heroText">
+<p class="eyebrow" id="heroRoles"></p><p class="siteIdentity">PERSONAL RESEARCH WEBSITE <span>· 개인 연구 홈페이지</span></p>
+<h1><span id="heroNameKo"></span><small id="heroNameEn"></small></h1>
+<div aria-label="학위 및 자격" class="credentials">
+<span class="credential degree" id="heroDegree"></span>
+<span class="credential" id="heroCredentials"></span>
+</div>
+<h2 class="editableTitle" data-typo="heroHeadline" id="heroHeadline"></h2>
+<p class="lead" id="heroIntro"></p>
+<div class="heroActions"><a class="btn primary" href="instructor-profile.html">강사 프로필 보기 <b>↗</b></a><a class="btn ghost" href="#specialties">전문 분야 보기</a></div>
+<div aria-label="연구 및 활동 키워드" class="heroKeywords">
+<span>Coaching Leadership</span><span>Public Service Coaching</span><span>Coaching Education</span><span>Research &amp; AI</span>
+</div>
+</div>
+<div class="heroVisual">
+<div class="portraitFrame"><img alt="정을균 프로필 사진" id="heroPhoto"/></div>
+<div class="portraitNote"><span>COACHING</span><span>LEADERSHIP</span><span>EDUCATION</span></div>
+<div aria-hidden="true" class="portraitAccent"></div>
+</div>
+</section><section class="section specialtySection" id="specialties">
+<div class="sectionHead left wide"><p class="eyebrow">JOUNG COACH · EXPERTISE</p><h2>사람과 조직의 성장을 돕는<br/>코칭 전문영역</h2><p>이론에 기반한 전문성과 공직·조직현장의 경험을 결합합니다.</p></div>
+<div class="specialtyGrid">
+<article class="specialtyCard"><span>01 / LEADERSHIP</span><h3>코칭리더십</h3><p>질문과 경청, 피드백, 성찰을 통해 리더와 구성원의 잠재력과 실행력을 이끌어내는 리더십 코칭</p></article>
+<article class="specialtyCard"><span>02 / PUBLIC SERVICE</span><h3>공직코칭</h3><p>공무원과 공직 리더의 역할·책임·협업·조직변화를 이해하는 공직 현장 중심 코칭</p></article>
+<article class="specialtyCard"><span>03 / ORGANIZATIONS</span><h3>공공기관 코칭</h3><p>공공기관의 리더십, 조직문화, 소통 및 성과 향상을 위한 맞춤형 코칭</p></article>
+<article class="specialtyCard"><span>04 / EDUCATION</span><h3>코칭교육 · 강의</h3><p>코칭 역량과 코칭리더십을 교육현장에서 학습·실습·적용으로 연결하는 전문 강의</p></article>
+</div>
+</section><section class="manifesto" id="philosophy">
+<div class="manifestoIndex">01</div>
+<div class="manifestoCopy"><p class="eyebrow light" id="philEyebrow"></p><h2 class="editableTitle" data-typo="philosophyTitle" id="philTitle"></h2><p id="philBody"></p></div>
+<div aria-hidden="true" class="manifestoMark">“</div>
+</section><section class="section areasSection" id="about">
+<div class="sectionHead left wide"><p class="eyebrow">FIELD OF WORK</p><h2 class="editableTitle" data-typo="aboutTitle" id="aboutTitle"></h2><p>이론을 연구로 검증하고, 연구를 다시 사람과 조직의 실제 변화로 연결합니다.</p></div>
+<div class="cards" id="areaCards"></div>
+</section><section class="section researchSection" id="research">
+<div class="researchIntro"><p class="eyebrow">SELECTED RESEARCH</p><h2 class="editableTitle" data-typo="researchTitle" id="researchTitle"></h2><p>코칭학과 조직행동의 관점에서 공공조직의 성장, 자기효능감, 혁신행동을 탐구합니다.</p></div>
+<div><div class="timeline" id="researchList"></div><button class="moreRecords" id="openResearchArchive">전체 연구 목록 보기 ↗</button></div>
+</section><section class="section portfolioSection" id="education">
+<div class="sectionHead left wide"><p class="eyebrow">EDUCATION &amp; MATERIALS</p><h2>교육과 교재</h2><p>연구에서 출발한 교육 프로그램, 강의자료와 교재를 소개합니다. 표지 이미지와 주요 내용을 눌러 자세히 살펴볼 수 있습니다.</p></div>
+<div class="portfolioGrid" id="educationGrid"></div>
+<p class="portfolioHint">교재 표지·강의 이미지, 교육 대상, 구성, 관련 자료를 관리자에서 등록할 수 있습니다.</p>
+<button class="moreRecords" data-open-content="education" type="button">전체 교육·교재 보기 ↗</button></section><section class="section coachingSection" id="coaching">
+<div class="coachingNumber">02</div>
+<div class="split">
+<div><p class="eyebrow">COACHING</p><h2 class="editableTitle" data-typo="coachingTitle" id="coachingTitle"></h2></div>
+<div class="prose"><p>코칭은 사람 안에 이미 존재하는 가능성과 자원을 발견하도록 돕는 대화라고 생각합니다.</p><p>리더십, 자기효능감, 변화와 실행을 중심으로 개인과 조직이 더 나은 선택을 만들어 갈 수 있도록 함께 탐색합니다.</p><a class="textLink" href="#cases">코칭사례 살펴보기 ↗</a></div>
+</div>
+</section><section class="section portfolioSection casesSection" id="cases">
+<div class="sectionHead left wide"><p class="eyebrow">COACHING PRACTICE</p><h2>코칭사례와 현장 이야기</h2><p>코칭 과정에서 얻은 배움과 변화의 경험을 사례로 정리합니다. 개인·기관 식별 정보는 제외하거나 동의를 받은 자료만 공개합니다.</p></div>
+<div class="portfolioGrid" id="caseGrid"></div>
+<button class="moreRecords" data-open-content="cases" type="button">전체 코칭사례 보기 ↗</button></section><section class="section columnsSection" id="columns">
+<div class="sectionHead left wide"><p class="eyebrow">COLUMNS &amp; PUBLICATIONS</p><h2>칼럼·기고</h2><p>외부 기관과 매체에 기고한 글을 기록합니다. 원문은 게재 기관의 홈페이지에서 확인할 수 있습니다.</p></div>
+<div class="columnTools"><label>칼럼 검색 <input id="columnSearch" placeholder="제목 · 기관 · 주제로 검색" type="search"/></label><label>주제 선택 <select id="columnCategory"><option value="">전체 주제</option></select></label></div>
+<div aria-live="polite" class="columnGrid" id="columnGrid"></div>
+</section><section class="section insightsSection" id="insights">
+<div class="sectionHead left wide"><p class="eyebrow">INSIGHTS &amp; NOTES</p><h2>연구노트와 성찰</h2><p>연구·심사·독서·현장 경험에서 얻은 질문과 생각을 축적하는 개인 연구노트입니다.</p></div>
+<label class="searchLabel">노트 검색 <input id="articleSearch" placeholder="제목 · 본문 · 주제로 검색" type="search"/></label><div class="articleGrid" id="articleGrid"></div>
+<button class="moreRecords" data-open-content="notes" type="button">전체 연구노트 보기 ↗</button></section><section class="section dark" id="public-ai">
+<div class="darkTop"><div class="sectionHead left"><p class="eyebrow warm">PUBLIC INNOVATION × AI</p><h2 class="editableTitle" data-typo="publicAiTitle" id="publicAiTitle"></h2></div><p class="darkLead">현장 행정의 작은 불편을 발견하고, AI와 바이브코딩으로 실제 작동하는 개선을 만듭니다. 기술 자체보다 문제 정의와 현장 적용을 중요하게 봅니다.</p></div>
+<div class="activityGrid" id="activityGrid"></div>
+</section><section class="section nowSection" id="now"><div class="sectionHead left wide"><p class="eyebrow">NOW / CURRENT FOCUS</p><h2>요즘의 관심과 생각</h2><p>현재 탐구하고 있는 주제와 진행 중인 활동을 기록합니다.</p></div><div class="nowContent" id="nowContent"></div><button class="moreRecords" id="openNowArchive">전체 관심 기록 보기 ↗</button></section><section class="contactBand" id="contact">
+<div><p class="eyebrow light">CONTACT</p><h2 class="editableTitle" data-typo="contactTitle" id="contactTitle"></h2></div>
+<div class="contactRight"><p id="contactMessage"></p><div class="contactLinks" id="contactLinks"></div><div class="socialLinks" id="socialLinks"></div></div>
+</section></main>
+<footer><div><b>J.</b><span>정코치 · JOUNG COACH</span></div><span>© <span id="year"></span> · 개인 연구 홈페이지 · Coaching Research &amp; Education</span><a href="admin.html">Admin</a></footer>
+<dialog class="archiveDialog" id="archiveDialog"><button aria-label="닫기" class="closeBtn" id="closeArchive">×</button><p class="eyebrow" id="archiveEyebrow">ARCHIVE</p><h2 id="archiveTitle">전체 목록</h2><label class="archiveSearch">목록 검색<input id="archiveSearch" placeholder="제목, 키워드, 연도로 찾기" type="search"/></label><div class="archiveLayout"><div class="archiveList" id="archiveList"></div><div class="archiveDetail" id="archiveDetail">왼쪽에서 항목을 선택하세요.</div></div></dialog><dialog id="articleDialog"><button class="closeBtn" id="closeDialog">×</button><p class="eyebrow" id="modalMeta"></p><h2 id="modalTitle"></h2><img alt="" class="modalImage" id="modalImage"/><div class="modalBody" id="modalBody"></div><div class="modalRelated" id="modalLink"></div></dialog>
+<div class="loadBadge" id="loadBadge">Firebase 연결 중…</div>
+<script src="app-v4.js" type="module"></script>
 </body>
 </html>
