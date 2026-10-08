@@ -116,8 +116,35 @@ function renderColumns(items){
   const categories=[...new Set(items.map(x=>x.category).filter(Boolean))];const categorySelect=$('#columnCategory');
   categorySelect.innerHTML='<option value="">전체 주제</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');categorySelect.value=categories.includes(columnCategory)?columnCategory:'';
   const matching=items.filter(x=>[x.title,x.publisher,x.category,x.summary].join(' ').toLowerCase().includes(columnQuery)&&(!columnCategory||x.category===columnCategory));
-  $('#columnGrid').innerHTML=matching.length?matching.map(x=>`<article class="columnCard">${imageWithSettings(x,'columnThumb')}<div class="columnContent"><div class="meta">${esc(x.publisher||'외부 기고')} ${x.date?' · '+esc(x.date):''} · ${esc(x.category||'칼럼')}</div><h3>${esc(x.title||'제목 미등록')}</h3><p>${esc(x.summary||'')}</p><div class="columnBottom">${x.featured?'<span class="featuredTag">대표 글</span>':''}${ext(x.url,'원문 읽기')}</div></div></article>`).join(''):'<p class="columnsEmpty">등록된 칼럼이 없거나 검색 결과가 없습니다.</p>';
+  $('#columnGrid').innerHTML=matching.length?matching.map(x=>`<article class="columnCard" role="button" tabindex="0" data-column-id="${esc(x.id||'')}" aria-label="${esc(x.title||'칼럼')} 상세보기">${imageWithSettings(x,'columnThumb')}<div class="columnContent"><div class="meta">${esc(x.publisher||'외부 기고')} ${x.date?' · '+esc(x.date):''} · ${esc(x.category||'칼럼')}</div><h3>${esc(x.title||'제목 미등록')}</h3><p>${esc(x.summary||'')}</p><div class="columnBottom">${x.featured?'<span class="featuredTag">대표 글</span>':''}${ext(x.url,'원문 읽기')}</div></div></article>`).join(''):'<p class="columnsEmpty">등록된 칼럼이 없거나 검색 결과가 없습니다.</p>';
 }
+// 칼럼 카드도 교육 카드와 동일하게 내용 전체를 보여주는 상세 창을 엽니다.
+function openColumnCard(card){
+  const item=(activeData.columns||[]).find(x=>String(x.id)===String(card.dataset.columnId));
+  if(!item)return;
+  const d=document.querySelector('#columnDialog');
+  document.querySelector('#columnModalMeta').textContent=[item.publisher,item.date,item.category].filter(Boolean).join(' · ');
+  document.querySelector('#columnModalTitle').textContent=item.title||'';
+  document.querySelector('#columnModalBody').textContent=item.summary||'';
+  const picture=document.querySelector('#columnModalImage');
+  const src=httpUrl(item.image);
+  if(src){picture.src=src;picture.style.display='block';picture.alt=(item.title||'칼럼')+' 이미지';}
+  else{picture.removeAttribute('src');picture.style.display='none';}
+  document.querySelector('#columnModalLink').innerHTML=ext(item.url,'원문 읽기 ↗');
+  d.showModal();
+}
+const columnGrid=document.querySelector('#columnGrid');
+columnGrid.addEventListener('click',e=>{
+  if(e.target.closest('a[href]'))return;
+  const card=e.target.closest('.columnCard[data-column-id]');
+  if(card)openColumnCard(card);
+});
+columnGrid.addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches('.columnCard[data-column-id]')){
+    e.preventDefault();openColumnCard(e.target);
+  }
+});
+document.querySelector('#closeColumnDialog').addEventListener('click',()=>document.querySelector('#columnDialog').close());
 let activeData=DEFAULT_CONTENT;
 const renderOriginal=render;
 render= function(data){activeData=data;renderOriginal(data)};

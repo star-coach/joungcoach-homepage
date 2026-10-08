@@ -1,6 +1,6 @@
 /* Shared, accessible image enlargement: original image URL is never modified. */
 (()=>{
-  const SELECTORS=['.columnThumb','.articleThumb','.researchThumb','.areaThumb','.activityGrid .activity img','.nowPhoto','#modalImage','.archivePhoto','.archiveDetail img','#detail .articleImage'];
+  const SELECTORS=['#columnModalImage','.articleThumb','.researchThumb','.areaThumb','.activityGrid .activity img','.nowPhoto','#modalImage','.archivePhoto','.archiveDetail img','#detail .articleImage'];
   const target=SELECTORS.join(',');
   let overlay=null,previous=null;
   function close(){if(!overlay)return;overlay.close();overlay.remove();overlay=null;document.body.style.removeProperty('overflow');if(previous&&previous.isConnected)previous.focus({preventScroll:true});}
