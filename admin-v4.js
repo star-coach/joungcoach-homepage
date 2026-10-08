@@ -1,3 +1,4 @@
+import { SITE_TEXT_FIELDS } from './site-text-config.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import { getDatabase, ref, get, set, update, remove, onValue, push } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
@@ -38,7 +39,7 @@ function renderArticleSection(){
  renderList($('#articleList'),a,'articles',x=>x.date||'',x=>x.title);
 }
 
-function renderAll(){const a=vals(cache.articles).sort((a,b)=>(b.date||'').localeCompare(a.date||'')), ac=vals(cache.activities).sort((a,b)=>(b.date||'').localeCompare(a.date||'')), r=vals(cache.research).sort((a,b)=>(b.year||'').localeCompare(a.year||'')), ar=vals(cache.areas).sort((a,b)=>(+a.sortOrder||99)-(+b.sortOrder||99)); renderList($('#columnAdminList'),vals(cache.columns).sort((a,b)=>(b.date||'').localeCompare(a.date||'')),'columns',x=>`${x.publisher||''} · ${x.date||''}`,x=>x.title); const focusCount=vals(cache.nowEntries).length+((cache.now&&(cache.now.title||cache.now.body))?1:0); const counts=[r.length,vals(cache.columns).length,a.filter(x=>normalizedArticleCategory(x.category)==='교육·교재').length,a.filter(x=>normalizedArticleCategory(x.category)==='코칭사례').length,a.filter(x=>normalizedArticleCategory(x.category)==='AX·공공혁신').length,a.filter(x=>normalizedArticleCategory(x.category)==='연구노트').length,ac.length,focusCount,ar.length];counts.forEach((v,i)=>{const el=document.querySelector('#stat_'+i);if(el)el.textContent=v;});renderArticleSection(); renderList($('#activityList'),ac,'activities',x=>`${x.date||''} · ${x.category||''}`,x=>x.title); renderList($('#researchAdminList'),r,'research',x=>[x.year,x.date].filter(Boolean).join(' · '),x=>x.title); renderNowAdminList(); renderList($('#areaList'),ar,'areas',x=>`순서 ${x.sortOrder||''}`,x=>x.title); fillProfile(); fillContact(); fillDesign(); fillExtra(); fillDisplayPrefs(); }
+function renderAll(){const a=vals(cache.articles).sort((a,b)=>(b.date||'').localeCompare(a.date||'')), ac=vals(cache.activities).sort((a,b)=>(b.date||'').localeCompare(a.date||'')), r=vals(cache.research).sort((a,b)=>(b.year||'').localeCompare(a.year||'')), ar=vals(cache.areas).sort((a,b)=>(+a.sortOrder||99)-(+b.sortOrder||99)); renderList($('#columnAdminList'),vals(cache.columns).sort((a,b)=>(b.date||'').localeCompare(a.date||'')),'columns',x=>`${x.publisher||''} · ${x.date||''}`,x=>x.title); const focusCount=vals(cache.nowEntries).length+((cache.now&&(cache.now.title||cache.now.body))?1:0); const counts=[r.length,vals(cache.columns).length,a.filter(x=>normalizedArticleCategory(x.category)==='교육·교재').length,a.filter(x=>normalizedArticleCategory(x.category)==='코칭사례').length,a.filter(x=>normalizedArticleCategory(x.category)==='AX·공공혁신').length,a.filter(x=>normalizedArticleCategory(x.category)==='연구노트').length,ac.length,focusCount,ar.length];counts.forEach((v,i)=>{const el=document.querySelector('#stat_'+i);if(el)el.textContent=v;});renderArticleSection(); renderList($('#activityList'),ac,'activities',x=>`${x.date||''} · ${x.category||''}`,x=>x.title); renderList($('#researchAdminList'),r,'research',x=>[x.year,x.date].filter(Boolean).join(' · '),x=>x.title); renderNowAdminList(); renderList($('#areaList'),ar,'areas',x=>`순서 ${x.sortOrder||''}`,x=>x.title); fillProfile(); fillContact(); fillDesign(); fillExtra(); fillDisplayPrefs(); renderSiteTextEditor(); }
 // 기존 단일 관심 기록(homepage/now)과 새 다중 기록(homepage/nowEntries)을 모두 표시합니다.
 function renderNowAdminList(){
   const entries=vals(cache.nowEntries).map(x=>({...x,source:'new'}));
@@ -186,3 +187,22 @@ $('#nowEntryForm').addEventListener('submit',async e=>{e.preventDefault();const 
 $('#deleteNowEntry').onclick=async()=>{const f=$('#nowEntryForm'),id=f.elements.id.value;if(id==='legacy-now'){if(!confirm('기존 관심 글을 삭제할까요? 삭제 후 복구할 수 없습니다.'))return;try{await remove(ref(db,'homepage/now'));f.hidden=true;message($('#nowEntryMsg'),'기존 관심 글 삭제 완료')}catch(e){message($('#nowEntryMsg'),'삭제 실패: '+e.message,false)}return;}await del('nowEntries',f,$('#nowEntryMsg'));};
 function fillDisplayPrefs(){const v=cache.displaySettings||{};for(const type of ['research','now']){const mode=$(`#${type}Mode`),count=$(`#${type}Count`);if(document.activeElement!==mode)mode.value=v[type]?.mode||'latest';if(document.activeElement!==count)count.value=v[type]?.count??3;}}
 for(const type of ['research','now'])$(`#${type}PrefsSave`).onclick=async()=>{try{await set(ref(db,`homepage/displaySettings/${type}`),{mode:$(`#${type}Mode`).value,count:Math.max(0,Math.min(30,Number($(`#${type}Count`).value)||0))});message($(`#${type}PrefsMsg`),'첫 화면 설정 저장 완료')}catch(e){message($(`#${type}PrefsMsg`),'저장 실패: '+e.message,false)}};
+
+// 홈페이지 고정 문구 및 메뉴 명칭 편집기. homepage/siteText만 수정합니다.
+const siteFieldBox=$('#siteTextFields');
+let siteTextEditing=false;
+function renderSiteTextEditor(){
+ if(!siteFieldBox || siteTextEditing)return;
+ const saved=cache.siteText||{};
+ siteFieldBox.innerHTML=SITE_TEXT_FIELDS.map(f=>{
+   const entry=saved[f.key]||{};
+   return `<div class="siteTextField" data-site-key="${f.key}"><label>${adminEsc(f.label)}</label><textarea>${adminEsc(typeof entry.value==='string'?entry.value:f.default)}</textarea><div class="siteTextRow"><label><input type="checkbox" ${entry.hidden?'checked':''}> 홈페이지에서 이 문구 숨기기</label><button type="button" class="ghost restoreSiteDefault">기본 문구 복구</button></div></div>`;
+ }).join('');
+ filterSiteTextRows();
+}
+function filterSiteTextRows(){const q=($('#siteTextSearch')?.value||'').trim().toLowerCase();siteFieldBox?.querySelectorAll('.siteTextField').forEach(row=>row.style.display=row.textContent.toLowerCase().includes(q)?'':'none');}
+$('#siteTextSearch')?.addEventListener('input',filterSiteTextRows);
+$('#siteTextReload')?.addEventListener('click',()=>{siteTextEditing=false;renderSiteTextEditor();});
+siteFieldBox?.addEventListener('input',()=>{siteTextEditing=true;});
+siteFieldBox?.addEventListener('click',e=>{const b=e.target.closest('.restoreSiteDefault');if(!b)return;const row=b.closest('.siteTextField'),f=SITE_TEXT_FIELDS.find(f=>f.key===row.dataset.siteKey);row.querySelector('textarea').value=f.default;row.querySelector('input[type=checkbox]').checked=false;siteTextEditing=true;});
+$('#siteTextForm')?.addEventListener('submit',async e=>{e.preventDefault();const msg=$('#siteTextMsg');try{const payload={};siteFieldBox.querySelectorAll('.siteTextField').forEach(row=>{payload[row.dataset.siteKey]={value:row.querySelector('textarea').value,hidden:row.querySelector('input[type=checkbox]').checked};});await set(ref(db,'homepage/siteText'),payload);siteTextEditing=false;message(msg,'문구 저장 완료 · 홈페이지 새로고침 후 확인하세요.')}catch(err){message(msg,'저장 실패: '+err.message,false);}});
