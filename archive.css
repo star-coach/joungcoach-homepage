@@ -15,3 +15,5 @@
 .archiveArticle{max-width:940px;border-radius:24px;box-shadow:0 18px 65px rgba(25,48,88,.06)}.archiveArticle h2{font-size:clamp(30px,3.7vw,52px)}
 .archiveBack{border:1px solid #cbd8ed;border-radius:10px;background:white;padding:12px 18px;font-weight:700;font-size:13px}
 @media(max-width:640px){.archiveIntro{padding-top:56px}.archiveHeroRule{margin-top:44px}.archiveHeroRule span:first-child{display:none}.archiveHomeLink{margin-bottom:36px}.archiveBody{padding-top:30px}.archiveToolbar{gap:22px}.archiveCard{min-height:220px}}
+
+.archiveCard img{height:auto;aspect-ratio:4/3;object-fit:cover;background:#f4f6fa}.archiveCard img[style*="contain"]{padding:12px;box-sizing:border-box}.archiveArticle .articleImage{height:auto;max-height:650px;object-fit:contain}

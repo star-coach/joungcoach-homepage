@@ -13,6 +13,8 @@ const byYearDesc = (a,b) => String(b.year || '').localeCompare(String(a.year || 
 const byOrder = (a,b)=>(Number(a.sortOrder)||999)-(Number(b.sortOrder)||999);
 let currentArticles = []; let articleQuery = ""; let columnQuery="", columnCategory="";
 const httpUrl = s => {try {const u=new URL(s);return ["https:","http:"].includes(u.protocol)?u.href:""}catch{return ""}};
+const imageStyle=(x,kind='')=>{const book=kind==='education';const def={aspect:book?'3/4':'4/3',fit:book?'contain':'cover',position:'center'};const v={...def,...(x?.imageDisplay||{})};return `style="aspect-ratio:${['1/1','4/3','16/9','3/4'].includes(v.aspect)?v.aspect:def.aspect};object-fit:${v.fit==='contain'?'contain':'cover'};object-position:${['top','center','bottom'].includes(v.position)?v.position:'center'}"`};
+const imageWithSettings=(x,cls,kind='')=>httpUrl(x.image)?`<img loading="lazy" class="${cls}" ${imageStyle(x,kind)} src="${esc(httpUrl(x.image))}" alt="">`:'';
 const img = (url,cls="") => httpUrl(url)?`<img loading="lazy" class="${cls}" src="${esc(httpUrl(url))}" alt="">`:"";
 const ext = (url,label) => httpUrl(url)?`<a href="${esc(httpUrl(url))}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`:"";
 
@@ -86,13 +88,13 @@ function render(C){
   $('#publicAiTitle').textContent=C.sectionCopy.publicAiTitle||'';
   $('#insightsTitle').textContent=C.sectionCopy.insightsTitle||'';
   $('#contactTitle').textContent=C.sectionCopy.contactTitle||'';
-  $('#areaCards').innerHTML=C.areas.map((x,i)=>`<article class="card">${img(x.image,"areaThumb")}<div class="cardNo">0${i+1}</div><h3>${esc(x.title)}</h3><strong>${esc(x.subtitle)}</strong><p>${esc(x.body)}</p></article>`).join('');
-  archivedResearch=C.research; archivedNow=[...(C.nowEntries||[])]; if(C.now?.title||C.now?.body) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'}); $('#researchList').innerHTML=visibleItems(C.research,C.displaySettings?.research).map(x=>`<article class="timelineItem"><div class="year">${esc(x.year)}</div><div>${img(x.image,"researchThumb")}<h3>${plainBreak(x.title)}</h3><div class="meta">${plainBreak(x.meta)}</div>${x.date?`<div class="recordDate">${esc(x.date)}</div>`:""}<p>${plainBreak(x.desc)}</p>${ext(x.link,"자료 보기")}</div></article>`).join('');
-  $('#activityGrid').innerHTML=C.activities.map(x=>`<article class="activity">${x.image?`<img src="${esc(x.image)}" alt="">`:''}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${esc(x.title)}</h3><p>${esc(x.desc)}</p>${ext(x.link,"관련 기록")}</div></article>`).join('');
+  $('#areaCards').innerHTML=C.areas.map((x,i)=>`<article class="card">${imageWithSettings(x,"areaThumb")}<div class="cardNo">0${i+1}</div><h3>${esc(x.title)}</h3><strong>${esc(x.subtitle)}</strong><p>${esc(x.body)}</p></article>`).join('');
+  archivedResearch=C.research; archivedNow=[...(C.nowEntries||[])]; if(C.now?.title||C.now?.body) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'}); $('#researchList').innerHTML=visibleItems(C.research,C.displaySettings?.research).map(x=>`<article class="timelineItem"><div class="year">${esc(x.year)}</div><div>${imageWithSettings(x,"researchThumb")}<h3>${plainBreak(x.title)}</h3><div class="meta">${plainBreak(x.meta)}</div>${x.date?`<div class="recordDate">${esc(x.date)}</div>`:""}<p>${plainBreak(x.desc)}</p>${ext(x.link,"자료 보기")}</div></article>`).join('');
+  $('#activityGrid').innerHTML=C.activities.map(x=>`<article class="activity">${x.image?`<img src="${esc(x.image)}" ${imageStyle(x)} alt="">`:''}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${esc(x.title)}</h3><p>${esc(x.desc)}</p>${ext(x.link,"관련 기록")}</div></article>`).join('');
   renderColumns(C.columns||[]);
   currentArticles=C.articles;
   const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';if(['AX·공공혁신','AX혁신','공공혁신'].includes(c))return 'ax';return 'notes';};
-  const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${img(x.image,'articleThumb')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${esc(x.title)}</h3><p>${esc(x.summary)}</p></article>`;
+  const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${imageWithSettings(x,'articleThumb',kind(x)==='education'?'education':'')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${esc(x.title)}</h3><p>${esc(x.summary)}</p></article>`;
   const mapped=C.articles.map((x,i)=>({...x,originalIndex:i}));
   const notes=mapped.filter(x=>kind(x)==='notes'&&[x.title,x.summary,x.body,x.category].join(' ').toLowerCase().includes(articleQuery));
   $('#articleGrid').innerHTML=notes.length?notes.slice(0,3).map(articleCard).join(''):'<p class="emptyPortfolio">등록된 연구노트가 없습니다.</p>';
@@ -114,7 +116,7 @@ function renderColumns(items){
   const categories=[...new Set(items.map(x=>x.category).filter(Boolean))];const categorySelect=$('#columnCategory');
   categorySelect.innerHTML='<option value="">전체 주제</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');categorySelect.value=categories.includes(columnCategory)?columnCategory:'';
   const matching=items.filter(x=>[x.title,x.publisher,x.category,x.summary].join(' ').toLowerCase().includes(columnQuery)&&(!columnCategory||x.category===columnCategory));
-  $('#columnGrid').innerHTML=matching.length?matching.map(x=>`<article class="columnCard">${img(x.image,'columnThumb')}<div class="columnContent"><div class="meta">${esc(x.publisher||'외부 기고')} ${x.date?' · '+esc(x.date):''} · ${esc(x.category||'칼럼')}</div><h3>${esc(x.title||'제목 미등록')}</h3><p>${esc(x.summary||'')}</p><div class="columnBottom">${x.featured?'<span class="featuredTag">대표 글</span>':''}${ext(x.url,'원문 읽기')}</div></div></article>`).join(''):'<p class="columnsEmpty">등록된 칼럼이 없거나 검색 결과가 없습니다.</p>';
+  $('#columnGrid').innerHTML=matching.length?matching.map(x=>`<article class="columnCard">${imageWithSettings(x,'columnThumb')}<div class="columnContent"><div class="meta">${esc(x.publisher||'외부 기고')} ${x.date?' · '+esc(x.date):''} · ${esc(x.category||'칼럼')}</div><h3>${esc(x.title||'제목 미등록')}</h3><p>${esc(x.summary||'')}</p><div class="columnBottom">${x.featured?'<span class="featuredTag">대표 글</span>':''}${ext(x.url,'원문 읽기')}</div></div></article>`).join(''):'<p class="columnsEmpty">등록된 칼럼이 없거나 검색 결과가 없습니다.</p>';
 }
 let activeData=DEFAULT_CONTENT;
 const renderOriginal=render;
