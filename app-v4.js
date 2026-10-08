@@ -73,7 +73,7 @@ function render(C){
   $('#heroNameKo').textContent=C.profile.nameKo||'';
   $('#heroNameEn').textContent=C.profile.nameEn||'';
   $('#heroDegree').textContent='Coaching Ph.D.';
-  $('#heroCredentials').textContent=C.profile.credentials||'';
+  $('#heroCredentials').textContent=String(C.profile.credentials||'').trim() || DEFAULT_CONTENT.profile.credentials;
   $('#heroHeadline').textContent='코칭으로 사람을 성장시키고, 리더십으로 조직을 변화시킵니다';
   $('#heroIntro').textContent='정코치 JOUNG COACH | 코칭리더십 · 공직코칭 · 공공기관 코칭 · 코칭교육 전문가. 연구와 현장의 경험을 사람과 조직의 변화로 연결합니다.';
   $('#heroPhoto').src=C.profile.photo||'assets/images/profile.jpg';
