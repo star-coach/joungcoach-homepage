@@ -91,14 +91,14 @@ function render(C){
   $('#activityGrid').innerHTML=C.activities.map(x=>`<article class="activity">${x.image?`<img src="${esc(x.image)}" alt="">`:''}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${esc(x.title)}</h3><p>${esc(x.desc)}</p>${ext(x.link,"관련 기록")}</div></article>`).join('');
   renderColumns(C.columns||[]);
   currentArticles=C.articles;
-  const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';return 'notes';};
+  const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';if(['AX·공공혁신','AX혁신','공공혁신'].includes(c))return 'ax';return 'notes';};
   const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${img(x.image,'articleThumb')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${esc(x.title)}</h3><p>${esc(x.summary)}</p></article>`;
   const mapped=C.articles.map((x,i)=>({...x,originalIndex:i}));
   const notes=mapped.filter(x=>kind(x)==='notes'&&[x.title,x.summary,x.body,x.category].join(' ').toLowerCase().includes(articleQuery));
   $('#articleGrid').innerHTML=notes.length?notes.slice(0,3).map(articleCard).join(''):'<p class="emptyPortfolio">등록된 연구노트가 없습니다.</p>';
-  const education=mapped.filter(x=>kind(x)==='education'),cases=mapped.filter(x=>kind(x)==='cases');
+  const education=mapped.filter(x=>kind(x)==='education'),cases=mapped.filter(x=>kind(x)==='cases'),ax=mapped.filter(x=>kind(x)==='ax');
   $('#educationGrid').innerHTML=education.length?education.slice(0,3).map(articleCard).join(''):'<p class="emptyPortfolio">교육 프로그램과 교재 소개가 준비 중입니다.</p>';
-  archivedContent={education,cases,notes:mapped.filter(x=>kind(x)==='notes')};
+  archivedContent={education,cases,ax,notes:mapped.filter(x=>kind(x)==='notes')};$('#axGrid').innerHTML=ax.length?ax.slice(0,3).map(articleCard).join(''):'<p style="color:#d6dfed">등록된 AX·공공혁신 사례가 없습니다. 관리자에서 사례를 등록해 주세요.</p>';
   $('#caseGrid').innerHTML=cases.length?cases.slice(0,3).map(articleCard).join(''):'<p class="emptyPortfolio">공개 가능한 코칭사례를 정리 중입니다.</p>';
   const now=C.now||{};
   const featuredNow=visibleItems(archivedNow,C.displaySettings?.now); $('#nowContent').innerHTML=featuredNow.length?featuredNow.map(x=>`<article class="nowRecord">${img(x.image,'nowPhoto')}<div><small>${esc(x.date||'')}</small><h3>${plainBreak(x.title)}</h3><p>${plainBreak(x.body)}</p></div></article>`).join(''):`${img(now.image,'nowPhoto')}<div><h3>${plainBreak(now.title||'현재의 관심을 기록하는 공간')}</h3><p>${plainBreak(now.body||'코칭과 연구, 현장에서 발견한 질문을 기록합니다.')}</p></div>`;
@@ -125,15 +125,10 @@ $('#columnCategory').addEventListener('change',e=>{columnCategory=e.target.value
 $("#articleSearch").addEventListener("input",e=>{articleQuery=e.target.value.trim().toLowerCase();render(activeData)});
 $('#year').textContent=new Date().getFullYear();
 function showArticle(el){if(!el)return;const a=currentArticles[Number(el.dataset.index)];if(!a)return;$('#modalMeta').textContent=`${a.date||''} · ${a.category||''}`;$('#modalTitle').textContent=a.title||'';$('#modalBody').textContent=a.body||a.summary||'';$('#modalLink').innerHTML=ext(a.link,'관련 자료 보기');const im=$('#modalImage');if(httpUrl(a.image)){im.src=httpUrl(a.image);im.style.display='block'}else{im.removeAttribute('src');im.style.display='none'}$('#articleDialog').showModal();}
-['#articleGrid','#educationGrid','#caseGrid'].forEach(sel=>{$(sel).addEventListener('click',e=>showArticle(e.target.closest('.article')));$(sel).addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const el=e.target.closest('.article');if(el){e.preventDefault();showArticle(el)}}});});
+['#articleGrid','#educationGrid','#caseGrid','#axGrid'].forEach(sel=>{$(sel).addEventListener('click',e=>showArticle(e.target.closest('.article')));$(sel).addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const el=e.target.closest('.article');if(el){e.preventDefault();showArticle(el)}}});});
 $('#closeDialog').onclick=()=>$('#articleDialog').close();
 $('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');
 $('#nav').addEventListener('click',()=>$('#nav').classList.remove('open'));
 const badge=$('#loadBadge');
 onValue(ref(db,'homepage'), snap=>{ if(snap.exists()){render(normalized(snap.val())); badge.textContent='Firebase 실시간 연결'; badge.className='loadBadge ok'; setTimeout(()=>badge.classList.add('hide'),1800);} else {badge.textContent='초기 데이터가 없어 기본 내용을 표시 중'; badge.className='loadBadge warn';} }, err=>{console.error(err); badge.textContent='Firebase 읽기 실패 · 기본 내용을 표시 중'; badge.className='loadBadge warn';});
 
-// 연구/관심 아카이브: 메인 화면에서는 대표 항목만, 아카이브에서 전체 검색·상세 열람.
-function archiveResults(){const items=archiveType==='research'?archivedResearch:archiveType==='now'?archivedNow:(archivedContent[archiveType]||[]);const q=$('#archiveSearch').value.trim().toLowerCase();const found=items.filter(x=>[x.title,x.meta,x.summary,x.category,x.desc,x.body,x.year,x.date].join(' ').toLowerCase().includes(q));$('#archiveList').innerHTML=found.length?found.map((x,i)=>`<button type="button" class="archiveEntry" data-archive-index="${i}"><small>${esc([x.year,x.date].filter(Boolean).join(' · '))}</small><b>${plainBreak(x.title)}</b></button>`).join(''):'<p>검색 결과가 없습니다.</p>';$('#archiveDetail').textContent='목록에서 항목을 선택해 주세요.';window.currentArchiveResults=found;}
-function openArchive(type){archiveType=type;const names={research:'연구 전체 목록',now:'요즘의 관심 전체 기록',education:'교육·교재 전체 목록',cases:'코칭사례 전체 목록',notes:'연구노트 전체 목록'};$('#archiveEyebrow').textContent='PERSONAL RESEARCH ARCHIVE';$('#archiveTitle').textContent=names[type]||'전체 목록';$('#archiveSearch').value='';archiveResults();$('#archiveDialog').showModal();}
-document.querySelectorAll('[data-open-content]').forEach(btn=>btn.addEventListener('click',()=>openArchive(btn.dataset.openContent)));$('#openResearchArchive').onclick=()=>openArchive('research');$('#openNowArchive').onclick=()=>openArchive('now');$('#closeArchive').onclick=()=>$('#archiveDialog').close();$('#archiveSearch').addEventListener('input',archiveResults);
-$('#archiveList').addEventListener('click',e=>{const btn=e.target.closest('[data-archive-index]');if(!btn)return;const x=window.currentArchiveResults[Number(btn.dataset.archiveIndex)];if(!x)return;document.querySelectorAll('.archiveEntry').forEach(n=>n.classList.toggle('selected',n===btn));$('#archiveDetail').innerHTML=`<small>${esc([x.year,x.date].filter(Boolean).join(' · '))}</small><h3>${plainBreak(x.title)}</h3>${x.meta?`<div class="meta">${plainBreak(x.meta)}</div>`:''}${img(x.image,'archivePhoto')}<p>${plainBreak(x.desc||x.body||x.summary||'')}</p>${ext(x.link,'자료 보기')}`;});
