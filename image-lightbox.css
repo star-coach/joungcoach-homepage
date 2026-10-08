@@ -1,0 +1,10 @@
+/* Shared website image viewer */
+img[data-jc-zoom]{cursor:zoom-in}img[data-jc-zoom]:focus-visible{outline:3px solid #2563eb;outline-offset:3px}
+.jcImageLightbox{position:fixed;inset:0;margin:0;width:100vw;height:100dvh;max-width:none;max-height:none;border:0;z-index:2147483600;background:rgba(9,15,30,.90);display:flex;align-items:center;justify-content:center;padding:60px 22px 24px;box-sizing:border-box}
+.jcImageLightboxPanel{max-width:100%;max-height:100%;position:relative;display:flex;align-items:center;justify-content:center}
+.jcImageLightboxImage{display:block;max-width:min(1400px,94vw);max-height:calc(100dvh - 100px);width:auto;height:auto;object-fit:contain;border-radius:7px;box-shadow:0 15px 65px #0007;background:#fff}
+.jcImageLightboxClose{position:fixed;right:22px;top:18px;color:#fff;background:#26344c;border:1px solid #71809b;border-radius:10px;padding:10px 16px;font:600 14px 'Noto Sans KR',sans-serif;cursor:pointer}
+.jcImageLightboxClose:hover{background:#395073}
+@media(max-width:600px){.jcImageLightbox{padding:65px 10px 20px}.jcImageLightboxImage{max-width:96vw;max-height:calc(100dvh - 105px)}}
+
+.jcImageLightbox::backdrop{background:rgba(9,15,30,.9)}
