@@ -2,11 +2,11 @@ export const DEFAULT_CONTENT = {
   profile: {
     nameKo: "정을균",
     nameEn: "JOUNG EUL KYUN",
-    roles: "COACH · RESEARCHER · PUBLIC INNOVATOR",
-    degree: "Ph.D. in Coaching",
+    roles: "JOUNG COACH · COACHING LEADERSHIP · PUBLIC SERVICE COACHING",
+    degree: "Coaching Ph.D.",
     credentials: "KSC · ICF PCC",
-    headline: "사람의 성장과 조직의 변화를 연구합니다",
-    intro: "코칭, 공공행정, AI를 연결해 사람과 조직의 더 나은 변화를 탐구하고 기록합니다.",
+    headline: "코칭으로 사람을 성장시키고, 리더십으로 조직을 변화시킵니다",
+    intro: "정코치 JOUNG COACH | 코칭학 박사 · 코칭리더십 · 공직코칭 · 공공기관 코칭 · 코칭교육 전문. 연구와 실무 경험을 사람과 조직의 변화로 연결합니다.",
     photo: "assets/images/profile.jpg"
   },
   philosophy: {
@@ -60,7 +60,7 @@ export const DEFAULT_CONTENT = {
     {id:"article-20260918",date:"2026.09.18",category:"COACHING",title:"코칭에서 질문보다 먼저 필요한 것",summary:"좋은 질문은 기술만으로 만들어지지 않습니다. 고객을 있는 그대로 이해하려는 태도와 깊은 경청이 먼저입니다.",body:"질문의 수준은 코치가 얼마나 좋은 문장을 알고 있는가보다, 고객의 말과 맥락을 얼마나 깊이 듣고 있는가에 영향을 받습니다. 좋은 코칭은 질문을 준비하는 것에서 시작하기보다, 고객을 이해하려는 호기심과 존재감에서 시작합니다.",image:""}
   ],
   contact: {
-    message: "코칭, 연구, 공공혁신과 AI에 관한 대화와 협업을 환영합니다.",
+    message: "연구와 기록에 관한 의견이나 소식은 이메일로 전해주실 수 있습니다.",
     email: "",
     linkedin: ""
   }
