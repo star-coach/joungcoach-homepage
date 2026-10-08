@@ -9,7 +9,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]));
 const values = obj => obj ? Object.entries(obj).map(([id,v])=>({id,...v})) : [];
 const byDateDesc = (a,b)=>String(b.date||'').localeCompare(String(a.date||''));
-const byYearDesc = (a,b)=>String(b.year||'').localeCompare(String(a.year||'') || String(b.date||'').localeCompare(String(a.date||''));
+const byYearDesc = (a,b) => String(b.year || '').localeCompare(String(a.year || '')) || String(b.date || '').localeCompare(String(a.date || ''));
 const byOrder = (a,b)=>(Number(a.sortOrder)||999)-(Number(b.sortOrder)||999);
 let currentArticles = []; let articleQuery = ""; let columnQuery="", columnCategory="";
 const httpUrl = s => {try {const u=new URL(s);return ["https:","http:"].includes(u.protocol)?u.href:""}catch{return ""}};
