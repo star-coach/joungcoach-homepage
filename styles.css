@@ -55,3 +55,13 @@ dialog{border:0;border-radius:22px;padding:50px;max-width:780px;width:calc(100% 
 .siteIdentity{font-size:12px;letter-spacing:.12em;font-weight:800;color:var(--blue);margin:10px 0 14px}.siteIdentity span{letter-spacing:0;color:var(--muted)}
 .portfolioSection{background:#f9fafc}.casesSection{background:#fff}.portfolioGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:36px}.portfolioGrid .article{border:1px solid #e4e8f1;border-radius:18px;padding:18px;overflow:hidden;background:white}.portfolioGrid .article:hover{border-color:var(--blue);box-shadow:0 12px 35px rgba(35,65,120,.08)}.portfolioGrid .articleThumb{aspect-ratio:4/3}.portfolioGrid .article h3{font-size:21px}.emptyPortfolio{color:#697588;padding:24px 0}.portfolioHint{color:#8b92a1;font-size:12px;margin-top:16px}.modalRelated{margin-top:20px}.modalRelated a{color:var(--blue);font-weight:700}.article:focus-visible{outline:3px solid var(--blue);outline-offset:3px}.topbar nav{gap:19px}
 @media(max-width:1000px){.portfolioGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.portfolioGrid{grid-template-columns:1fr}.siteIdentity{font-size:10px}}
+
+/* Edition E: stable CTA placement and long-page spacing */
+.sectionMore{display:flex;clear:both;align-items:center;justify-content:flex-start;position:relative;z-index:1;margin-top:34px;width:100%;min-height:50px;grid-column:1/-1}
+.sectionMore .moreRecords{margin:0;display:inline-flex;align-items:center;justify-content:center;gap:12px;width:auto;max-width:100%;min-height:46px;border:1px solid #c5d3e7;border-radius:12px;background:rgba(255,255,255,.84);color:#204577;font-size:14px;font-weight:750;line-height:1.4;text-decoration:none;box-shadow:0 5px 16px rgba(23,51,92,.035);transition:background .2s,transform .2s}
+.sectionMore .moreRecords:hover{background:#eaf1ff;transform:translateY(-2px)}
+.section.dark .sectionMore .moreRecords{background:transparent;color:#fff;border-color:#7b89a8}.section.dark .sectionMore .moreRecords:hover{background:#202a47}
+.researchSection>.sectionMore{grid-column:2}.researchSection>.sectionMore:first-child{grid-column:1/-1}
+.researchSection>div>.sectionMore{margin-top:26px}
+.columnCard,.nowRecord,.timelineItem,.article{min-width:0;overflow-wrap:anywhere}
+@media(max-width:1000px){.researchSection>.sectionMore{grid-column:1/-1}}

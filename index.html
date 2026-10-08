@@ -19,7 +19,7 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Newsreader:opsz,wght@6..72,500;6..72,600&amp;family=Noto+Sans+KR:wght@400;500;600;700;800&amp;family=Noto+Serif+KR:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css" rel="stylesheet">
+<link href="styles.css?v=20261008e" rel="stylesheet">
 </link></head>
 <body>
 <header class="topbar">
@@ -29,7 +29,7 @@
 </a>
 <button aria-label="메뉴 열기" class="menuBtn" id="menuBtn">☰</button>
 <nav id="nav">
-<a href="#home">소개</a><a href="#research">연구</a><a href="#education">교육·교재</a><a href="#cases">코칭사례</a><a href="#columns">칼럼</a><a href="#insights">연구노트</a><a href="#public-ai">공공혁신</a><a href="#contact">연락처</a>
+<a href="#home">소개</a><a href="#research">연구</a><a href="#education">교육·교재</a><a href="#cases">코칭사례</a><a href="archive.html?type=columns">칼럼</a><a href="#insights">연구노트</a><a href="#public-ai">공공혁신</a><a href="#contact">연락처</a>
 </nav>
 </header>
 <main>
@@ -84,12 +84,12 @@
 <div class="cards" id="areaCards"></div>
 </section><section class="section researchSection" id="research">
 <div class="researchIntro"><p class="eyebrow">SELECTED RESEARCH</p><h2 class="editableTitle" data-typo="researchTitle" id="researchTitle"></h2><p>코칭학과 조직행동의 관점에서 공공조직의 성장, 자기효능감, 혁신행동을 탐구합니다.</p></div>
-<div><div class="timeline" id="researchList"></div><a class="moreRecords" href="archive.html?type=research" id="openResearchArchive">전체 연구 목록 보기 ↗</a></div>
+<div><div class="timeline" id="researchList"></div><div class="sectionMore"><a class="moreRecords" href="archive.html?type=research" id="openResearchArchive">전체 연구 목록 보기 ↗</a></div></div>
 </section><section class="section portfolioSection" id="education">
 <div class="sectionHead left wide"><p class="eyebrow">EDUCATION &amp; MATERIALS</p><h2>교육과 교재</h2><p>연구에서 출발한 교육 프로그램, 강의자료와 교재를 소개합니다. 표지 이미지와 주요 내용을 눌러 자세히 살펴볼 수 있습니다.</p></div>
 <div class="portfolioGrid" id="educationGrid"></div>
 <p class="portfolioHint">교재 표지·강의 이미지, 교육 대상, 구성, 관련 자료를 관리자에서 등록할 수 있습니다.</p>
-<a class="moreRecords" href="archive.html?type=education">전체 교육·교재 보기 ↗</a></section><section class="section coachingSection" id="coaching">
+<div class="sectionMore"><a class="moreRecords" href="archive.html?type=education">전체 교육·교재 보기 ↗</a></div></section><section class="section coachingSection" id="coaching">
 <div class="coachingNumber">02</div>
 <div class="split">
 <div><p class="eyebrow">COACHING</p><h2 class="editableTitle" data-typo="coachingTitle" id="coachingTitle"></h2></div>
@@ -98,17 +98,17 @@
 </section><section class="section portfolioSection casesSection" id="cases">
 <div class="sectionHead left wide"><p class="eyebrow">COACHING PRACTICE</p><h2>코칭사례와 현장 이야기</h2><p>코칭 과정에서 얻은 배움과 변화의 경험을 사례로 정리합니다. 개인·기관 식별 정보는 제외하거나 동의를 받은 자료만 공개합니다.</p></div>
 <div class="portfolioGrid" id="caseGrid"></div>
-<a class="moreRecords" href="archive.html?type=cases">전체 코칭사례 보기 ↗</a></section><section class="section columnsSection" id="columns">
+<div class="sectionMore"><a class="moreRecords" href="archive.html?type=cases">전체 코칭사례 보기 ↗</a></div></section><section class="section columnsSection" id="columns">
 <div class="sectionHead left wide"><p class="eyebrow">COLUMNS &amp; PUBLICATIONS</p><h2>칼럼·기고</h2><p>외부 기관과 매체에 기고한 글을 기록합니다. 원문은 게재 기관의 홈페이지에서 확인할 수 있습니다.</p></div>
 <div class="columnTools"><label>칼럼 검색 <input id="columnSearch" placeholder="제목 · 기관 · 주제로 검색" type="search"/></label><label>주제 선택 <select id="columnCategory"><option value="">전체 주제</option></select></label></div>
-<div aria-live="polite" class="columnGrid" id="columnGrid"></div>
+<div aria-live="polite" class="columnGrid" id="columnGrid"></div><div class="sectionMore"><a class="moreRecords" href="archive.html?type=columns">전체 칼럼·기고 보기 <span aria-hidden="true">↗</span></a></div>
 </section><section class="section insightsSection" id="insights">
 <div class="sectionHead left wide"><p class="eyebrow">INSIGHTS &amp; NOTES</p><h2 class="editableTitle" data-typo="insightsTitle" id="insightsTitle">연구노트와 성찰</h2><p>연구·심사·독서·현장 경험에서 얻은 질문과 생각을 축적하는 개인 연구노트입니다.</p></div>
 <label class="searchLabel">노트 검색 <input id="articleSearch" placeholder="제목 · 본문 · 주제로 검색" type="search"/></label><div class="articleGrid" id="articleGrid"></div>
-<a class="moreRecords" href="archive.html?type=notes">전체 연구노트 보기 ↗</a></section><section class="section dark" id="public-ai">
+<div class="sectionMore"><a class="moreRecords" href="archive.html?type=notes">전체 연구노트 보기 ↗</a></div></section><section class="section dark" id="public-ai">
 <div class="darkTop"><div class="sectionHead left"><p class="eyebrow warm">PUBLIC INNOVATION × AI</p><h2 class="editableTitle" data-typo="publicAiTitle" id="publicAiTitle"></h2></div><p class="darkLead">현장 행정의 작은 불편을 발견하고, AI와 바이브코딩으로 실제 작동하는 개선을 만듭니다. 기술 자체보다 문제 정의와 현장 적용을 중요하게 봅니다.</p></div>
-<div class="activityGrid" id="activityGrid"></div><div class="sectionHead left wide" style="margin-top:36px"><p class="eyebrow warm">AX CASE STUDIES</p><h2 style="color:white">AX·공공혁신 프로젝트 사례</h2><p style="color:#d5e2f7">업무 문제 발견부터 개발 과정, 적용과 성과까지 기록합니다.</p></div><div class="portfolioGrid" id="axGrid"></div><a class="moreRecords" style="display:inline-block;color:white;border-color:#aabbd3" href="archive.html?type=ax">AX·공공혁신 사례 전체 보기 ↗</a>
-</section><section class="section nowSection" id="now"><div class="sectionHead left wide"><p class="eyebrow">NOW / CURRENT FOCUS</p><h2>요즘의 관심과 생각</h2><p>현재 탐구하고 있는 주제와 진행 중인 활동을 기록합니다.</p></div><div class="nowContent" id="nowContent"></div><a class="moreRecords" href="archive.html?type=now" id="openNowArchive">전체 관심 기록 보기 ↗</a></section><section class="contactBand" id="contact">
+<div class="activityGrid" id="activityGrid"></div><div class="sectionHead left wide" style="margin-top:36px"><p class="eyebrow warm">AX CASE STUDIES</p><h2 style="color:white">AX·공공혁신 프로젝트 사례</h2><p style="color:#d5e2f7">업무 문제 발견부터 개발 과정, 적용과 성과까지 기록합니다.</p></div><div class="portfolioGrid" id="axGrid"></div><div class="sectionMore"><a class="moreRecords" style="color:white;border-color:#aabbd3" href="archive.html?type=ax">AX·공공혁신 사례 전체 보기 ↗</a></div>
+</section><section class="section nowSection" id="now"><div class="sectionHead left wide"><p class="eyebrow">NOW / CURRENT FOCUS</p><h2>요즘의 관심과 생각</h2><p>현재 탐구하고 있는 주제와 진행 중인 활동을 기록합니다.</p></div><div class="nowContent" id="nowContent"></div><div class="sectionMore"><a class="moreRecords" href="archive.html?type=now" id="openNowArchive">전체 관심 기록 보기 ↗</a></div></section><section class="contactBand" id="contact">
 <div><p class="eyebrow light">CONTACT</p><h2 class="editableTitle" data-typo="contactTitle" id="contactTitle"></h2></div>
 <div class="contactRight"><p id="contactMessage"></p><div class="contactLinks" id="contactLinks"></div><div class="socialLinks" id="socialLinks"></div></div>
 </section></main>
