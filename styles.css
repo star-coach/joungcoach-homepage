@@ -79,3 +79,8 @@ dialog{border:0;border-radius:22px;padding:50px;max-width:780px;width:calc(100% 
 .columnGrid .columnContent p{font-size:14px;line-height:1.6}
 @media(max-width:1000px){.columnGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.columnGrid{grid-template-columns:minmax(0,1fr)}}
+
+/* 2026-10-08: 칼럼 카드에도 교육·교재 카드와 같은 우측 상단 확대 표시 */
+.columnGrid .columnCard{position:relative}
+.columnGrid .columnCard::before{content:"↗";position:absolute;z-index:2;top:18px;right:18px;width:30px;height:30px;display:grid;place-items:center;border:1px solid rgba(175,190,214,.8);border-radius:9px;background:rgba(255,255,255,.94);color:#2a548f;font-size:19px;font-weight:600;line-height:1;box-shadow:0 2px 12px rgba(20,42,77,.10);pointer-events:none}
+.columnGrid .columnCard:hover::before{background:#e9f0ff;color:#1745a0}
