@@ -9,6 +9,65 @@ const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getDatabase(app),
 const vals=o=>o?Object.entries(o).map(([id,v])=>({id,...v})):[]; const safeName=n=>n.replace(/[^a-zA-Z0-9._-]/g,'_');
 function message(el,t,ok=true){el.textContent=t;el.style.color=ok?'#067647':'#b42318'}
 async function upload(file,folder){ if(!file) return ''; if(!file.type.startsWith('image/'))throw Error('이미지 파일만 등록 가능합니다.');if(file.size>10*1024*1024)throw Error('사진은 10MB 이하로 선택하세요.'); const r=sRef(storage,`homepage/${folder}/${Date.now()}_${safeName(file.name)}`); await uploadBytes(r,file); return await getDownloadURL(r); }
+// 화면 캡처 이미지 붙여넣기: 파일 선택과 Ctrl+V는 동일한 Firebase Storage 업로드 경로를 사용합니다.
+const pendingImages = new Map();
+const pasteUrls = new Map();
+const imageInputIds = ['profileImage','columnImage','articleImage','activityImage','researchImage','areaImage','nowEntryImage'];
+function clearPendingImages(){
+  pendingImages.clear();
+  for(const url of pasteUrls.values()) URL.revokeObjectURL(url);
+  pasteUrls.clear();
+  for(const id of imageInputIds){
+    const input=document.getElementById(id), zone=document.getElementById(id+'PasteZone');
+    if(input)input.value='';
+    if(zone){zone.querySelector('.pastePreview').replaceChildren();zone.querySelector('.pasteStatus').textContent='클릭한 뒤 Ctrl+V로 캡처 이미지를 붙여넣으세요.';}
+  }
+}
+async function uploadFromInput(id,folder){
+  const input=document.getElementById(id);
+  return upload(pendingImages.get(id)||input?.files?.[0],folder);
+}
+function setPendingImage(id,file){
+  if(!file || !file.type.startsWith('image/')){ alert('이미지 파일만 붙여넣을 수 있습니다.');return; }
+  if(file.size>10*1024*1024){alert('이미지는 10MB 이하로 선택해 주세요.');return;}
+  const input=document.getElementById(id),zone=document.getElementById(id+'PasteZone');
+  if(!input||!zone)return;
+  if(pasteUrls.has(id))URL.revokeObjectURL(pasteUrls.get(id));
+  const url=URL.createObjectURL(file);pasteUrls.set(id,url);
+  pendingImages.set(id,file);
+  input.value='';
+  const preview=zone.querySelector('.pastePreview');preview.replaceChildren();
+  const img=document.createElement('img');img.src=url;img.alt='저장 전 이미지 미리보기';preview.append(img);
+  zone.querySelector('.pasteStatus').textContent=`선택됨: ${file.name} · ${(file.size/1024).toFixed(0)}KB (저장 버튼을 눌러야 등록됩니다)`;
+}
+function makePasteZones(){
+  for(const id of imageInputIds){
+    const input=document.getElementById(id);if(!input)continue;
+    const zone=document.createElement('div');zone.id=id+'PasteZone';zone.className='pasteZone';zone.tabIndex=0;zone.setAttribute('role','group');zone.setAttribute('aria-label','이미지 붙여넣기 영역');
+    zone.innerHTML='<div class="pasteHeading">📋 화면 캡처 붙여넣기 <kbd>Ctrl</kbd> + <kbd>V</kbd></div><div class="pasteStatus">클릭한 뒤 Ctrl+V로 캡처 이미지를 붙여넣으세요.</div><div class="pastePreview"></div><button type="button" class="pasteClear">선택 취소</button>';
+    input.insertAdjacentElement('afterend',zone);
+    input.addEventListener('change',()=>{if(input.files?.[0])setPendingImage(id,input.files[0]);});
+    zone.querySelector('.pasteClear').addEventListener('click',e=>{e.preventDefault();pendingImages.delete(id);input.value='';const url=pasteUrls.get(id);if(url)URL.revokeObjectURL(url);pasteUrls.delete(id);zone.querySelector('.pastePreview').replaceChildren();zone.querySelector('.pasteStatus').textContent='선택이 취소되었습니다. 기존 저장 이미지는 삭제되지 않습니다.';});
+    zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragging')});
+    zone.addEventListener('dragleave',()=>zone.classList.remove('dragging'));
+    zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('dragging');const f=[...(e.dataTransfer?.files||[])].find(x=>x.type.startsWith('image/'));if(f)setPendingImage(id,f)});
+  }
+}
+makePasteZones();
+document.addEventListener('paste',e=>{
+  const file=[...(e.clipboardData?.items||[])].filter(x=>x.kind==='file'&&x.type.startsWith('image/')).map(x=>x.getAsFile())[0];
+  if(!file)return;
+  const target=e.target;
+  // 텍스트 작성 중 붙여넣기는 가로채지 않습니다.
+  if(target.closest('textarea,[contenteditable="true"],input:not([type="file"])'))return;
+  const zone=target.closest('.pasteZone');
+  let id=zone?.id?.replace(/PasteZone$/,'');
+  if(!id){const active=document.querySelector('.panel.active');const visible=imageInputIds.filter(k=>active?.contains(document.getElementById(k)));if(visible.length===1)id=visible[0];}
+  if(!id)return;
+  e.preventDefault();setPendingImage(id,new File([file],`capture_${Date.now()}.png`,{type:file.type||'image/png'}));
+});
+// 다른 기록을 열거나 새 기록으로 이동할 때 미저장 이미지가 따라가지 않도록 초기화합니다.
+document.addEventListener('click',e=>{if(e.target.closest('.listItem[data-id],.side .nav,#newArticle,#newActivity,#newResearch,#newArea,#newNow,#newColumn'))clearPendingImages()},true);
 $('#loginForm').addEventListener('submit',async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$('#email').value,$('#password').value)}catch(err){message($('#loginMsg'),'로그인 실패: '+err.message,false)}}); $('#logoutBtn').onclick=()=>signOut(auth);
 onAuthStateChanged(auth,user=>{const yes=!!user;$('#loginPanel').hidden=yes;$('#cms').hidden=!yes;$('#logoutBtn').hidden=!yes;if(yes) startCMS();});
 function startCMS(){ if(startCMS.done)return;startCMS.done=true; onValue(ref(db,'homepage'),s=>{cache=s.val()||{}; renderAll();}); }
@@ -55,14 +114,14 @@ function fillForm(form,data,names){form.hidden=false;names.forEach(n=>{if(form.e
 function newForm(form,names){form.hidden=false;form.reset();names.forEach(n=>{if(form.elements[n])form.elements[n].value=''});}
 $('#newArticle').onclick=()=>{newForm($('#articleForm'),['id']);$('#articleForm').elements.category.value=currentArticleCategory;};$('#newActivity').onclick=()=>newForm($('#activityForm'),['id']);$('#newResearch').onclick=()=>newForm($('#researchForm'),['id']);$('#newArea').onclick=()=>newForm($('#areaForm'),['id']);
 function formObj(form,names){return Object.fromEntries(names.map(n=>[n,form.elements[n].value.trim()]))}
-$('#articleForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{let d=formObj(f,['date','category','title','summary','body','imageUrl','link']);d.category=currentArticleCategory;const id=f.elements.id.value||push(ref(db,'homepage/articles')).key;const old=cache.articles?.[id]?.image||'';const image=await upload($('#articleImage').files[0],'articles');d.image=image||d.imageUrl||old;d.updatedAt=Date.now();await set(ref(db,`homepage/articles/${id}`),d);f.elements.id.value=id;$('#articleImageCurrent').textContent=d.image||'';message($('#articleMsg'),'저장 완료 · 홈페이지에 즉시 반영됩니다.')}catch(x){message($('#articleMsg'),'저장 실패: '+x.message,false)}});
-$('#activityForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{let d=formObj(f,['date','category','title','desc','imageUrl','link']);const id=f.elements.id.value||push(ref(db,'homepage/activities')).key;const old=cache.activities?.[id]?.image||'';const image=await upload($('#activityImage').files[0],'activities');d.image=image||d.imageUrl||old;d.updatedAt=Date.now();await set(ref(db,`homepage/activities/${id}`),d);f.elements.id.value=id;$('#activityImageCurrent').textContent=d.image||'';message($('#activityMsg'),'저장 완료')}catch(x){message($('#activityMsg'),'저장 실패: '+x.message,false)}});
-$('#researchForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{const d=formObj(f,['year','title','meta','date','desc','imageUrl','link']);d.pinned=f.elements.pinned.checked;const id=f.elements.id.value||push(ref(db,'homepage/research')).key;d.image=(await upload($('#researchImage').files[0],'research'))||d.imageUrl||cache.research?.[id]?.image||'';await set(ref(db,`homepage/research/${id}`),d);f.elements.id.value=id;message($('#researchMsg'),'저장 완료')}catch(x){message($('#researchMsg'),'저장 실패: '+x.message,false)}});
-$('#areaForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{const d=formObj(f,['sortOrder','title','subtitle','body','imageUrl']);d.sortOrder=Number(d.sortOrder||99);const id=f.elements.id.value||push(ref(db,'homepage/areas')).key;d.image=(await upload($('#areaImage').files[0],'areas'))||d.imageUrl||cache.areas?.[id]?.image||'';await set(ref(db,`homepage/areas/${id}`),d);f.elements.id.value=id;message($('#areaMsg'),'저장 완료')}catch(x){message($('#areaMsg'),'저장 실패: '+x.message,false)}});
+$('#articleForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{let d=formObj(f,['date','category','title','summary','body','imageUrl','link']);d.category=currentArticleCategory;const id=f.elements.id.value||push(ref(db,'homepage/articles')).key;const old=cache.articles?.[id]?.image||'';const image=await uploadFromInput('articleImage','articles');d.image=image||d.imageUrl||old;d.updatedAt=Date.now();await set(ref(db,`homepage/articles/${id}`),d);f.elements.id.value=id;$('#articleImageCurrent').textContent=d.image||'';message($('#articleMsg'),'저장 완료 · 홈페이지에 즉시 반영됩니다.')}catch(x){message($('#articleMsg'),'저장 실패: '+x.message,false)}});
+$('#activityForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{let d=formObj(f,['date','category','title','desc','imageUrl','link']);const id=f.elements.id.value||push(ref(db,'homepage/activities')).key;const old=cache.activities?.[id]?.image||'';const image=await uploadFromInput('activityImage','activities');d.image=image||d.imageUrl||old;d.updatedAt=Date.now();await set(ref(db,`homepage/activities/${id}`),d);f.elements.id.value=id;$('#activityImageCurrent').textContent=d.image||'';message($('#activityMsg'),'저장 완료')}catch(x){message($('#activityMsg'),'저장 실패: '+x.message,false)}});
+$('#researchForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{const d=formObj(f,['year','title','meta','date','desc','imageUrl','link']);d.pinned=f.elements.pinned.checked;const id=f.elements.id.value||push(ref(db,'homepage/research')).key;d.image=(await uploadFromInput('researchImage','research'))||d.imageUrl||cache.research?.[id]?.image||'';await set(ref(db,`homepage/research/${id}`),d);f.elements.id.value=id;message($('#researchMsg'),'저장 완료')}catch(x){message($('#researchMsg'),'저장 실패: '+x.message,false)}});
+$('#areaForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{const d=formObj(f,['sortOrder','title','subtitle','body','imageUrl']);d.sortOrder=Number(d.sortOrder||99);const id=f.elements.id.value||push(ref(db,'homepage/areas')).key;d.image=(await uploadFromInput('areaImage','areas'))||d.imageUrl||cache.areas?.[id]?.image||'';await set(ref(db,`homepage/areas/${id}`),d);f.elements.id.value=id;message($('#areaMsg'),'저장 완료')}catch(x){message($('#areaMsg'),'저장 실패: '+x.message,false)}});
 async function del(type,form,msg){const id=form.elements.id.value;if(!id)return;if(!confirm('이 항목을 삭제할까요?'))return;try{await remove(ref(db,`homepage/${type}/${id}`));form.hidden=true;message(msg,'삭제 완료')}catch(x){message(msg,'삭제 실패: '+x.message,false)}}
 $('#deleteArticle').onclick=()=>del('articles',$('#articleForm'),$('#articleMsg'));$('#deleteActivity').onclick=()=>del('activities',$('#activityForm'),$('#activityMsg'));$('#deleteResearch').onclick=()=>del('research',$('#researchForm'),$('#researchMsg'));$('#deleteArea').onclick=()=>del('areas',$('#areaForm'),$('#areaMsg'));
 function fillProfile(){const p=cache.profile||DEFAULT_CONTENT.profile, ph=cache.philosophy||DEFAULT_CONTENT.philosophy, f=$('#profileForm'); for(const [n,v] of Object.entries({nameKo:p.nameKo,nameEn:p.nameEn,roles:p.roles,degree:p.degree,credentials:p.credentials,headline:p.headline,intro:p.intro,eyebrow:ph.eyebrow,philTitle:ph.title,philBody:ph.body})) if(f.elements[n]&&document.activeElement!==f.elements[n])f.elements[n].value=v||'';$('#profilePhotoCurrent').textContent=p.photo||''}
-$('#profileForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{const old=cache.profile?.photo||'assets/images/profile.jpg';const photo=await upload($('#profileImage').files[0],'profile');await update(ref(db,'homepage'),{profile:{nameKo:f.nameKo.value.trim(),nameEn:f.nameEn.value.trim(),roles:f.roles.value.trim(),degree:f.degree.value.trim(),credentials:f.credentials.value.trim(),headline:f.headline.value.trim(),intro:f.intro.value.trim(),photo:photo||old},philosophy:{eyebrow:f.eyebrow.value.trim(),title:f.philTitle.value.trim(),body:f.philBody.value.trim()}});message($('#profileMsg'),'프로필 저장 완료')}catch(x){message($('#profileMsg'),'저장 실패: '+x.message,false)}});
+$('#profileForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{const old=cache.profile?.photo||'assets/images/profile.jpg';const photo=await uploadFromInput('profileImage','profile');await update(ref(db,'homepage'),{profile:{nameKo:f.nameKo.value.trim(),nameEn:f.nameEn.value.trim(),roles:f.roles.value.trim(),degree:f.degree.value.trim(),credentials:f.credentials.value.trim(),headline:f.headline.value.trim(),intro:f.intro.value.trim(),photo:photo||old},philosophy:{eyebrow:f.eyebrow.value.trim(),title:f.philTitle.value.trim(),body:f.philBody.value.trim()}});message($('#profileMsg'),'프로필 저장 완료')}catch(x){message($('#profileMsg'),'저장 실패: '+x.message,false)}});
 function fillContact(){const c=cache.contact||DEFAULT_CONTENT.contact,f=$('#contactForm');for(const n of ['message','email','linkedin'])if(document.activeElement!==f.elements[n])f.elements[n].value=c[n]||''}
 $('#contactForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{await set(ref(db,'homepage/contact'),{message:f.message.value.trim(),email:f.email.value.trim(),linkedin:f.linkedin.value.trim()});message($('#contactMsg'),'연락처 저장 완료')}catch(x){message($('#contactMsg'),'저장 실패: '+x.message,false)}});
 
@@ -173,7 +232,7 @@ $('#columnForm').addEventListener('submit',async e=>{e.preventDefault();const f=
   const d=formObj(f,['url','title','publisher','date','category','summary','imageUrl']);
   const u=new URL(d.url);if(!['https:','http:'].includes(u.protocol))throw Error('http 또는 https 주소만 등록할 수 있습니다.');
   const id=f.elements.id.value||push(ref(db,'homepage/columns')).key;
-  d.image=(await upload($('#columnImage').files[0],'columns'))||d.imageUrl||cache.columns?.[id]?.image||'';
+  d.image=(await uploadFromInput('columnImage','columns'))||d.imageUrl||cache.columns?.[id]?.image||'';
   d.featured=f.elements.featured.checked;d.updatedAt=Date.now();
   await set(ref(db,`homepage/columns/${id}`),d);f.elements.id.value=id;$('#columnImageCurrent').textContent=d.image;
   message($('#columnMsg'),'칼럼이 저장되었습니다. 홈페이지에 반영됩니다.');
@@ -183,7 +242,7 @@ $('#columnAutofill').onclick=()=>{const f=$('#columnForm'),url=f.elements.url.va
 
 // 목록이 많아져도 선택 편집이 쉽도록 관리자를 경량 목록+상세 편집으로 구성합니다.
 $('#newNow').onclick=()=>{newForm($('#nowEntryForm'),['id']);$('#nowEntryForm').elements.pinned.checked=false;$('#nowEntryForm').elements.date.value=new Date().toLocaleDateString('en-CA');$('#nowEntryImageCurrent').textContent='';};
-$('#nowEntryForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{const d=formObj(f,['date','title','body','imageUrl']);const id=f.elements.id.value||push(ref(db,'homepage/nowEntries')).key;const legacy=id==='legacy-now';d.pinned=f.elements.pinned.checked;d.image=(await upload($('#nowEntryImage').files[0],'now'))||d.imageUrl||(legacy?cache.now?.image:cache.nowEntries?.[id]?.image)||'';d.updatedAt=Date.now();await set(ref(db,legacy?'homepage/now':`homepage/nowEntries/${id}`),d);f.elements.id.value=id;message($('#nowEntryMsg'),'기록 저장 완료');}catch(e){message($('#nowEntryMsg'),'저장 실패: '+e.message,false)}});
+$('#nowEntryForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{const d=formObj(f,['date','title','body','imageUrl']);const id=f.elements.id.value||push(ref(db,'homepage/nowEntries')).key;const legacy=id==='legacy-now';d.pinned=f.elements.pinned.checked;d.image=(await uploadFromInput('nowEntryImage','now'))||d.imageUrl||(legacy?cache.now?.image:cache.nowEntries?.[id]?.image)||'';d.updatedAt=Date.now();await set(ref(db,legacy?'homepage/now':`homepage/nowEntries/${id}`),d);f.elements.id.value=id;message($('#nowEntryMsg'),'기록 저장 완료');}catch(e){message($('#nowEntryMsg'),'저장 실패: '+e.message,false)}});
 $('#deleteNowEntry').onclick=async()=>{const f=$('#nowEntryForm'),id=f.elements.id.value;if(id==='legacy-now'){if(!confirm('기존 관심 글을 삭제할까요? 삭제 후 복구할 수 없습니다.'))return;try{await remove(ref(db,'homepage/now'));f.hidden=true;message($('#nowEntryMsg'),'기존 관심 글 삭제 완료')}catch(e){message($('#nowEntryMsg'),'삭제 실패: '+e.message,false)}return;}await del('nowEntries',f,$('#nowEntryMsg'));};
 function fillDisplayPrefs(){const v=cache.displaySettings||{};for(const type of ['research','now']){const mode=$(`#${type}Mode`),count=$(`#${type}Count`);if(document.activeElement!==mode)mode.value=v[type]?.mode||'latest';if(document.activeElement!==count)count.value=v[type]?.count??3;}}
 for(const type of ['research','now'])$(`#${type}PrefsSave`).onclick=async()=>{try{await set(ref(db,`homepage/displaySettings/${type}`),{mode:$(`#${type}Mode`).value,count:Math.max(0,Math.min(30,Number($(`#${type}Count`).value)||0))});message($(`#${type}PrefsMsg`),'첫 화면 설정 저장 완료')}catch(e){message($(`#${type}PrefsMsg`),'저장 실패: '+e.message,false)}};
