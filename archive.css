@@ -17,3 +17,5 @@
 @media(max-width:640px){.archiveIntro{padding-top:56px}.archiveHeroRule{margin-top:44px}.archiveHeroRule span:first-child{display:none}.archiveHomeLink{margin-bottom:36px}.archiveBody{padding-top:30px}.archiveToolbar{gap:22px}.archiveCard{min-height:220px}}
 
 .archiveCard img{height:auto;aspect-ratio:4/3;object-fit:cover;background:#f4f6fa}.archiveCard img[style*="contain"]{padding:12px;box-sizing:border-box}.archiveArticle .articleImage{height:auto;max-height:650px;object-fit:contain}
+
+.archiveCard strong,.archiveCard .summary,.articleSummary,.articleBody,#detail h2{white-space:pre-line}

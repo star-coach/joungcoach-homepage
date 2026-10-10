@@ -91,3 +91,8 @@ dialog{border:0;border-radius:22px;padding:50px;max-width:780px;width:calc(100% 
 .columnCard[data-column-id]:focus-visible{outline:3px solid #2457ff;outline-offset:3px}
 #columnDialog .modalImage{object-fit:contain;max-height:65vh;background:#f6f8fb}
 #columnDialog .modalRelated a{display:inline-block;margin-top:8px;padding:10px 14px;border:1px solid #bfcae0;border-radius:9px;color:#2457bf;font-weight:700}
+
+/* 2026-10-10 제목과 요약의 수동 줄바꿈 보존 */
+.article h3,.article p,.articleSummary,.archiveCard strong,.archiveCard .summary{white-space:pre-line;overflow-wrap:anywhere}
+.articleGrid .article h3{display:block;-webkit-line-clamp:unset;overflow:visible}
+#modalTitle,#columnModalTitle{white-space:pre-line}
