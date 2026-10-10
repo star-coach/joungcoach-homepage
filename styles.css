@@ -96,3 +96,20 @@ dialog{border:0;border-radius:22px;padding:50px;max-width:780px;width:calc(100% 
 .article h3,.article p,.articleSummary,.archiveCard strong,.archiveCard .summary{white-space:pre-line;overflow-wrap:anywhere}
 .articleGrid .article h3{display:block;-webkit-line-clamp:unset;overflow:visible}
 #modalTitle,#columnModalTitle{white-space:pre-line}
+
+/* 2026-10-10 AX 카드: 어두운 섹션의 흰색 글자색이 흰 카드로 상속되는 문제 해결 */
+#axGrid .article h3 { color:#172033; }
+#axGrid .article:hover h3, #axGrid .article:focus-visible h3 { color:var(--blue); }
+#axGrid .article p, #axGrid .article .articleSummary { color:#64748b; }
+#axGrid .article .meta { color:#71829e; }
+
+/* 선택 영역에만 적용하는 제목/요약/본문 부분 서식 */
+.inlineSmall{font-size:.73em!important;line-height:1.55;letter-spacing:normal;font-weight:500}
+.inlineMuted{color:#8794aa!important;font-weight:500}
+#axGrid .article h3 .inlineMuted,#axGrid .article:hover h3 .inlineMuted{color:#8794aa!important}
+
+/* AX 제목 보임: 기본 명암을 항상 명시하고 hover에서만 강조 */
+#axGrid .article h3.articleCardTitle { color:#172033 !important; opacity:1 !important; visibility:visible !important; -webkit-text-fill-color:currentColor !important; }
+#axGrid .article:hover h3.articleCardTitle, #axGrid .article:focus-visible h3.articleCardTitle { color:#2457ff !important; }
+#axGrid .article h3.articleCardTitle .inlineMuted { color:#8794aa !important; }
+#axGrid .article h3.articleCardTitle .inlineSmall { font-size:.73em !important; }

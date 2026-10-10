@@ -21,7 +21,7 @@ const ext = (url,label) => httpUrl(url)?`<a href="${esc(httpUrl(url))}" target="
 const visibleItems=(items,setting)=>{const mode=setting?.mode||'latest', count=Math.max(0,Math.min(30,Number(setting?.count??3)));return [...items].sort((a,b)=>(mode==='pinned'?Number(!!b.pinned)-Number(!!a.pinned):0)||String(b.date||b.year||'').localeCompare(String(a.date||a.year||''))).slice(0,count)};
 const plainBreak=s=>esc(s).replace(/\r?\n/g,'<br>');
 // 사용자 본문은 먼저 HTML 이스케이프 처리하고 허용된 굵게/색상 태그만 표현합니다.
-const richBody=s=>plainBreak(s).replace(/\[b\]([\s\S]*?)\[\/b\]/gi,'<strong>$1</strong>').replace(/\[color=(#[0-9a-fA-F]{6})\]([\s\S]*?)\[\/color\]/gi,(_,color,value)=>`<span style="color:${color}">${value}</span>`);
+const richBody=s=>plainBreak(s).replace(/\[b\]([\s\S]*?)\[\/b\]/gi,'<strong>$1</strong>').replace(/\[color=(#[0-9a-fA-F]{6})\]([\s\S]*?)\[\/color\]/gi,(_,color,value)=>`<span style="color:${color}">${value}</span>`).replace(/\[small\]([\s\S]*?)\[\/small\]/gi,'<span class="inlineSmall">$1</span>').replace(/\[muted\]([\s\S]*?)\[\/muted\]/gi,'<span class="inlineMuted">$1</span>');
 let archivedResearch=[],archivedNow=[],archivedContent={education:[],cases:[],notes:[]},archiveType='research';
 const fontStacks = {
   sans: 'Inter,"Noto Sans KR",sans-serif',
@@ -96,7 +96,7 @@ function render(C){
   renderColumns(C.columns||[]);
   currentArticles=C.articles;
   const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';if(['AX·공공혁신','AX혁신','공공혁신','AX·공공혁신 사례'].includes(c))return 'ax';return 'notes';};
-  const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${imageWithSettings(x,'articleThumb',kind(x)==='education'?'education':'')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${plainBreak(x.title)}</h3><p>${plainBreak(x.summary)}</p></article>`;
+  const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${imageWithSettings(x,'articleThumb',kind(x)==='education'?'education':'')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3 class="articleCardTitle" style="color:#172033">${richBody(x.title)}</h3><p>${richBody(x.summary)}</p></article>`;
   const mapped=C.articles.map((x,i)=>({...x,originalIndex:i}));
   const notes=mapped.filter(x=>kind(x)==='notes'&&[x.title,x.summary,x.body,x.category].join(' ').toLowerCase().includes(articleQuery));
   $('#articleGrid').innerHTML=notes.length?visibleItems(notes,C.displaySettings?.notes).map(articleCard).join(''):'<p class="emptyPortfolio">등록된 연구노트가 없습니다.</p>';
@@ -155,7 +155,7 @@ $('#columnSearch').addEventListener('input',e=>{columnQuery=e.target.value.trim(
 $('#columnCategory').addEventListener('change',e=>{columnCategory=e.target.value;renderColumns(activeData.columns||[])});
 $("#articleSearch").addEventListener("input",e=>{articleQuery=e.target.value.trim().toLowerCase();render(activeData)});
 $('#year').textContent=new Date().getFullYear();
-function showArticle(el){if(!el)return;const a=currentArticles[Number(el.dataset.index)];if(!a)return;$('#modalMeta').textContent=`${a.date||''} · ${a.category||''}`;$('#modalTitle').textContent=a.title||'';$('#modalBody').innerHTML=richBody(a.body||a.summary||'');$('#modalLink').innerHTML=ext(a.link,'관련 자료 보기');const im=$('#modalImage');if(httpUrl(a.image)){im.src=httpUrl(a.image);im.style.display='block'}else{im.removeAttribute('src');im.style.display='none'}$('#articleDialog').showModal();}
+function showArticle(el){if(!el)return;const a=currentArticles[Number(el.dataset.index)];if(!a)return;$('#modalMeta').textContent=`${a.date||''} · ${a.category||''}`;$('#modalTitle').innerHTML=richBody(a.title||'');$('#modalBody').innerHTML=richBody(a.body||a.summary||'');$('#modalLink').innerHTML=ext(a.link,'관련 자료 보기');const im=$('#modalImage');if(httpUrl(a.image)){im.src=httpUrl(a.image);im.style.display='block'}else{im.removeAttribute('src');im.style.display='none'}$('#articleDialog').showModal();}
 ['#articleGrid','#educationGrid','#caseGrid','#axGrid'].forEach(sel=>{$(sel).addEventListener('click',e=>showArticle(e.target.closest('.article')));$(sel).addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const el=e.target.closest('.article');if(el){e.preventDefault();showArticle(el)}}});});
 $('#closeDialog').onclick=()=>$('#articleDialog').close();
 $('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');

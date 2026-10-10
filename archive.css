@@ -19,3 +19,5 @@
 .archiveCard img{height:auto;aspect-ratio:4/3;object-fit:cover;background:#f4f6fa}.archiveCard img[style*="contain"]{padding:12px;box-sizing:border-box}.archiveArticle .articleImage{height:auto;max-height:650px;object-fit:contain}
 
 .archiveCard strong,.archiveCard .summary,.articleSummary,.articleBody,#detail h2{white-space:pre-line}
+
+.inlineSmall{font-size:.73em!important;line-height:1.55;letter-spacing:normal;font-weight:500}.inlineMuted{color:#8794aa!important;font-weight:500}
