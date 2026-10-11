@@ -323,13 +323,15 @@ function applyInlineFormat(area,format,color,msg,size){
  }
  area.setRangeText(replacement,a,b,'select');formatSelections.set(area,{start:a,end:a+replacement.length});area.focus();
 }
-articleForm.querySelectorAll('.titleFormatToolbar,.richToolbar').forEach(toolbar=>{
- // 버튼 포커스로 textarea 선택이 사라지지 않도록 보호
+// 모든 콘텐츠 편집기에서 선택 영역을 유지한 채 동일한 서식을 적용합니다.
+document.querySelectorAll('.titleFormatToolbar,.richToolbar').forEach(toolbar=>{
+ const form=toolbar.closest('form');if(!form)return;
  toolbar.addEventListener('mousedown',e=>{if(e.target.closest('button[data-format]'))e.preventDefault()});
  toolbar.addEventListener('click',e=>{
- const button=e.target.closest('button[data-format]');if(!button)return;
- const field=toolbar.dataset.field||'body';const area=articleForm.elements[field];
- applyInlineFormat(area,button.dataset.format,toolbar.querySelector('.formatColor')?.value||$('#bodyTextColor').value,$('#articleMsg'),toolbar.querySelector('.formatSize')?.value);
+  const button=e.target.closest('button[data-format]');if(!button)return;
+  const field=toolbar.dataset.field||'body',area=form.elements[field];if(!area)return;
+  const msg=form.querySelector('.msg');
+  applyInlineFormat(area,button.dataset.format,toolbar.querySelector('.formatColor')?.value||toolbar.querySelector('input[type="color"]')?.value||'#174ea6',msg,toolbar.querySelector('.formatSize')?.value);
  });
 });
 
