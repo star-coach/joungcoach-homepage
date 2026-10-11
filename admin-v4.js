@@ -346,3 +346,70 @@ function renderVisitorStats(v){
  for(const [date,n] of ordered){const bar=document.createElement('div');bar.className='visitorBar'+(date===today?' today':'');bar.style.height=Math.max(2,Math.round(n/max*110))+'px';bar.title=date.slice(0,4)+'-'+date.slice(4,6)+'-'+date.slice(6)+' · '+n+'명';bar.setAttribute('aria-label',bar.title);chart.append(bar)}
 }
 onValue(ref(db,'visitorStats'),s=>renderVisitorStats(s.val()),err=>{console.warn('방문자 통계 조회 실패:',err.message);document.querySelector('.visitorDashboard .msg').textContent='Firebase 방문자 통계 읽기 권한을 확인해주세요.'});
+
+
+// 저장된 글의 탭 이동: 서로 다른 Firebase 컬렉션 사이에서도 원본 메타데이터와 사진 URL 보존
+const MOVE_DESTINATIONS=[
+ ['research','','학술연구'],['columns','','칼럼·기고·인터뷰'],
+ ['articles','교육·교재','교육·교재'],['articles','코칭사례','코칭 현장사례'],
+ ['articles','AX·공공혁신','AX·공공혁신'],['articles','연구노트','생각·성찰'],
+ ['activities','','활동'],['areas','','핵심 영역'],['nowEntries','','요즘의 관심']
+];
+const MOVE_FORMS={research:'researchForm',columns:'columnForm',articles:'articleForm',activities:'activityForm',areas:'areaForm',nowEntries:'nowEntryForm'};
+function moveLocation(type,item){return type==='articles'?`${type}|${normalizedArticleCategory(item.category)}`:`${type}|`;}
+function setupEntryMoveControls(){
+ for(const [type,formId] of Object.entries(MOVE_FORMS)){
+  const form=document.getElementById(formId);if(!form)continue;
+  const box=document.createElement('div');box.className='entryMoveControl';
+  const title=document.createElement('strong');title.textContent='저장된 글을 다른 탭으로 이동';
+  const hint=document.createElement('small');hint.textContent='현재 글을 먼저 저장한 뒤 이동하세요. 사진·서식·공개 여부를 유지합니다.';
+  const line=document.createElement('div');line.className='entryMoveRow';
+  const select=document.createElement('select');select.setAttribute('aria-label','이동할 탭 선택');
+  const initial=document.createElement('option');initial.value='';initial.textContent='이동할 탭 선택';select.append(initial);
+  for(const [dest,cat,label] of MOVE_DESTINATIONS){const o=document.createElement('option');o.value=dest+'|'+cat;o.textContent=label;select.append(o)}
+  const btn=document.createElement('button');btn.type='button';btn.className='ghost';btn.textContent='이동';
+  const status=document.createElement('small');status.className='entryMoveStatus';
+  line.append(select,btn);box.append(title,hint,line,status);
+  const actions=form.querySelector('.row');if(actions)actions.before(box);else form.append(box);
+  btn.addEventListener('click',async()=>{
+   const id=form.elements.id?.value;if(!id){status.textContent='먼저 저장된 글을 선택해 주세요.';return}
+   const source=type==='nowEntries'&&id==='legacy-now'?'now':type;
+   const item=source==='now'?cache.now:cache[source]?.[id];
+   if(!item){status.textContent='원본 자료를 찾을 수 없습니다. 목록을 다시 선택해 주세요.';return}
+   if(!select.value){status.textContent='이동할 탭을 먼저 선택해 주세요.';return}
+   const [dest,category]=select.value.split('|');
+   if(moveLocation(source,item)===select.value){status.textContent='이미 이 탭에 있는 글입니다.';return}
+   if(!confirm(`「${String(item.title||'제목 없음').replace(/\[[^\]]+\]/g,'').slice(0,60)}」 글을 ${MOVE_DESTINATIONS.find(x=>x[0]===dest&&x[1]===category)?.[2]} 탭으로 이동할까요?\n\n현재 입력 중인 미저장 수정은 반영되지 않습니다. 먼저 저장해 주세요.`))return;
+   btn.disabled=true;status.textContent='이동 중…';
+   try{
+    const newId=push(ref(db,`homepage/${dest}`)).key;
+    const {id:ignored,...original}=item;
+    const next={...original,updatedAt:Date.now()};
+    // 목적지에서 사용하는 필드를 보충하되 기존 본문·이미지·메타정보를 보존합니다.
+    next.summary=next.summary??next.meta??next.subtitle??'';
+    next.body=next.body??next.desc??'';
+    if(dest==='articles')next.category=category;
+    else if(source==='articles')next.category=(next.category===category?'':next.category)||category||'';
+    if(dest==='research'){next.meta=next.summary;next.desc=next.body;next.year=next.year||String(next.date||'').slice(0,4)}
+    if(dest==='activities')next.desc=next.body;
+    if(dest==='areas'){next.subtitle=next.summary;next.sortOrder=next.sortOrder||99}
+    if(dest==='columns'){next.publisher=next.publisher||'';next.url=next.url||next.link||''}
+    // Firebase multi-location update는 한 번에 반영되어 중복/유실을 피합니다.
+    const oldPath=source==='now'?'now':`${source}/${id}`;
+    await update(ref(db,'homepage'),{[`${dest}/${newId}`]:next,[oldPath]:null});
+    if(source==='now')delete cache.now;else if(cache[source])delete cache[source][id];
+    if(!cache[dest])cache[dest]={};cache[dest][newId]=next;
+    renderAll();
+    form.hidden=true;form.elements.id.value='';select.value='';
+    const nav=[...document.querySelectorAll('.side .nav')].find(n=>dest==='articles'?(n.dataset.tab==='articles'&&n.dataset.category===category):(n.dataset.tab===dest || (dest==='nowEntries'&&n.dataset.tab==='now')));
+    if(nav)selectAdminNav(nav);
+    // 이동된 글을 즉시 열어 후속 수정 가능하도록 합니다.
+    if(dest==='articles')currentArticleCategory=category;
+    openItem(dest,newId);
+    status.textContent='이동 완료';
+   }catch(err){status.textContent='이동 실패: '+err.message;alert('이동에 실패했습니다. 기존 글은 그대로 유지됩니다. '+err.message)}
+   finally{btn.disabled=false}
+  });
+ }
+}
+setupEntryMoveControls();
