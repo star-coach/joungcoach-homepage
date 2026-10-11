@@ -91,9 +91,9 @@ function render(C){
   $('#publicAiTitle').textContent=C.sectionCopy.publicAiTitle||'';
   $('#insightsTitle').textContent=C.sectionCopy.insightsTitle||'';
   $('#contactTitle').textContent=C.sectionCopy.contactTitle||'';
-  $('#areaCards').innerHTML=visibleItems(C.areas,{count:C.displaySettings?.areas?.count??3,mode:C.displaySettings?.areas?.mode}).map((x,i)=>`<article class="card">${imageWithSettings(x,"areaThumb")}<div class="cardNo">0${i+1}</div><h3>${richBody(x.title)}</h3><strong>${richBody(x.subtitle)}</strong><p>${richBody(x.body)}</p></article>`).join('');
-  archivedResearch=publicItems(C.research); archivedNow=publicItems(C.nowEntries||[]); if(C.now?.published!==false&&(C.now?.title||C.now?.body)) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'}); $('#researchList').innerHTML=visibleItems(archivedResearch,C.displaySettings?.research).map(x=>`<article class="timelineItem"><div class="year">${esc(x.year)}</div><div>${imageWithSettings(x,"researchThumb")}<h3>${richBody(x.title)}</h3><div class="meta">${richBody(x.meta)}</div>${x.date?`<div class="recordDate">${esc(x.date)}</div>`:""}<p>${richBody(x.desc)}</p>${ext(x.link,"자료 보기")}</div></article>`).join('');
-  $('#activityGrid').innerHTML=visibleItems(C.activities,{count:C.displaySettings?.activities?.count??6,mode:C.displaySettings?.activities?.mode}).map(x=>`<article class="activity">${x.image?`<img src="${esc(x.image)}" ${imageStyle(x)} alt="">`:''}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${richBody(x.title)}</h3><p>${richBody(x.desc)}</p>${ext(x.link,"관련 기록")}</div></article>`).join('');
+  $('#areaCards').innerHTML=visibleItems(C.areas,{count:C.displaySettings?.areas?.count??3,mode:C.displaySettings?.areas?.mode}).map((x,i)=>`<article class="card">${imageWithSettings(x,"areaThumb")}<div class="cardNo">0${i+1}</div><h3>${richBody(x.title)}</h3><strong>${richBody(x.summary??x.subtitle)}</strong><p>${richBody(x.body)}</p></article>`).join('');
+  archivedResearch=publicItems(C.research); archivedNow=publicItems(C.nowEntries||[]); if(C.now?.published!==false&&(C.now?.title||C.now?.body)) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'}); $('#researchList').innerHTML=visibleItems(archivedResearch,C.displaySettings?.research).map(x=>`<article class="timelineItem"><div class="year">${esc(x.year)}</div><div>${imageWithSettings(x,"researchThumb")}<h3>${richBody(x.title)}</h3><div class="meta">${richBody(x.summary??x.meta)}</div>${x.date?`<div class="recordDate">${esc(x.date)}</div>`:""}<p>${richBody(x.body??x.desc)}</p>${ext(x.link,"자료 보기")}</div></article>`).join('');
+  $('#activityGrid').innerHTML=visibleItems(C.activities,{count:C.displaySettings?.activities?.count??6,mode:C.displaySettings?.activities?.mode}).map(x=>`<article class="activity">${x.image?`<img src="${esc(x.image)}" ${imageStyle(x)} alt="">`:''}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${richBody(x.title)}</h3><p>${richBody(x.summary||x.desc)}</p>${x.body&&x.body!==x.summary?`<p class="activityDetail">${richBody(x.body)}</p>`:""}${ext(x.link,"관련 기록")}</div></article>`).join('');
   renderColumns(visibleItems(C.columns,{count:C.displaySettings?.columns?.count??6,mode:C.displaySettings?.columns?.mode}));
   currentArticles=publicItems(C.articles);
   const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';if(['AX·공공혁신','AX혁신','공공혁신','AX·공공혁신 사례'].includes(c))return 'ax';return 'notes';};
@@ -128,7 +128,7 @@ function openColumnCard(card){
   const d=document.querySelector('#columnDialog');
   document.querySelector('#columnModalMeta').textContent=[item.publisher,item.date,item.category].filter(Boolean).join(' · ');
   document.querySelector('#columnModalTitle').textContent=item.title||'';
-  document.querySelector('#columnModalBody').textContent=item.summary||'';
+  document.querySelector('#columnModalBody').textContent=item.body||item.summary||'';
   const picture=document.querySelector('#columnModalImage');
   const src=httpUrl(item.image);
   if(src){picture.src=src;picture.style.display='block';picture.alt=(item.title||'칼럼')+' 이미지';}
