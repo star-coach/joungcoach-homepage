@@ -113,3 +113,6 @@ dialog{border:0;border-radius:22px;padding:50px;max-width:780px;width:calc(100% 
 #axGrid .article:hover h3.articleCardTitle, #axGrid .article:focus-visible h3.articleCardTitle { color:#2457ff !important; }
 #axGrid .article h3.articleCardTitle .inlineMuted { color:#8794aa !important; }
 #axGrid .article h3.articleCardTitle .inlineSmall { font-size:.73em !important; }
+
+/* Quiet, compact footer counter */
+footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self:end;padding:7px 11px;border:1px solid #e6eaf1;border-radius:999px;background:#fafbfe;color:#8993a4;font-size:10px;letter-spacing:.025em;white-space:nowrap}footer .visitorMini span{display:inline-flex;gap:5px;align-items:center}footer .visitorMini b{display:inline;color:#525f75;font-size:11px;font-weight:650;background:none;width:auto;height:auto;border-radius:0}footer .visitorMini i{height:11px;width:1px;background:#d9dfe9}@media(max-width:760px){footer .visitorMini{justify-self:start}footer{grid-template-columns:1fr auto}}

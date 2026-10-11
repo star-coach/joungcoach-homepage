@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 import { firebaseConfig } from "./firebase-config.js";
 import { DEFAULT_CONTENT } from "./default-content.js";
 
@@ -18,7 +18,8 @@ const imageWithSettings=(x,cls,kind='')=>httpUrl(x.image)?`<img loading="lazy" c
 const img = (url,cls="") => httpUrl(url)?`<img loading="lazy" class="${cls}" src="${esc(httpUrl(url))}" alt="">`:"";
 const ext = (url,label) => httpUrl(url)?`<a href="${esc(httpUrl(url))}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`:"";
 
-const visibleItems=(items,setting)=>{const mode=setting?.mode||'latest', count=Math.max(0,Math.min(30,Number(setting?.count??3)));return [...items].sort((a,b)=>(mode==='pinned'?Number(!!b.pinned)-Number(!!a.pinned):0)||String(b.date||b.year||'').localeCompare(String(a.date||a.year||''))).slice(0,count)};
+const publicItems=items=>(items||[]).filter(x=>x.published!==false);
+const visibleItems=(items,setting)=>{const mode=setting?.mode||'latest', count=Math.max(0,Math.min(100,Number(setting?.count??3)));return publicItems(items).sort((a,b)=>(mode==='pinned'?Number(!!b.pinned)-Number(!!a.pinned):0)||String(b.date||b.year||'').localeCompare(String(a.date||a.year||''))).slice(0,count)};
 const plainBreak=s=>esc(s).replace(/\r?\n/g,'<br>');
 // 사용자 본문은 먼저 HTML 이스케이프 처리하고 허용된 굵게/색상 태그만 표현합니다.
 const richBody=s=>plainBreak(s).replace(/\[b\]([\s\S]*?)\[\/b\]/gi,'<strong>$1</strong>').replace(/\[color=(#[0-9a-fA-F]{6})\]([\s\S]*?)\[\/color\]/gi,(_,color,value)=>`<span style="color:${color}">${value}</span>`).replace(/\[small\]([\s\S]*?)\[\/small\]/gi,'<span class="inlineSmall">$1</span>').replace(/\[muted\]([\s\S]*?)\[\/muted\]/gi,'<span class="inlineMuted">$1</span>');
@@ -90,14 +91,14 @@ function render(C){
   $('#publicAiTitle').textContent=C.sectionCopy.publicAiTitle||'';
   $('#insightsTitle').textContent=C.sectionCopy.insightsTitle||'';
   $('#contactTitle').textContent=C.sectionCopy.contactTitle||'';
-  $('#areaCards').innerHTML=C.areas.map((x,i)=>`<article class="card">${imageWithSettings(x,"areaThumb")}<div class="cardNo">0${i+1}</div><h3>${esc(x.title)}</h3><strong>${esc(x.subtitle)}</strong><p>${esc(x.body)}</p></article>`).join('');
-  archivedResearch=C.research; archivedNow=[...(C.nowEntries||[])]; if(C.now?.title||C.now?.body) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'}); $('#researchList').innerHTML=visibleItems(C.research,C.displaySettings?.research).map(x=>`<article class="timelineItem"><div class="year">${esc(x.year)}</div><div>${imageWithSettings(x,"researchThumb")}<h3>${plainBreak(x.title)}</h3><div class="meta">${plainBreak(x.meta)}</div>${x.date?`<div class="recordDate">${esc(x.date)}</div>`:""}<p>${plainBreak(x.desc)}</p>${ext(x.link,"자료 보기")}</div></article>`).join('');
-  $('#activityGrid').innerHTML=C.activities.map(x=>`<article class="activity">${x.image?`<img src="${esc(x.image)}" ${imageStyle(x)} alt="">`:''}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${esc(x.title)}</h3><p>${esc(x.desc)}</p>${ext(x.link,"관련 기록")}</div></article>`).join('');
-  renderColumns(C.columns||[]);
-  currentArticles=C.articles;
+  $('#areaCards').innerHTML=visibleItems(C.areas,{count:C.displaySettings?.areas?.count??3,mode:C.displaySettings?.areas?.mode}).map((x,i)=>`<article class="card">${imageWithSettings(x,"areaThumb")}<div class="cardNo">0${i+1}</div><h3>${esc(x.title)}</h3><strong>${esc(x.subtitle)}</strong><p>${esc(x.body)}</p></article>`).join('');
+  archivedResearch=publicItems(C.research); archivedNow=publicItems(C.nowEntries||[]); if(C.now?.published!==false&&(C.now?.title||C.now?.body)) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'}); $('#researchList').innerHTML=visibleItems(archivedResearch,C.displaySettings?.research).map(x=>`<article class="timelineItem"><div class="year">${esc(x.year)}</div><div>${imageWithSettings(x,"researchThumb")}<h3>${plainBreak(x.title)}</h3><div class="meta">${plainBreak(x.meta)}</div>${x.date?`<div class="recordDate">${esc(x.date)}</div>`:""}<p>${plainBreak(x.desc)}</p>${ext(x.link,"자료 보기")}</div></article>`).join('');
+  $('#activityGrid').innerHTML=visibleItems(C.activities,{count:C.displaySettings?.activities?.count??6,mode:C.displaySettings?.activities?.mode}).map(x=>`<article class="activity">${x.image?`<img src="${esc(x.image)}" ${imageStyle(x)} alt="">`:''}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${esc(x.title)}</h3><p>${esc(x.desc)}</p>${ext(x.link,"관련 기록")}</div></article>`).join('');
+  renderColumns(visibleItems(C.columns,{count:C.displaySettings?.columns?.count??6,mode:C.displaySettings?.columns?.mode}));
+  currentArticles=publicItems(C.articles);
   const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';if(['AX·공공혁신','AX혁신','공공혁신','AX·공공혁신 사례'].includes(c))return 'ax';return 'notes';};
   const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${imageWithSettings(x,'articleThumb',kind(x)==='education'?'education':'')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3 class="articleCardTitle" style="color:#172033">${richBody(x.title)}</h3><p>${richBody(x.summary)}</p></article>`;
-  const mapped=C.articles.map((x,i)=>({...x,originalIndex:i}));
+  const mapped=publicItems(C.articles).map((x,i)=>({...x,originalIndex:i}));
   const notes=mapped.filter(x=>kind(x)==='notes'&&[x.title,x.summary,x.body,x.category].join(' ').toLowerCase().includes(articleQuery));
   $('#articleGrid').innerHTML=notes.length?visibleItems(notes,C.displaySettings?.notes).map(articleCard).join(''):'<p class="emptyPortfolio">등록된 연구노트가 없습니다.</p>';
   const education=mapped.filter(x=>kind(x)==='education'),cases=mapped.filter(x=>kind(x)==='cases'),ax=mapped.filter(x=>kind(x)==='ax');
@@ -105,7 +106,7 @@ function render(C){
   archivedContent={education,cases,ax,notes:mapped.filter(x=>kind(x)==='notes')};$('#axGrid').innerHTML=ax.length?visibleItems(ax,C.displaySettings?.ax).map(articleCard).join(''):'<p style="color:#d6dfed">등록된 AX·공공혁신 사례가 없습니다. 관리자에서 사례를 등록해 주세요.</p>';
   $('#caseGrid').innerHTML=cases.length?visibleItems(cases,C.displaySettings?.cases).map(articleCard).join(''):'<p class="emptyPortfolio">공개 가능한 코칭사례를 정리 중입니다.</p>';
   const now=C.now||{};
-  const featuredNow=visibleItems(archivedNow,C.displaySettings?.now); $('#nowContent').innerHTML=featuredNow.length?featuredNow.map(x=>`<article class="nowRecord">${img(x.image,'nowPhoto')}<div><small>${esc(x.date||'')}</small><h3>${plainBreak(x.title)}</h3><p>${plainBreak(x.body)}</p></div></article>`).join(''):`${img(now.image,'nowPhoto')}<div><h3>${plainBreak(now.title||'현재의 관심을 기록하는 공간')}</h3><p>${plainBreak(now.body||'코칭과 연구, 현장에서 발견한 질문을 기록합니다.')}</p></div>`;
+  const featuredNow=visibleItems(archivedNow,C.displaySettings?.now); $('#nowContent').innerHTML=featuredNow.length?featuredNow.map(x=>`<article class="nowRecord">${img(x.image,'nowPhoto')}<div><small>${esc(x.date||'')}</small><h3>${plainBreak(x.title)}</h3><p>${plainBreak(x.body)}</p></div></article>`).join(''):`${now.published===false?"":img(now.image,'nowPhoto')}<div><h3>${plainBreak(now.title||'현재의 관심을 기록하는 공간')}</h3><p>${plainBreak(now.body||'코칭과 연구, 현장에서 발견한 질문을 기록합니다.')}</p></div>`;
   const sns=C.social||{};const channelNames={blog:'블로그',youtube:'YouTube',instagram:'Instagram',facebook:'Facebook',linkedin:'LinkedIn',threads:'Threads'};
   $('#socialLinks').innerHTML=Object.entries(channelNames).map(([key,name])=>ext(sns[key],name)).join('')+ext(sns.otherUrl,sns.otherName||'다른 채널');
   $('#contactMessage').textContent=C.contact.message||'';
@@ -117,7 +118,7 @@ function render(C){
 function renderColumns(items){
   const categories=[...new Set(items.map(x=>x.category).filter(Boolean))];const categorySelect=$('#columnCategory');
   categorySelect.innerHTML='<option value="">전체 주제</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');categorySelect.value=categories.includes(columnCategory)?columnCategory:'';
-  const matching=items.filter(x=>[x.title,x.publisher,x.category,x.summary].join(' ').toLowerCase().includes(columnQuery)&&(!columnCategory||x.category===columnCategory));
+  const matching=publicItems(items).filter(x=>[x.title,x.publisher,x.category,x.summary].join(' ').toLowerCase().includes(columnQuery)&&(!columnCategory||x.category===columnCategory));
   $('#columnGrid').innerHTML=matching.length?matching.map(x=>`<article class="columnCard" role="button" tabindex="0" data-column-id="${esc(x.id||'')}" aria-label="${esc(x.title||'칼럼')} 상세보기">${imageWithSettings(x,'columnThumb')}<div class="columnContent"><div class="meta">${esc(x.publisher||'외부 기고')} ${x.date?' · '+esc(x.date):''} · ${esc(x.category||'칼럼')}</div><h3>${esc(x.title||'제목 미등록')}</h3><p>${esc(x.summary||'')}</p><div class="columnBottom">${x.featured?'<span class="featuredTag">대표 글</span>':''}${ext(x.url,'원문 읽기')}</div></div></article>`).join(''):'<p class="columnsEmpty">등록된 칼럼이 없거나 검색 결과가 없습니다.</p>';
 }
 // 칼럼 카드도 교육 카드와 동일하게 내용 전체를 보여주는 상세 창을 엽니다.
@@ -163,3 +164,25 @@ $('#nav').addEventListener('click',()=>$('#nav').classList.remove('open'));
 const badge=$('#loadBadge');
 onValue(ref(db,'homepage'), snap=>{ if(snap.exists()){render(normalized(snap.val())); badge.textContent='Firebase 실시간 연결'; badge.className='loadBadge ok'; setTimeout(()=>badge.classList.add('hide'),1800);} else {badge.textContent='초기 데이터가 없어 기본 내용을 표시 중'; badge.className='loadBadge warn';} }, err=>{console.error(err); badge.textContent='Firebase 읽기 실패 · 기본 내용을 표시 중'; badge.className='loadBadge warn';});
 
+
+// Browser-based approximate unique visitor counts, starting at deployment.
+// No IP, fingerprint, name or email is stored. Uses Korea-local calendar dates.
+const visitorDay=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replaceAll('-','');
+const counterFmt=n=>Number(n||0).toLocaleString('ko-KR');
+const dateKey=visitorDay();
+onValue(ref(db,'visitorStats/total'),s=>{document.querySelector('#visitorTotal').textContent=counterFmt(s.val())},()=>{document.querySelector('#visitorTotal').textContent='—'});
+onValue(ref(db,'visitorStats/days/'+dateKey),s=>{document.querySelector('#visitorToday').textContent=counterFmt(s.val())},()=>{document.querySelector('#visitorToday').textContent='—'});
+(async()=>{
+ try {
+  const key='joungcoach_visitor_2026';
+  const dayKey=key+'_day';
+  if(localStorage.getItem(key)!=='1'){
+   const r=await runTransaction(ref(db,'visitorStats/total'),v=>(Number(v)||0)+1,{applyLocally:false});
+   if(r.committed)localStorage.setItem(key,'1');
+  }
+  if(localStorage.getItem(dayKey)!==dateKey){
+   const r=await runTransaction(ref(db,'visitorStats/days/'+dateKey),v=>(Number(v)||0)+1,{applyLocally:false});
+   if(r.committed)localStorage.setItem(dayKey,dateKey);
+  }
+ }catch(e){console.warn('방문 통계 집계 불가:',e.message)}
+})();

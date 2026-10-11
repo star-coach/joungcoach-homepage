@@ -3,6 +3,17 @@
     "homepage": {
       ".read": true,
       ".write": "auth != null"
+    },
+    "visitorStats": {
+      ".read": true,
+      "total": {
+        ".write": "auth == null && newData.isNumber() && newData.val() == (data.exists() ? data.val() + 1 : 1)"
+      },
+      "days": {
+        "$date": {
+          ".write": "auth == null && $date.matches(/^[0-9]{8}$/) && newData.isNumber() && newData.val() == (data.exists() ? data.val() + 1 : 1)"
+        }
+      }
     }
   }
 }

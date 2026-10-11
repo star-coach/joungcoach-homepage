@@ -7,7 +7,7 @@ export const SITE_TEXT_FIELDS = [
   {
     "key": "navResearch",
     "label": "메뉴 · 연구",
-    "default": "연구"
+    "default": "학술연구"
   },
   {
     "key": "navEducation",
@@ -17,7 +17,7 @@ export const SITE_TEXT_FIELDS = [
   {
     "key": "navCases",
     "label": "메뉴 · 코칭사례",
-    "default": "코칭사례"
+    "default": "코칭 현장사례"
   },
   {
     "key": "navColumns",
@@ -27,12 +27,12 @@ export const SITE_TEXT_FIELDS = [
   {
     "key": "navNotes",
     "label": "메뉴 · 연구노트",
-    "default": "연구노트"
+    "default": "생각·성찰"
   },
   {
     "key": "navAx",
     "label": "메뉴 · 공공혁신",
-    "default": "공공혁신"
+    "default": "AX·공공혁신"
   },
   {
     "key": "navContact",
