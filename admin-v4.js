@@ -300,19 +300,39 @@ const articlePrefKey=()=>({'교육·교재':'education','코칭사례':'cases','
 function fillArticlePrefs(){const v=cache.displaySettings?.[articlePrefKey()]||{};const h=$('#articlePrefsHeading');if(h)h.textContent=`${({"연구노트":"생각·성찰","코칭사례":"코칭 현장사례"}[currentArticleCategory]||currentArticleCategory)} · 홈페이지 첫 화면 표시 설정`;const m=$('#articleMode'),c=$('#articleCount');if(m&&document.activeElement!==m)m.value=v.mode||'latest';if(c&&document.activeElement!==c)c.value=v.count??3;}
 $('#articlePrefsSave').addEventListener('click',async()=>{try{await set(ref(db,`homepage/displaySettings/${articlePrefKey()}`),{mode:$('#articleMode').value,count:Math.max(0,Math.min(30,Number($('#articleCount').value)||0))});message($('#articlePrefsMsg'),`${currentArticleCategory} 첫 화면 표시 설정이 저장되었습니다.`)}catch(e){message($('#articlePrefsMsg'),'저장 실패: '+e.message,false)}});
 // 제목·요약·본문에서 선택한 부분만 작게/옅게 표시 (문자열 보존 방식)
-function applyInlineFormat(area,format,color,msg){const a=area.selectionStart,b=area.selectionEnd;if(a===b){message(msg,'먼저 서식을 적용할 글자를 드래그해 선택하세요.',false);area.focus();return;}const selected=area.value.slice(a,b);let replacement=selected;switch(format){case 'smallmuted':replacement=`[small][muted]${selected}[/muted][/small]`;break;case 'small':replacement=`[small]${selected}[/small]`;break;case 'muted':replacement=`[muted]${selected}[/muted]`;break;case 'bold':replacement=`[b]${selected}[/b]`;break;case 'color':replacement=`[color=${color}]${selected}[/color]`;break;case 'clear':replacement=selected.replace(/\[\/?(?:b|small|muted)\]/gi,'').replace(/\[color=#[0-9a-f]{6}\]|\[\/color\]/gi,'');break;}area.setRangeText(replacement,a,b,'select');area.focus();}
-document.querySelectorAll('#articleForm .titleFormatToolbar').forEach(toolbar=>toolbar.addEventListener('click',e=>{const btn=e.target.closest('[data-format]');if(btn)applyInlineFormat($('#articleForm').elements[toolbar.dataset.field],btn.dataset.format,'',$('#articleMsg'));}));
-$('#articleForm').querySelector('.richToolbar').addEventListener('click',e=>{const button=e.target.closest('[data-format]');if(button)applyInlineFormat($('#articleForm').elements.body,button.dataset.format,$('#bodyTextColor').value,$('#articleMsg'));});
+// 선택 영역은 서식 버튼을 클릭하기 직전 상태로 유지합니다.
+const formatSelections=new WeakMap();
+const articleForm=$('#articleForm');
+articleForm.querySelectorAll('textarea[name="title"],textarea[name="summary"],textarea[name="body"]').forEach(area=>{
+ const save=()=>formatSelections.set(area,{start:area.selectionStart,end:area.selectionEnd});
+ ['select','keyup','mouseup','focus','input'].forEach(ev=>area.addEventListener(ev,save));
+});
+function applyInlineFormat(area,format,color,msg,size){
+ const range=formatSelections.get(area)||{start:area.selectionStart,end:area.selectionEnd};
+ const a=range.start,b=range.end;
+ if(a===b){message(msg,'서식을 적용할 글자를 먼저 드래그하여 선택하세요.',false);area.focus();return}
+ const selected=area.value.slice(a,b);let replacement=selected;
+ switch(format){
+ case 'smallmuted':replacement=`[small][muted]${selected}[/muted][/small]`;break;
+ case 'small':replacement=`[small]${selected}[/small]`;break;
+ case 'muted':replacement=`[muted]${selected}[/muted]`;break;
+ case 'bold':replacement=`[b]${selected}[/b]`;break;
+ case 'color':replacement=`[color=${color}]${selected}[/color]`;break;
+ case 'size':replacement=`[size=${Math.max(10,Math.min(48,Number(size)||16))}]${selected}[/size]`;break;
+ case 'clear':replacement=selected.replace(/\[\/?(?:b|small|muted)\]/gi,'').replace(/\[color=#[0-9a-f]{6}\]|\[\/color\]/gi,'').replace(/\[size=\d{1,2}\]|\[\/size\]/gi,'');break;
+ }
+ area.setRangeText(replacement,a,b,'select');formatSelections.set(area,{start:a,end:a+replacement.length});area.focus();
+}
+articleForm.querySelectorAll('.titleFormatToolbar,.richToolbar').forEach(toolbar=>{
+ // 버튼 포커스로 textarea 선택이 사라지지 않도록 보호
+ toolbar.addEventListener('mousedown',e=>{if(e.target.closest('button[data-format]'))e.preventDefault()});
+ toolbar.addEventListener('click',e=>{
+ const button=e.target.closest('button[data-format]');if(!button)return;
+ const field=toolbar.dataset.field||'body';const area=articleForm.elements[field];
+ applyInlineFormat(area,button.dataset.format,toolbar.querySelector('.formatColor')?.value||$('#bodyTextColor').value,$('#articleMsg'),toolbar.querySelector('.formatSize')?.value);
+ });
+});
 
-// Sidebar/workspace divider: drag with mouse or touch, arrow keys for accessibility.
-const resizeGrip=document.querySelector('#sidebarResize'),resizeLayout=document.querySelector('#cms');
-const clampSidebar=n=>Math.max(140,Math.min(420,Math.min(n,window.innerWidth-450)));
-function setSidebarWidth(n){const v=clampSidebar(n);resizeLayout.style.setProperty('--sidebar-width',v+'px');try{localStorage.setItem('joungcoach_admin_sidebar_width',String(v))}catch{}}
-try{const saved=Number(localStorage.getItem('joungcoach_admin_sidebar_width'));if(saved)setSidebarWidth(saved)}catch{}
-resizeGrip.addEventListener('pointerdown',e=>{if(window.innerWidth<=850)return;e.preventDefault();resizeGrip.setPointerCapture(e.pointerId);resizeLayout.classList.add('isResizing')});
-resizeGrip.addEventListener('pointermove',e=>{if(!resizeGrip.hasPointerCapture(e.pointerId))return;const rect=resizeLayout.getBoundingClientRect();setSidebarWidth(e.clientX-rect.left-5)});
-for(const ev of ['pointerup','pointercancel','lostpointercapture'])resizeGrip.addEventListener(ev,()=>resizeLayout.classList.remove('isResizing'));
-resizeGrip.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();setSidebarWidth((parseInt(getComputedStyle(resizeLayout).getPropertyValue('--sidebar-width'))||210)+(e.key==='ArrowRight'?20:-20))}});
 // Visitor dashboard: read-only. Counters intentionally live outside /homepage content.
 const koreaDate=d=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(d).replaceAll('-','');
 function renderVisitorStats(v){

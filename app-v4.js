@@ -19,10 +19,10 @@ const img = (url,cls="") => httpUrl(url)?`<img loading="lazy" class="${cls}" src
 const ext = (url,label) => httpUrl(url)?`<a href="${esc(httpUrl(url))}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`:"";
 
 const publicItems=items=>(items||[]).filter(x=>x.published!==false);
-const visibleItems=(items,setting)=>{const mode=setting?.mode||'latest', count=Math.max(0,Math.min(100,Number(setting?.count??3)));return publicItems(items).sort((a,b)=>(mode==='pinned'?Number(!!b.pinned)-Number(!!a.pinned):0)||String(b.date||b.year||'').localeCompare(String(a.date||a.year||''))).slice(0,count)};
+const visibleItems=(items,setting)=>{const mode=setting?.mode||'latest', count=Math.max(0,Math.min(100,Number(setting?.count??3)));return publicItems(items).sort((a,b)=>(Number(!!(b.pinned||b.featured))-Number(!!(a.pinned||a.featured)))||String(b.date||b.year||'').localeCompare(String(a.date||a.year||''))).slice(0,count)};
 const plainBreak=s=>esc(s).replace(/\r?\n/g,'<br>');
 // 사용자 본문은 먼저 HTML 이스케이프 처리하고 허용된 굵게/색상 태그만 표현합니다.
-const richBody=s=>plainBreak(s).replace(/\[b\]([\s\S]*?)\[\/b\]/gi,'<strong>$1</strong>').replace(/\[color=(#[0-9a-fA-F]{6})\]([\s\S]*?)\[\/color\]/gi,(_,color,value)=>`<span style="color:${color}">${value}</span>`).replace(/\[small\]([\s\S]*?)\[\/small\]/gi,'<span class="inlineSmall">$1</span>').replace(/\[muted\]([\s\S]*?)\[\/muted\]/gi,'<span class="inlineMuted">$1</span>');
+const richBody=s=>plainBreak(s).replace(/\[b\]([\s\S]*?)\[\/b\]/gi,'<strong>$1</strong>').replace(/\[color=(#[0-9a-fA-F]{6})\]([\s\S]*?)\[\/color\]/gi,(_,color,value)=>`<span style="color:${color}">${value}</span>`).replace(/\[small\]([\s\S]*?)\[\/small\]/gi,'<span class="inlineSmall">$1</span>').replace(/\[muted\]([\s\S]*?)\[\/muted\]/gi,'<span class="inlineMuted">$1</span>').replace(/\[size=(\d{1,2})\]([\s\S]*?)\[\/size\]/gi,(_,size,value)=>`<span style="font-size:${Math.max(10,Math.min(48,Number(size)))}px">${value}</span>`);
 let archivedResearch=[],archivedNow=[],archivedContent={education:[],cases:[],notes:[]},archiveType='research';
 const fontStacks = {
   sans: 'Inter,"Noto Sans KR",sans-serif',
