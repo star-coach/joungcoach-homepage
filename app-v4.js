@@ -176,7 +176,16 @@ $('#closeDialog').onclick=()=>$('#articleDialog').close();
 $('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');
 $('#nav').addEventListener('click',()=>$('#nav').classList.remove('open'));
 
-function renderDetailGallery(selector,gallery){const target=$(selector);if(!target)return;const photos=Array.isArray(gallery)?gallery.filter(x=>httpUrl(x?.url)):[];target.innerHTML=photos.length?'<h3>현장 사진 더 보기</h3><div class="detailGalleryGrid">'+photos.map((p,i)=>`<figure><img loading="lazy" src="${esc(httpUrl(p.url))}" alt="${esc(p.caption||'추가 사진 '+(i+1))}"><figcaption>${esc(p.caption||'')}</figcaption></figure>`).join('')+'</div>':'';}
+// Firebase may deserialize sparse arrays as number-keyed objects. Accept both storage shapes.
+function normalizedGallery(gallery){
+ const entries=Array.isArray(gallery)?gallery:(gallery&&typeof gallery==='object'?Object.keys(gallery).sort((a,b)=>Number(a)-Number(b)).map(k=>gallery[k]):[]);
+ return entries.map(x=>typeof x==='string'?{url:x,caption:''}:x).filter(x=>x&&httpUrl(x.url));
+}
+function renderDetailGallery(selector,gallery){
+ const target=$(selector);if(!target)return;
+ const photos=normalizedGallery(gallery);
+ target.innerHTML=photos.length?'<h3>현장 사진 더 보기 · '+photos.length+'장</h3><div class="detailGalleryGrid">'+photos.map((p,i)=>`<figure><img loading="lazy" src="${esc(httpUrl(p.url))}" alt="${esc(p.caption||'추가 사진 '+(i+1))}"><figcaption>${esc(p.caption||'')}</figcaption></figure>`).join('')+'</div>':'';
+}
 const credentialDefaults=[{name:'ICF PCC',issuer:'International Coaching Federation',category:'coach',featured:true,visible:true},{name:'KSC',issuer:'한국코치협회',category:'coach',featured:true,visible:true},{name:'KPCC',issuer:'',category:'coach',visible:true},{name:'중등학교 정교사 2급',issuer:'',category:'education',visible:true}];
 function credentialCategory(x){
   if(x.category==='coach'||x.category==='education')return x.category;
