@@ -177,3 +177,22 @@ footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self
 /* Editable credential circles – editor settings override featured defaults. */
 .premiumCredentialItem .premiumCredentialBadge.uniform{border-radius:50%;padding:0;overflow:hidden}
 .premiumCredentialItem .premiumCredentialBadge.uniform img{width:65%;height:65%;object-fit:contain;display:block;border-radius:0;background:transparent}
+
+/* 2026-11-01: image cards stay level, without crop-induced misalignment */
+.columnGrid,.articleGrid{align-items:stretch}
+.columnGrid .columnCard,.articleGrid .article{height:100%;box-sizing:border-box;transform:none}
+.columnGrid .columnCard:hover{transform:translateY(-2px)}
+.columnGrid .columnThumb,.articleGrid .articleThumb{display:block;width:100%;aspect-ratio:4/3;height:auto;object-position:center;background:#f7f9fc}
+#columnDialog .modalImage{width:100%;height:auto;max-height:70vh;object-fit:contain;object-position:center}
+
+/* PDF preview on admin and mobile public pages */
+.pdfUploadEditor{padding:15px;border:1px solid #d2dce9;border-radius:12px;background:#f7f9fc;display:grid;gap:8px;margin:14px 0}
+.pdfUploadEditor>label:first-child{display:grid;gap:7px;font-weight:700}
+.pdfUploadEditor small,.pdfCurrent{font-size:12px;color:#586779;overflow-wrap:anywhere}
+.pdfRemoveLabel{display:flex;align-items:center;gap:8px;font-size:12px}
+.pdfPublicBlock{margin:22px 0;padding:13px;border:1px solid #d8e0eb;border-radius:14px;background:#f7f9fc;color:#1b2d42}
+.pdfPublicHeader{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;padding:3px 0 10px}
+.pdfPublicHeader span{font-size:12px;color:#66758a;overflow-wrap:anywhere}
+.pdfPublicFrame{display:block;width:100%;height:min(72vh,720px);min-height:380px;border:1px solid #d4dae3;border-radius:8px;background:white}
+.pdfFullLink{display:inline-flex;margin:11px 0 0;font-size:14px;font-weight:700;text-decoration:underline;color:#215e9d}
+@media(max-width:650px){.pdfPublicBlock{padding:8px;margin:14px 0}.pdfPublicFrame{height:67vh;min-height:330px}}

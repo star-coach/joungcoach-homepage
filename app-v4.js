@@ -129,6 +129,13 @@ function renderCoachingActivities(){
  document.querySelectorAll('[data-coaching-filter]').forEach(b=>{const active=b.dataset.coachingFilter===coachingFilter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
 }
 $('#coachingActivityFilters')?.addEventListener('click',e=>{const b=e.target.closest('[data-coaching-filter]');if(b){coachingFilter=b.dataset.coachingFilter;renderCoachingActivities()}});
+function embeddedPdf(x){
+ const url=httpUrl(x?.pdfUrl);if(!url)return '';
+ const viewer='pdf-viewer.html?src='+encodeURIComponent(url);
+ const escPdf=v=>String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ return `<section class="pdfPublicBlock"><div class="pdfPublicHeader"><strong>원문 PDF 읽기</strong><span>${escPdf(x.pdfName||'첨부 PDF')}</span></div><iframe class="pdfPublicFrame" title="원문 PDF 미리보기" loading="lazy" src="${escPdf(viewer)}"></iframe><a class="pdfFullLink" href="${escPdf(viewer)}" target="_blank" rel="noopener">전체 화면으로 읽기 ↗</a></section>`;
+}
+function displayPdfInModal(selector,item){const el=document.querySelector(selector);if(!el)return;el.innerHTML=embeddedPdf(item);}
 function renderColumns(items){
   const categories=[...new Set(items.map(x=>x.category).filter(Boolean))];const categorySelect=$('#columnCategory');
   categorySelect.innerHTML='<option value="">전체 주제</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');categorySelect.value=categories.includes(columnCategory)?columnCategory:'';
@@ -147,7 +154,7 @@ function openColumnCard(card){
   const src=httpUrl(item.image);
   if(src){picture.src=src;picture.style.display='block';picture.alt=(item.title||'칼럼')+' 이미지';}
   else{picture.removeAttribute('src');picture.style.display='none';}
-  document.querySelector('#columnModalLink').innerHTML=ext(item.url,'원문 읽기');renderDetailGallery('#columnModalGallery',item.gallery);
+  document.querySelector('#columnModalLink').innerHTML=ext(item.url,'원문 읽기');displayPdfInModal('#columnModalPdf',item);renderDetailGallery('#columnModalGallery',item.gallery);
   d.showModal();
 }
 const columnGrid=document.querySelector('#columnGrid');
@@ -178,7 +185,7 @@ async function showArticle(el){
  $('#modalMeta').textContent=`${a.date||''} · ${a.category||''}`;
  $('#modalTitle').innerHTML=richBody(a.title||'');
  $('#modalBody').innerHTML=richBody(a.body||a.summary||'');
- $('#modalLink').innerHTML=ext(a.link,'관련 자료 보기');
+ $('#modalLink').innerHTML=ext(a.link,'관련 자료 보기');displayPdfInModal('#modalPdf',a);
  const im=$('#modalImage');if(httpUrl(a.image)){im.src=httpUrl(a.image);im.style.display='block'}else{im.removeAttribute('src');im.style.display='none'}
  renderDetailGallery('#modalGallery',a.gallery);
  $('#articleDialog').showModal();
@@ -188,7 +195,7 @@ async function showArticle(el){
    const snap=await get(ref(db,'homepage/articles/'+a.id));
    if(request!==articleDetailRequest||!$('#articleDialog').open||!snap.exists())return;
    const fresh=snap.val();
-   renderDetailGallery('#modalGallery',fresh.gallery);
+   renderDetailGallery('#modalGallery',fresh.gallery);displayPdfInModal('#modalPdf',fresh);
  }catch(error){console.warn('추가 사진 서버 조회 실패:',error);}
 } 
 ['#articleGrid','#educationGrid','#caseGrid','#axGrid'].forEach(sel=>{$(sel).addEventListener('click',e=>showArticle(e.target.closest('.article')));$(sel).addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const el=e.target.closest('.article');if(el){e.preventDefault();showArticle(el)}}});});
@@ -243,7 +250,7 @@ function renderCredentials(data,legacy){
   }).join('');
 }
 $('#showAllCredentials').onclick=()=>$('#credentialsDialog').showModal();$('#closeCredentials').onclick=()=>$('#credentialsDialog').close();
-function showActivity(el){const x=currentActivities[Number(el?.dataset.i)];if(!x)return;$('#activityModalMeta').textContent=[x.date,x.category].filter(Boolean).join(' · ');$('#activityModalTitle').innerHTML=richBody(x.title);$('#activityModalBody').innerHTML=richBody(x.body||x.desc||x.summary||'');const im=$('#activityModalImage'),url=safeImage(x.image);if(url){im.src=url;im.style.display='block'}else {im.removeAttribute('src');im.style.display='none'}renderDetailGallery('#activityModalGallery',x.gallery);$('#activityModalLink').innerHTML=ext(x.link,'관련 자료 보기');$('#activityDialog').showModal()}
+function showActivity(el){const x=currentActivities[Number(el?.dataset.i)];if(!x)return;$('#activityModalMeta').textContent=[x.date,x.category].filter(Boolean).join(' · ');$('#activityModalTitle').innerHTML=richBody(x.title);$('#activityModalBody').innerHTML=richBody(x.body||x.desc||x.summary||'');const im=$('#activityModalImage'),url=safeImage(x.image);if(url){im.src=url;im.style.display='block'}else {im.removeAttribute('src');im.style.display='none'}renderDetailGallery('#activityModalGallery',x.gallery);$('#activityModalLink').innerHTML=ext(x.link,'관련 자료 보기');displayPdfInModal('#activityModalPdf',x);$('#activityDialog').showModal()}
 $('#activityGrid').addEventListener('click',e=>showActivity(e.target.closest('.activityClickable')));
 $('#activityGrid').addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){const item=e.target.closest('.activityClickable');if(item){e.preventDefault();showActivity(item)}}});
 $('#closeActivity').onclick=()=>$('#activityDialog').close();
