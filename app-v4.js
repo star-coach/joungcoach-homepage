@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import { getDatabase, ref, onValue, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 import { firebaseConfig } from "./firebase-config.js";
 import { DEFAULT_CONTENT } from "./default-content.js";
 
@@ -170,7 +170,27 @@ $('#columnSearch').addEventListener('input',e=>{columnQuery=e.target.value.trim(
 $('#columnCategory').addEventListener('change',e=>{columnCategory=e.target.value;renderColumns(activeData.columns||[])});
 $("#articleSearch").addEventListener("input",e=>{articleQuery=e.target.value.trim().toLowerCase();render(activeData)});
 $('#year').textContent=new Date().getFullYear();
-function showArticle(el){if(!el)return;const a=currentArticles[Number(el.dataset.index)];if(!a)return;$('#modalMeta').textContent=`${a.date||''} · ${a.category||''}`;$('#modalTitle').innerHTML=richBody(a.title||'');$('#modalBody').innerHTML=richBody(a.body||a.summary||'');$('#modalLink').innerHTML=ext(a.link,'관련 자료 보기');const im=$('#modalImage');if(httpUrl(a.image)){im.src=httpUrl(a.image);im.style.display='block'}else{im.removeAttribute('src');im.style.display='none'}renderDetailGallery('#modalGallery',a.gallery);$('#articleDialog').showModal();}
+let articleDetailRequest=0;
+async function showArticle(el){
+ if(!el)return;
+ const a=currentArticles[Number(el.dataset.index)];if(!a)return;
+ const request=++articleDetailRequest;
+ $('#modalMeta').textContent=`${a.date||''} · ${a.category||''}`;
+ $('#modalTitle').innerHTML=richBody(a.title||'');
+ $('#modalBody').innerHTML=richBody(a.body||a.summary||'');
+ $('#modalLink').innerHTML=ext(a.link,'관련 자료 보기');
+ const im=$('#modalImage');if(httpUrl(a.image)){im.src=httpUrl(a.image);im.style.display='block'}else{im.removeAttribute('src');im.style.display='none'}
+ renderDetailGallery('#modalGallery',a.gallery);
+ $('#articleDialog').showModal();
+ // Read the selected record from Firebase again instead of depending on a stale list snapshot.
+ if(!a.id)return;
+ try{
+   const snap=await get(ref(db,'homepage/articles/'+a.id));
+   if(request!==articleDetailRequest||!$('#articleDialog').open||!snap.exists())return;
+   const fresh=snap.val();
+   renderDetailGallery('#modalGallery',fresh.gallery);
+ }catch(error){console.warn('추가 사진 서버 조회 실패:',error);}
+} 
 ['#articleGrid','#educationGrid','#caseGrid','#axGrid'].forEach(sel=>{$(sel).addEventListener('click',e=>showArticle(e.target.closest('.article')));$(sel).addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const el=e.target.closest('.article');if(el){e.preventDefault();showArticle(el)}}});});
 $('#closeDialog').onclick=()=>$('#articleDialog').close();
 $('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');
@@ -178,7 +198,7 @@ $('#nav').addEventListener('click',()=>$('#nav').classList.remove('open'));
 
 // Firebase may deserialize sparse arrays as number-keyed objects. Accept both storage shapes.
 function normalizedGallery(gallery){
- const entries=Array.isArray(gallery)?gallery:(gallery&&typeof gallery==='object'?Object.keys(gallery).sort((a,b)=>Number(a)-Number(b)).map(k=>gallery[k]):[]);
+ const entries=Array.isArray(gallery)?gallery:(gallery&&typeof gallery==='object'?(typeof gallery.url==='string'?[gallery]:Object.keys(gallery).sort((a,b)=>Number(a)-Number(b)).map(k=>gallery[k])):[]);
  return entries.map(x=>typeof x==='string'?{url:x,caption:''}:x).filter(x=>x&&httpUrl(x.url));
 }
 function renderDetailGallery(selector,gallery){

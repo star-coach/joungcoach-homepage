@@ -61,7 +61,7 @@ const cleanGallery=v=>{const a=Array.isArray(v)?v:(v&&typeof v==='object'?Object
 function addGalleryEditors(){
  for(const [id] of Object.entries(galleryForms)){
   const form=document.getElementById(id);if(!form)continue;
-  const wrap=document.createElement('section');wrap.className='galleryEditor';wrap.innerHTML=`<h3>추가 사진 갤러리</h3><p>대표 사진과 본문 아래에 사진을 여러 장 보여줍니다. 사진 설명·순서를 바꾸거나 삭제할 수 있습니다.</p><input class="galleryFiles" type="file" accept="image/*" multiple><div class="galleryEntries"></div><div class="galleryLinkRow"><input type="url" class="galleryUrl" placeholder="이미지 https:// 주소 붙여넣기 (선택)"><button type="button" class="galleryAddUrl">링크 사진 추가</button></div><small>사진은 최대 10MB/장. 변경사항은 이 글의 [저장]을 눌러야 반영됩니다.</small>`;
+  const wrap=document.createElement('section');wrap.className='galleryEditor';wrap.innerHTML=`<h3>추가 사진 갤러리</h3><p>대표 사진과 본문 아래에 사진을 여러 장 보여줍니다. 사진 설명·순서를 바꾸거나 삭제할 수 있습니다.</p><input class="galleryFiles" type="file" accept="image/*" multiple><div class="galleryEntries"></div><div class="galleryLinkRow"><input type="url" class="galleryUrl" placeholder="이미지 https:// 주소 붙여넣기 (선택)"><button type="button" class="galleryAddUrl">링크 사진 추가</button></div><small>이곳의 사진은 편집 중인 미리보기입니다. 본문 아래 공개 여부는 글 저장 후 서버 확인 메시지로 판단하세요. 사진은 최대 10MB/장.</small><p class="galleryServerStatus" role="status"></p>`;
   const before=form.querySelector('.publishControl')||form.querySelector('.row'); if(before)before.before(wrap);else form.append(wrap);
   galleryDrafts.set(id,[]);
   wrap.querySelector('.galleryFiles').addEventListener('change',e=>{const a=galleryDrafts.get(id)||[];for(const file of e.target.files){if(!file.type.startsWith('image/')||file.size>10*1024*1024){alert('사진은 이미지 파일만, 장당 10MB 이하여야 합니다.');continue}a.push({file,url:URL.createObjectURL(file),caption:'',newFile:true});}galleryDrafts.set(id,a);e.target.value='';drawGallery(id)});
@@ -71,7 +71,19 @@ function addGalleryEditors(){
  }
 }
 function drawGallery(id){const el=document.querySelector('#'+id+' .galleryEntries');if(!el)return;el.replaceChildren();(galleryDrafts.get(id)||[]).forEach((x,i)=>{const div=document.createElement('div');div.className='galleryEntry';const im=document.createElement('img');im.src=x.url;im.alt='추가사진 미리보기';const right=document.createElement('div');const input=document.createElement('input');input.placeholder='사진 설명 (선택)';input.className='galleryCaption';input.dataset.i=i;input.value=x.caption||'';const bar=document.createElement('div');bar.className='galleryActions';[['up','↑ 위로'],['down','↓ 아래로'],['delete','삭제']].forEach(([act,label])=>{const b=document.createElement('button');b.type='button';b.dataset.act=act;b.dataset.i=i;b.textContent=label;bar.append(b)});right.append(input,bar);div.append(im,right);el.append(div)});}
-function setGalleryDraft(form,data){if(!galleryForms[form.id])return;for(const x of galleryDrafts.get(form.id)||[])if(x.newFile)URL.revokeObjectURL(x.url);galleryDrafts.set(form.id,cleanGallery(data.gallery));drawGallery(form.id)}
+function setGalleryDraft(form,data){
+ if(!galleryForms[form.id])return;
+ for(const x of galleryDrafts.get(form.id)||[])if(x.newFile)URL.revokeObjectURL(x.url);
+ galleryDrafts.set(form.id,cleanGallery(data.gallery));drawGallery(form.id);
+ const status=form.querySelector('.galleryServerStatus');
+ if(status) status.textContent='서버 저장 상태 확인 중…';
+ const id=String(data.id||'');const kind=galleryForms[form.id];
+ if(!id){if(status)status.textContent='새 글: 아직 서버에 저장되지 않았습니다.';return;}
+ get(ref(db,`homepage/${kind}/${id}/gallery`)).then(snap=>{
+   if(form.elements.id?.value!==id || !status)return;
+   status.textContent=`Firebase에 저장된 추가 사진: ${cleanGallery(snap.val()).length}장 (현재 편집 미리보기와 다를 수 있습니다.)`;
+ }).catch(error=>{if(status)status.textContent='서버 저장 확인 실패: '+error.message;});
+}
 async function saveGallery(form){const folder=galleryForms[form.id],out=[];if(!folder)return out;for(const x of galleryDrafts.get(form.id)||[]){const url=x.newFile?await upload(x.file,folder+'/gallery'):x.url;out.push({url,caption:String(x.caption||'')})}return out}
 async function verifiedGalleryMessage(kind,id,expected){
  try{
