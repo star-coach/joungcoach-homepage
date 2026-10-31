@@ -57,6 +57,7 @@ function makePasteZones(){
 // 여러 사진: 기존 글의 갤러리 메타데이터를 보존하며, 저장 시에만 새 파일을 업로드합니다.
 const galleryForms={articleForm:'articles',activityForm:'activities',researchForm:'research',columnForm:'columns',nowEntryForm:'nowEntries',areaForm:'areas'};
 const galleryDrafts=new Map();
+const galleryEditorState=new Map(); // 현재 열려 있는 글과 미저장 변경사항
 const cleanGallery=v=>{const a=Array.isArray(v)?v:(v&&typeof v==='object'?Object.keys(v).sort((x,y)=>Number(x)-Number(y)).map(k=>v[k]):[]);return a.map(x=>typeof x==='string'?{url:x,caption:''}:x).filter(x=>x&&typeof x.url==='string').map(x=>({url:x.url,caption:String(x.caption||'')}))};
 function addGalleryEditors(){
  for(const [id] of Object.entries(galleryForms)){
@@ -64,17 +65,23 @@ function addGalleryEditors(){
   const wrap=document.createElement('section');wrap.className='galleryEditor';wrap.innerHTML=`<h3>추가 사진 갤러리</h3><p>대표 사진과 본문 아래에 사진을 여러 장 보여줍니다. 사진 설명·순서를 바꾸거나 삭제할 수 있습니다.</p><input class="galleryFiles" type="file" accept="image/*" multiple><div class="galleryEntries"></div><div class="galleryLinkRow"><input type="url" class="galleryUrl" placeholder="이미지 https:// 주소 붙여넣기 (선택)"><button type="button" class="galleryAddUrl">링크 사진 추가</button></div><small>이곳의 사진은 편집 중인 미리보기입니다. 본문 아래 공개 여부는 글 저장 후 서버 확인 메시지로 판단하세요. 사진은 최대 10MB/장.</small><p class="galleryServerStatus" role="status"></p>`;
   const before=form.querySelector('.publishControl')||form.querySelector('.row'); if(before)before.before(wrap);else form.append(wrap);
   galleryDrafts.set(id,[]);
-  wrap.querySelector('.galleryFiles').addEventListener('change',e=>{const a=galleryDrafts.get(id)||[];for(const file of e.target.files){if(!file.type.startsWith('image/')||file.size>10*1024*1024){alert('사진은 이미지 파일만, 장당 10MB 이하여야 합니다.');continue}a.push({file,url:URL.createObjectURL(file),caption:'',newFile:true});}galleryDrafts.set(id,a);e.target.value='';drawGallery(id)});
-  wrap.querySelector('.galleryAddUrl').onclick=()=>{const inp=wrap.querySelector('.galleryUrl');const value=inp.value.trim();try{if(!['https:','http:'].includes(new URL(value).protocol))throw Error()}catch{alert('http(s) 이미지 주소를 입력하세요.');return}galleryDrafts.get(id).push({url:value,caption:''});inp.value='';drawGallery(id)};
-  wrap.querySelector('.galleryEntries').addEventListener('input',e=>{if(e.target.matches('.galleryCaption')){galleryDrafts.get(id)[Number(e.target.dataset.i)].caption=e.target.value}});
-  wrap.querySelector('.galleryEntries').addEventListener('click',e=>{const b=e.target.closest('button[data-act]');if(!b)return;const a=galleryDrafts.get(id),i=Number(b.dataset.i);if(b.dataset.act==='delete'){const x=a.splice(i,1)[0];if(x.newFile)URL.revokeObjectURL(x.url)}else {const j=i+(b.dataset.act==='up'?-1:1);if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]]}drawGallery(id)});
+  wrap.querySelector('.galleryFiles').addEventListener('change',e=>{const a=galleryDrafts.get(id)||[];for(const file of e.target.files){if(!file.type.startsWith('image/')||file.size>10*1024*1024){alert('사진은 이미지 파일만, 장당 10MB 이하여야 합니다.');continue}a.push({file,url:URL.createObjectURL(file),caption:'',newFile:true});}galleryDrafts.set(id,a);markGalleryChanged(id);e.target.value='';drawGallery(id)});
+  wrap.querySelector('.galleryAddUrl').onclick=()=>{const inp=wrap.querySelector('.galleryUrl');const value=inp.value.trim();try{if(!['https:','http:'].includes(new URL(value).protocol))throw Error()}catch{alert('http(s) 이미지 주소를 입력하세요.');return}galleryDrafts.get(id).push({url:value,caption:''});inp.value='';markGalleryChanged(id);drawGallery(id)};
+  wrap.querySelector('.galleryEntries').addEventListener('input',e=>{if(e.target.matches('.galleryCaption')){galleryDrafts.get(id)[Number(e.target.dataset.i)].caption=e.target.value;markGalleryChanged(id)}});
+  wrap.querySelector('.galleryEntries').addEventListener('click',e=>{const b=e.target.closest('button[data-act]');if(!b)return;const a=galleryDrafts.get(id),i=Number(b.dataset.i);if(b.dataset.act==='delete'){const x=a.splice(i,1)[0];if(x.newFile)URL.revokeObjectURL(x.url)}else {const j=i+(b.dataset.act==='up'?-1:1);if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]]}markGalleryChanged(id);drawGallery(id)});
  }
 }
+function markGalleryChanged(formId){const state=galleryEditorState.get(formId)||{};state.dirty=true;galleryEditorState.set(formId,state);const form=document.getElementById(formId),el=form?.querySelector('.galleryServerStatus');if(el)el.textContent=`미저장 변경사항: 추가 사진 ${(galleryDrafts.get(formId)||[]).length}장 · 아래 저장을 눌러야 반영됩니다.`;}
 function drawGallery(id){const el=document.querySelector('#'+id+' .galleryEntries');if(!el)return;el.replaceChildren();(galleryDrafts.get(id)||[]).forEach((x,i)=>{const div=document.createElement('div');div.className='galleryEntry';const im=document.createElement('img');im.src=x.url;im.alt='추가사진 미리보기';const right=document.createElement('div');const input=document.createElement('input');input.placeholder='사진 설명 (선택)';input.className='galleryCaption';input.dataset.i=i;input.value=x.caption||'';const bar=document.createElement('div');bar.className='galleryActions';[['up','↑ 위로'],['down','↓ 아래로'],['delete','삭제']].forEach(([act,label])=>{const b=document.createElement('button');b.type='button';b.dataset.act=act;b.dataset.i=i;b.textContent=label;bar.append(b)});right.append(input,bar);div.append(im,right);el.append(div)});}
 function setGalleryDraft(form,data){
  if(!galleryForms[form.id])return;
+ const entryId=String(data.id||'');
+ const prev=galleryEditorState.get(form.id);
+ // 같은 글을 다시 여는 경우, 아직 서버에 저장하지 않은 갤러리 편집 내용을 지우지 않습니다.
+ if(prev?.dirty && prev.entryId===entryId){drawGallery(form.id);return;}
  for(const x of galleryDrafts.get(form.id)||[])if(x.newFile)URL.revokeObjectURL(x.url);
- galleryDrafts.set(form.id,cleanGallery(data.gallery));drawGallery(form.id);
+ galleryDrafts.set(form.id,cleanGallery(data.gallery));
+ galleryEditorState.set(form.id,{entryId,dirty:false});drawGallery(form.id);
  const status=form.querySelector('.galleryServerStatus');
  if(status) status.textContent='서버 저장 상태 확인 중…';
  const id=String(data.id||'');const kind=galleryForms[form.id];
@@ -84,13 +91,32 @@ function setGalleryDraft(form,data){
    status.textContent=`Firebase에 저장된 추가 사진: ${cleanGallery(snap.val()).length}장 (현재 편집 미리보기와 다를 수 있습니다.)`;
  }).catch(error=>{if(status)status.textContent='서버 저장 확인 실패: '+error.message;});
 }
-async function saveGallery(form){const folder=galleryForms[form.id],out=[];if(!folder)return out;for(const x of galleryDrafts.get(form.id)||[]){const url=x.newFile?await upload(x.file,folder+'/gallery'):x.url;out.push({url,caption:String(x.caption||'')})}return out}
+async function saveGallery(form){
+ const folder=galleryForms[form.id],out=[];
+ if(!folder)return out;
+ const draft=galleryDrafts.get(form.id)||[];
+ const id=form.elements.id?.value||'';
+ const previous=id?cleanGallery(cache[folder]?.[id]?.gallery):[];
+ // 조용히 사진을 0장으로 덮어쓰는 사고를 차단합니다.
+ if(!draft.length && previous.length){
+   const ok=confirm(`기존 추가 사진 ${previous.length}장이 저장되어 있습니다. 이번 저장으로 전부 삭제하시겠습니까?\n삭제하려는 경우에만 [확인]을 누르세요.`);
+   if(!ok)throw Error('기존 추가 사진 보호를 위해 저장을 중단했습니다. 글을 다시 열고 사진 목록을 확인해 주세요.');
+ }
+ const visibleCount=form.querySelectorAll('.galleryEntries .galleryEntry').length;
+ if(visibleCount!==draft.length)throw Error(`사진 편집 표시 ${visibleCount}장과 실제 저장 목록 ${draft.length}장이 다릅니다. 다시 열어 확인해 주세요.`);
+ for(const x of draft){
+   const url=x.newFile?await upload(x.file,folder+'/gallery'):x.url;
+   if(!url || !/^https?:\/\//.test(url))throw Error('사진 업로드 URL이 정상적으로 생성되지 않았습니다.');
+   out.push({url,caption:String(x.caption||'')});
+ }
+ return out;
+}
 async function verifiedGalleryMessage(kind,id,expected){
  try{
   const snap=await get(ref(db,`homepage/${kind}/${id}/gallery`));
   const stored=cleanGallery(snap.val()).length;
   const valid=stored===expected;
-  return valid?`추가 사진 ${stored}장 서버 저장 확인 · 홈페이지 상세보기에서 표시됩니다.`:`추가 사진 저장 확인 필요: 선택 ${expected}장 / 서버 ${stored}장. 관리자에서 다시 확인해 주세요.`;
+  return valid?`추가 사진 ${stored}장 서버 저장 확인 · 공개 상세보기에서 확인해 주세요.`:`추가 사진 저장 확인 필요: 선택 ${expected}장 / 서버 ${stored}장. 관리자에서 다시 확인해 주세요.`;
  }catch(err){return `추가 사진 서버 재확인 실패 (${err.message}). 저장 성공 표시만으로 게시를 확정하지 마세요.`;}
 }
 addGalleryEditors();
@@ -186,7 +212,7 @@ function fillForm(form,data,names){setGalleryDraft(form,data);imageFormOpen(form
 function newForm(form,names){setGalleryDraft(form,{});imageFormOpen(form,{});form.hidden=false;form.reset();names.forEach(n=>{if(form.elements[n])form.elements[n].value=''});}
 $('#newArticle').onclick=()=>{newForm($('#articleForm'),['id']);$('#articleForm').elements.pinned.checked=false;$('#articleForm').elements.category.value=currentArticleCategory;setImageSettings($('#articleForm'),{category:currentArticleCategory});};$('#newActivity').onclick=()=>{newForm($('#activityForm'),['id']);$('#activityForm').elements.category.value='개인·그룹코칭';$('#activityForm').elements.published.checked=true;};$('#newResearch').onclick=()=>newForm($('#researchForm'),['id']);$('#newArea').onclick=()=>newForm($('#areaForm'),['id']);
 function formObj(form,names){return Object.fromEntries(names.map(n=>[n,form.elements[n].value.trim()]))}
-$('#articleForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{let d=formObj(f,['date','category','title','summary','body','imageUrl','link']);d.category=currentArticleCategory;d.pinned=!!f.elements.pinned.checked;const id=f.elements.id.value||push(ref(db,'homepage/articles')).key;const old=cache.articles?.[id]?.image||'';const image=await uploadFromInput('articleImage','articles');d.image=image||d.imageUrl||old;d.published=f.elements.published.checked;d.imageDisplay=readImageSettings(f);d.updatedAt=Date.now();d.gallery=await saveGallery(f);await set(ref(db,`homepage/articles/${id}`),d);f.elements.id.value=id;$('#articleImageCurrent').textContent=d.image||'';message($('#articleMsg'),'글 저장 완료 · '+await verifiedGalleryMessage('articles',id,d.gallery.length))}catch(x){message($('#articleMsg'),'저장 실패: '+x.message,false)}});
+$('#articleForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{let d=formObj(f,['date','category','title','summary','body','imageUrl','link']);d.category=currentArticleCategory;d.pinned=!!f.elements.pinned.checked;const id=f.elements.id.value||push(ref(db,'homepage/articles')).key;const old=cache.articles?.[id]?.image||'';const image=await uploadFromInput('articleImage','articles');d.image=image||d.imageUrl||old;d.published=f.elements.published.checked;d.imageDisplay=readImageSettings(f);d.updatedAt=Date.now();d.gallery=await saveGallery(f);await set(ref(db,`homepage/articles/${id}`),d);galleryDrafts.set(f.id,cleanGallery(d.gallery));galleryEditorState.set(f.id,{entryId:id,dirty:false});drawGallery(f.id);f.elements.id.value=id;$('#articleImageCurrent').textContent=d.image||'';message($('#articleMsg'),'글 저장 완료 · '+await verifiedGalleryMessage('articles',id,d.gallery.length))}catch(x){message($('#articleMsg'),'저장 실패: '+x.message,false)}});
 $('#activityForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{let d=formObj(f,['date','category','title','summary','body','imageUrl','link']);const id=f.elements.id.value||push(ref(db,'homepage/activities')).key;const old=cache.activities?.[id]?.image||'';const image=await uploadFromInput('activityImage','activities');d.image=image||d.imageUrl||old;d.desc=d.body;d.published=f.elements.published.checked;d.imageDisplay=readImageSettings(f);d.updatedAt=Date.now();d.gallery=await saveGallery(f);await set(ref(db,`homepage/activities/${id}`),d);f.elements.id.value=id;$('#activityImageCurrent').textContent=d.image||'';message($('#activityMsg'),'저장 완료')}catch(x){message($('#activityMsg'),'저장 실패: '+x.message,false)}});
 $('#researchForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{const d=formObj(f,['year','title','category','summary','body','date','imageUrl','link']);d.pinned=f.elements.pinned.checked;const id=f.elements.id.value||push(ref(db,'homepage/research')).key;d.image=(await uploadFromInput('researchImage','research'))||d.imageUrl||cache.research?.[id]?.image||'';d.meta=d.summary;d.desc=d.body;d.published=f.elements.published.checked;d.imageDisplay=readImageSettings(f);d.gallery=await saveGallery(f);await set(ref(db,`homepage/research/${id}`),d);f.elements.id.value=id;message($('#researchMsg'),'저장 완료')}catch(x){message($('#researchMsg'),'저장 실패: '+x.message,false)}});
 $('#areaForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;try{const d=formObj(f,['sortOrder','category','title','summary','body','imageUrl']);d.subtitle=d.summary;d.sortOrder=Number(d.sortOrder||99);const id=f.elements.id.value||push(ref(db,'homepage/areas')).key;d.image=(await uploadFromInput('areaImage','areas'))||d.imageUrl||cache.areas?.[id]?.image||'';d.published=f.elements.published.checked;d.imageDisplay=readImageSettings(f);d.gallery=await saveGallery(f);await set(ref(db,`homepage/areas/${id}`),d);f.elements.id.value=id;message($('#areaMsg'),'저장 완료')}catch(x){message($('#areaMsg'),'저장 실패: '+x.message,false)}});
