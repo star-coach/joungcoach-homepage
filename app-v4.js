@@ -131,7 +131,8 @@ function renderCoachingActivities(){
 $('#coachingActivityFilters')?.addEventListener('click',e=>{const b=e.target.closest('[data-coaching-filter]');if(b){coachingFilter=b.dataset.coachingFilter;renderCoachingActivities()}});
 function embeddedPdf(x){
  const url=httpUrl(x?.pdfUrl);if(!url)return '';
- const viewer='pdf-viewer.html?src='+encodeURIComponent(url);
+ const collection=x._pdfCollection||'columns';
+ const viewer='pdf-viewer.html?collection='+encodeURIComponent(collection)+'&id='+encodeURIComponent(x.id||'');
  const escPdf=v=>String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  return `<section class="pdfPublicBlock"><div class="pdfPublicHeader"><strong>원문 PDF 읽기</strong><span>${escPdf(x.pdfName||'첨부 PDF')}</span></div><iframe class="pdfPublicFrame" title="원문 PDF 미리보기" loading="lazy" src="${escPdf(viewer)}"></iframe><a class="pdfFullLink" href="${escPdf(viewer)}" target="_blank" rel="noopener">전체 화면으로 읽기 ↗</a></section>`;
 }

@@ -24,7 +24,8 @@ function normalizedGallery(g){const a=Array.isArray(g)?g:(g&&typeof g==='object'
 // Page preview is rendered by pdf-viewer.html (PDF.js) rather than relying on mobile browser PDF plugins.
 function pdfPreviewMarkup(x){
  const url=goodPdf(x?.pdfUrl);if(!url)return '';
- const viewer='pdf-viewer.html?src='+encodeURIComponent(url);
+ const collection=type==='activities'?'activities':type==='research'?'research':type==='now'?'nowEntries':type==='columns'?'columns':'articles';
+ const viewer='pdf-viewer.html?collection='+encodeURIComponent(collection)+'&id='+encodeURIComponent(x._key||x.id||'');
  return `<section class="pdfPublicBlock"><div class="pdfPublicHeader"><strong>원문 PDF 읽기</strong><span>${esc(x.pdfName||'첨부 PDF')}</span></div><iframe class="pdfPublicFrame" title="원문 PDF 미리보기" loading="lazy" src="${esc(viewer)}"></iframe><a class="pdfFullLink" href="${esc(viewer)}" target="_blank" rel="noopener">전체 화면으로 읽기 ↗</a></section>`;
 }
 function goodPdf(s){try{const u=new URL(s);return u.protocol==='https:'?u.href:''}catch{return''}}

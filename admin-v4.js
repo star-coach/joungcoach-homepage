@@ -16,20 +16,54 @@ function pdfEditor(form,data={}){
  if(!input)return;
  input.value=''; remove.checked=false;
  const url=String(data.pdfUrl||'');
- info.textContent=url?'등록된 원문: '+(data.pdfName||'PDF 파일'):'등록된 PDF 없음';
+ info.textContent=url?'등록된 원문: '+(data.pdfName||'PDF 파일')+(Array.isArray(data.pdfPages)&&data.pdfPages.length?' · 열람용 이미지 '+data.pdfPages.length+'페이지':' · 열람용 이미지 미생성'):'등록된 PDF 없음';
+}
+// PDF.js renders preview images locally from the selected File. Public pages display these images
+// via ordinary <img> elements, avoiding cross-origin PDF.js reads from Firebase Storage.
+async function uploadPdfPagePreviews(file,kind,id){
+ const lib=await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.mjs');
+ lib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.mjs';
+ const bytes=new Uint8Array(await file.arrayBuffer());
+ const document=await lib.getDocument({data:bytes}).promise;
+ if(document.numPages>60)throw Error('60페이지 초과 문서는 이미지 열람을 지원하지 않습니다.');
+ const result=[];
+ try{
+  for(let page=1;page<=document.numPages;page++){
+   const pdfPage=await document.getPage(page),base=pdfPage.getViewport({scale:1});
+   const view=pdfPage.getViewport({scale:Math.min(1.6,1400/base.width)});
+   const canvas=document.createElement('canvas');canvas.width=Math.ceil(view.width);canvas.height=Math.ceil(view.height);
+   const context=canvas.getContext('2d',{alpha:false});
+   context.fillStyle='#fff';context.fillRect(0,0,canvas.width,canvas.height);
+   await pdfPage.render({canvasContext:context,viewport:view}).promise;
+   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.87));
+   if(!blob)throw Error('페이지 이미지를 만들지 못했습니다.');
+   const path=`homepage/${kind}/pdf/${id}/pages/${Date.now()}_${page}.jpg`;
+   const storageRef=sRef(storage,path);
+   await uploadBytes(storageRef,blob,{contentType:'image/jpeg'});
+   result.push(await getDownloadURL(storageRef));
+   canvas.width=canvas.height=0;
+  }
+  return result;
+ }finally{await document.destroy()}
 }
 async function savePdf(form,kind,id,old={}){
- const input=form.querySelector('.pdfFileInput'); if(!input)return {pdfUrl:old.pdfUrl||'',pdfName:old.pdfName||''};
+ const input=form.querySelector('.pdfFileInput');
+ if(!input)return {pdfUrl:old.pdfUrl||'',pdfName:old.pdfName||'',pdfPages:old.pdfPages||[]};
  const file=input.files?.[0];
  if(file){
   if(file.type!=='application/pdf'&&!/\.pdf$/i.test(file.name))throw Error('PDF 파일만 등록할 수 있습니다.');
   if(file.size>PDF_MAX_SIZE)throw Error('PDF는 20MB 이하로 선택해 주세요.');
   const r=sRef(storage,`homepage/${kind}/pdf/${id}/${Date.now()}_${safeName(file.name)}`);
   await uploadBytes(r,file,{contentType:'application/pdf',customMetadata:{originalName:file.name}});
-  return {pdfUrl:await getDownloadURL(r),pdfName:file.name};
+  const pdfUrl=await getDownloadURL(r);
+  // A preview error must never prevent saving a successfully uploaded PDF.
+  let pdfPages=[];
+  try{pdfPages=await uploadPdfPagePreviews(file,kind,id)}
+  catch(error){console.warn('PDF preview generation failed:',error);}
+  return {pdfUrl,pdfName:file.name,pdfPages};
  }
- if(form.querySelector('.pdfRemove')?.checked)return {pdfUrl:'',pdfName:''};
- return {pdfUrl:old.pdfUrl||'',pdfName:old.pdfName||''};
+ if(form.querySelector('.pdfRemove')?.checked)return {pdfUrl:'',pdfName:'',pdfPages:[]};
+ return {pdfUrl:old.pdfUrl||'',pdfName:old.pdfName||'',pdfPages:old.pdfPages||[]};
 }
 // 화면 캡처 이미지 붙여넣기: 파일 선택과 Ctrl+V는 동일한 Firebase Storage 업로드 경로를 사용합니다.
 const pendingImages = new Map();
