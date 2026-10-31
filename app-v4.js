@@ -95,7 +95,7 @@ function render(C){
   $('#contactTitle').textContent=C.sectionCopy.contactTitle||'';
   $('#areaCards').innerHTML=visibleItems(C.areas,{count:C.displaySettings?.areas?.count??3,mode:C.displaySettings?.areas?.mode}).map((x,i)=>`<article class="card">${imageWithSettings(x,"areaThumb")}<div class="cardNo">0${i+1}</div><h3>${richBody(x.title)}</h3><strong>${richBody(x.summary??x.subtitle)}</strong><p>${richBody(x.body)}</p></article>`).join('');
   archivedResearch=publicItems(C.research); archivedNow=publicItems(C.nowEntries||[]); if(C.now?.published!==false&&(C.now?.title||C.now?.body)) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'}); $('#researchList').innerHTML=visibleItems(archivedResearch,C.displaySettings?.research).map(x=>`<article class="timelineItem"><div class="year">${esc(x.year)}</div><div>${imageWithSettings(x,"researchThumb")}<h3>${richBody(x.title)}</h3><div class="meta">${richBody(x.summary??x.meta)}</div>${x.date?`<div class="recordDate">${esc(x.date)}</div>`:""}<p>${richBody(x.body??x.desc)}</p>${ext(x.link,"자료 보기")}${x.id?`<a class="researchDetailLink" href="archive.html?type=research&item=${encodeURIComponent(x.id)}">사진과 전체 기록 보기 →</a>`:""}</div></article>`).join('');
-  coachingActivities=publicItems(C.activities).filter(x=>['coaching','supervision'].includes(activityGroup(x))).sort(byDateDesc);
+  coachingActivities=[]; // 고객 코칭 기록은 공개 렌더링에서 제외
   renderCoachingActivities();
   currentActivities=visibleItems(C.activities.filter(x=>activityGroup(x)==='other'),{count:C.displaySettings?.activities?.count??6,mode:C.displaySettings?.activities?.mode});
   $('#activityGrid').innerHTML=currentActivities.map((x,i)=>`<article class="activity activityClickable" role="button" tabindex="0" data-i="${i}" aria-label="${esc(x.title||'활동')} 상세 보기">${imageWithSettings(x,'activityThumb')}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${richBody(x.title)}</h3><p>${richBody(x.summary||x.desc)}</p><span class="activityReadMore">사진과 전체 기록 보기 →</span></div></article>`).join('');
@@ -128,7 +128,7 @@ function renderCoachingActivities(){
  const more=$('#coachingActivitiesMore');if(more)more.href=`archive.html?type=activities&category=${coachingFilter==='all'?'coaching':coachingFilter}`;
  document.querySelectorAll('[data-coaching-filter]').forEach(b=>{const active=b.dataset.coachingFilter===coachingFilter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
 }
-$('#coachingActivityFilters').addEventListener('click',e=>{const b=e.target.closest('[data-coaching-filter]');if(b){coachingFilter=b.dataset.coachingFilter;renderCoachingActivities()}});
+$('#coachingActivityFilters')?.addEventListener('click',e=>{const b=e.target.closest('[data-coaching-filter]');if(b){coachingFilter=b.dataset.coachingFilter;renderCoachingActivities()}});
 function renderColumns(items){
   const categories=[...new Set(items.map(x=>x.category).filter(Boolean))];const categorySelect=$('#columnCategory');
   categorySelect.innerHTML='<option value="">전체 주제</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');categorySelect.value=categories.includes(columnCategory)?columnCategory:'';
