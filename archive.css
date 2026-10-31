@@ -21,3 +21,17 @@
 .archiveCard strong,.archiveCard .summary,.articleSummary,.articleBody,#detail h2{white-space:pre-line}
 
 .inlineSmall{font-size:.73em!important;line-height:1.55;letter-spacing:normal;font-weight:500}.inlineMuted{color:#8794aa!important;font-weight:500}
+
+
+/* 2026-10-31: 관리 화면과 연결되는 코칭활동 하위 유형 */
+.coachingActivities{margin-top:54px;padding-top:35px;border-top:1px solid rgba(30,58,99,.13)}
+.coachingActivityHeader h3{font-size:clamp(23px,2.6vw,34px);margin:8px 0}.coachingActivityHeader p:last-child{color:#64748b}
+.activityFilterTabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}
+.activityFilterTabs button{appearance:none;border:1px solid #d8e1eb;background:#fff;color:#3e526b;border-radius:100px;padding:10px 17px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s}
+.activityFilterTabs button.active,.activityFilterTabs button[aria-pressed="true"]{background:#17345c;color:#fff;border-color:#17345c}
+.coachingActivityGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:19px}
+.coachingActivityCard{display:block;overflow:hidden;border:1px solid #e2e8f0;border-radius:17px;background:#fff;color:#172033;text-decoration:none;box-shadow:0 10px 30px rgba(20,39,68,.045);transition:transform .15s,box-shadow .15s}
+.coachingActivityCard:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(20,39,68,.12)}
+.coachingActivityThumb{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.coachingActivityCardText{padding:19px}.coachingActivityType{font-size:12px;color:#597394;font-weight:700}.coachingActivityCard h4{font-size:18px;line-height:1.4;margin:9px 0}.coachingActivityCard p{color:#64748b;font-size:14px;line-height:1.65}.coachingActivityDetail{display:block;font-size:13px;color:#244e85;font-weight:700;margin-top:16px}.coachingActivityEmpty{grid-column:1/-1;color:#64748b;padding:25px 0}.archiveActivityFilters{margin-top:0;margin-bottom:25px}
+@media(max-width:860px){.coachingActivityGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.coachingActivityGrid{grid-template-columns:1fr}.activityFilterTabs button{font-size:13px;padding:9px 12px}}

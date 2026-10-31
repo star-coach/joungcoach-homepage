@@ -11,7 +11,7 @@ const values = obj => obj ? Object.entries(obj).map(([id,v])=>({id,...v})) : [];
 const byDateDesc = (a,b)=>String(b.date||'').localeCompare(String(a.date||''));
 const byYearDesc = (a,b) => String(b.year || '').localeCompare(String(a.year || '')) || String(b.date || '').localeCompare(String(a.date || ''));
 const byOrder = (a,b)=>(Number(a.sortOrder)||999)-(Number(b.sortOrder)||999);
-let currentActivities = []; let currentArticles = []; let articleQuery = ""; let columnQuery="", columnCategory="";
+let coachingFilter = "all", coachingActivities = []; let currentActivities = []; let currentArticles = []; let articleQuery = ""; let columnQuery="", columnCategory="";
 const httpUrl = s => {try {const u=new URL(s);return ["https:","http:"].includes(u.protocol)?u.href:""}catch{return ""}};
 const imageStyle=(x,kind='')=>{const book=kind==='education';const def={aspect:book?'3/4':'4/3',fit:book?'contain':'cover',position:'center'};const v={...def,...(x?.imageDisplay||{})};return `style="aspect-ratio:${['1/1','4/3','16/9','3/4'].includes(v.aspect)?v.aspect:def.aspect};object-fit:${v.fit==='contain'?'contain':'cover'};object-position:${['top','center','bottom'].includes(v.position)?v.position:'center'}"`};
 const safeImage=s=>httpUrl(s)||(String(s||'').startsWith('assets/images/')?String(s):'');
@@ -19,6 +19,7 @@ const imageWithSettings=(x,cls,kind='')=>safeImage(x.image)?`<img loading="lazy"
 const img = (url,cls="") => httpUrl(url)?`<img loading="lazy" class="${cls}" src="${esc(httpUrl(url))}" alt="">`:"";
 const ext = (url,label) => httpUrl(url)?`<a href="${esc(httpUrl(url))}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`:"";
 
+const activityGroup=x=>{const c=String(x?.category||'').toLowerCase().replace(/\s/g,'');if(c.includes('슈퍼비전')||c.includes('멘토코칭')||c.includes('supervision')||c.includes('mentorcoaching'))return'supervision';if(['개인·그룹코칭','코칭활동','coaching','그룹코칭','개인코칭','1:1코칭'].some(v=>c===v.toLowerCase().replace(/\s/g,'')))return'coaching';return'other'};
 const publicItems=items=>(items||[]).filter(x=>x.published!==false);
 const visibleItems=(items,setting)=>{const mode=setting?.mode||'latest', count=Math.max(0,Math.min(100,Number(setting?.count??3)));return publicItems(items).sort((a,b)=>(Number(!!(b.pinned||b.featured))-Number(!!(a.pinned||a.featured)))||String(b.date||b.year||'').localeCompare(String(a.date||a.year||''))).slice(0,count)};
 const plainBreak=s=>esc(s).replace(/\r?\n/g,'<br>');
@@ -94,7 +95,9 @@ function render(C){
   $('#contactTitle').textContent=C.sectionCopy.contactTitle||'';
   $('#areaCards').innerHTML=visibleItems(C.areas,{count:C.displaySettings?.areas?.count??3,mode:C.displaySettings?.areas?.mode}).map((x,i)=>`<article class="card">${imageWithSettings(x,"areaThumb")}<div class="cardNo">0${i+1}</div><h3>${richBody(x.title)}</h3><strong>${richBody(x.summary??x.subtitle)}</strong><p>${richBody(x.body)}</p></article>`).join('');
   archivedResearch=publicItems(C.research); archivedNow=publicItems(C.nowEntries||[]); if(C.now?.published!==false&&(C.now?.title||C.now?.body)) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'}); $('#researchList').innerHTML=visibleItems(archivedResearch,C.displaySettings?.research).map(x=>`<article class="timelineItem"><div class="year">${esc(x.year)}</div><div>${imageWithSettings(x,"researchThumb")}<h3>${richBody(x.title)}</h3><div class="meta">${richBody(x.summary??x.meta)}</div>${x.date?`<div class="recordDate">${esc(x.date)}</div>`:""}<p>${richBody(x.body??x.desc)}</p>${ext(x.link,"자료 보기")}${x.id?`<a class="researchDetailLink" href="archive.html?type=research&item=${encodeURIComponent(x.id)}">사진과 전체 기록 보기 →</a>`:""}</div></article>`).join('');
-  currentActivities=visibleItems(C.activities,{count:C.displaySettings?.activities?.count??6,mode:C.displaySettings?.activities?.mode});
+  coachingActivities=publicItems(C.activities).filter(x=>['coaching','supervision'].includes(activityGroup(x))).sort(byDateDesc);
+  renderCoachingActivities();
+  currentActivities=visibleItems(C.activities.filter(x=>activityGroup(x)==='other'),{count:C.displaySettings?.activities?.count??6,mode:C.displaySettings?.activities?.mode});
   $('#activityGrid').innerHTML=currentActivities.map((x,i)=>`<article class="activity activityClickable" role="button" tabindex="0" data-i="${i}" aria-label="${esc(x.title||'활동')} 상세 보기">${imageWithSettings(x,'activityThumb')}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${richBody(x.title)}</h3><p>${richBody(x.summary||x.desc)}</p><span class="activityReadMore">사진과 전체 기록 보기 →</span></div></article>`).join('');
 
   renderColumns(visibleItems(C.columns,{count:C.displaySettings?.columns?.count??6,mode:C.displaySettings?.columns?.mode}));
@@ -118,6 +121,14 @@ function render(C){
   if(C.contact.linkedin) links.push(`<a target="_blank" rel="noopener" href="${esc(C.contact.linkedin)}">LinkedIn ↗</a>`);
   $('#contactLinks').innerHTML=links.join('');
 }
+function renderCoachingActivities(){
+ const target=$('#coachingActivityGrid');if(!target)return;
+ const matching=coachingActivities.filter(x=>coachingFilter==='all'||activityGroup(x)===coachingFilter);
+ target.innerHTML=matching.length?matching.map(x=>`<a class="coachingActivityCard" href="archive.html?type=activities&item=${encodeURIComponent(x.id)}">${imageWithSettings(x,'coachingActivityThumb')}<div class="coachingActivityCardText"><span class="coachingActivityType">${activityGroup(x)==='supervision'?'슈퍼비전·멘토코칭':'개인·그룹코칭'} · ${esc(x.date||'')}</span><h4>${richBody(x.title)}</h4><p>${richBody(x.summary||x.desc||'')}</p><span class="coachingActivityDetail">내용·사진 보기 →</span></div></a>`).join(''):'<p class="coachingActivityEmpty">이 분류에 공개된 기록이 아직 없습니다. 관리자에서 등록하면 자동으로 표시됩니다.</p>';
+ const more=$('#coachingActivitiesMore');if(more)more.href=`archive.html?type=activities&category=${coachingFilter==='all'?'coaching':coachingFilter}`;
+ document.querySelectorAll('[data-coaching-filter]').forEach(b=>{const active=b.dataset.coachingFilter===coachingFilter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
+}
+$('#coachingActivityFilters').addEventListener('click',e=>{const b=e.target.closest('[data-coaching-filter]');if(b){coachingFilter=b.dataset.coachingFilter;renderCoachingActivities()}});
 function renderColumns(items){
   const categories=[...new Set(items.map(x=>x.category).filter(Boolean))];const categorySelect=$('#columnCategory');
   categorySelect.innerHTML='<option value="">전체 주제</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');categorySelect.value=categories.includes(columnCategory)?columnCategory:'';
@@ -166,8 +177,29 @@ $('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');
 $('#nav').addEventListener('click',()=>$('#nav').classList.remove('open'));
 
 function renderDetailGallery(selector,gallery){const target=$(selector);if(!target)return;const photos=Array.isArray(gallery)?gallery.filter(x=>httpUrl(x?.url)):[];target.innerHTML=photos.length?'<h3>현장 사진 더 보기</h3><div class="detailGalleryGrid">'+photos.map((p,i)=>`<figure><img loading="lazy" src="${esc(httpUrl(p.url))}" alt="${esc(p.caption||'추가 사진 '+(i+1))}"><figcaption>${esc(p.caption||'')}</figcaption></figure>`).join('')+'</div>':'';}
-const credentialDefaults=[{name:'ICF PCC',issuer:'International Coaching Federation',featured:true,visible:true},{name:'KSC',issuer:'한국코치협회',featured:true,visible:true},{name:'KPCC',issuer:'',visible:true},{name:'중등학교 정교사 2급',issuer:'',visible:true}];
-function renderCredentials(data,legacy){const entries=(Array.isArray(data)?data:credentialDefaults).filter(x=>x&&x.visible!==false&&x.name);const featured=entries.filter(x=>x.featured).slice(0,2);$('#heroCredentials').textContent=featured.map(x=>x.name).join(' · ')||String(legacy||'');$('#showAllCredentials').hidden=entries.length===0;$('#credentialsFullList').innerHTML=entries.map(x=>`<div class="credentialItem"><div class="credentialIcon">${httpUrl(x.badgeUrl)?`<img src="${esc(httpUrl(x.badgeUrl))}" alt="${esc(x.name)} 인증 이미지">`:`<span>${esc(x.name==='ICF PCC'?'PCC':x.name.slice(0,4))}</span>`}</div><div><strong>${esc(x.name)}</strong>${x.issuer?`<small>${esc(x.issuer)}</small>`:''}${httpUrl(x.url)?ext(x.url,'자격 확인'):''}</div></div>`).join('');}
+const credentialDefaults=[{name:'ICF PCC',issuer:'International Coaching Federation',category:'coach',featured:true,visible:true},{name:'KSC',issuer:'한국코치협회',category:'coach',featured:true,visible:true},{name:'KPCC',issuer:'',category:'coach',visible:true},{name:'중등학교 정교사 2급',issuer:'',category:'education',visible:true}];
+function credentialCategory(x){
+  if(x.category==='coach'||x.category==='education')return x.category;
+  return /교사|강사|교육|부모코치|보육|지도사|교원/.test(x.name||'')?'education':'coach';
+}
+function credentialMark(x){
+  if(httpUrl(x.badgeUrl))return `<span class="premiumCredentialBadge image"><img loading="lazy" src="${esc(httpUrl(x.badgeUrl))}" alt="${esc(x.name)} 이미지"></span>`;
+  const abbr=(x.name||'').trim();
+  const short=/^[A-Za-z]{2,5}$/.test(abbr)||abbr==='ICF PCC';
+  return short?`<span class="premiumCredentialBadge initials">${esc(abbr==='ICF PCC'?'PCC':abbr)}</span>`:`<span class="premiumCredentialBadge symbol" aria-hidden="true">${credentialCategory(x)==='education'?'✦':'◇'}</span>`;
+}
+function renderCredentials(data,legacy){
+  const entries=(Array.isArray(data)?data:credentialDefaults).filter(x=>x&&x.visible!==false&&x.name);
+  const featured=entries.filter(x=>x.featured).slice(0,2);
+  $('#heroCredentials').textContent=featured.map(x=>x.name).join(' · ')||String(legacy||'');
+  $('#showAllCredentials').hidden=entries.length===0;
+  const groups=[['coach','코치 자격','COACHING CREDENTIALS'],['education','교육/기타 자격','EDUCATION & OTHER']];
+  $('#credentialsFullList').innerHTML=groups.map(([key,title,en])=>{
+    const items=entries.filter(x=>credentialCategory(x)===key);
+    if(!items.length)return '';
+    return `<section class="premiumCredentialGroup"><div class="premiumCredentialGroupHead"><div><span>${en}</span><h3>${title}</h3></div><em>${items.length}개</em></div><div class="premiumCredentialList">${items.map(x=>`<article class="premiumCredentialItem${x.name==='ICF PCC'?' isPcc':''}">${credentialMark(x)}<div class="premiumCredentialInfo"><strong>${esc(x.name)}</strong>${x.issuer?`<small>${esc(x.issuer)}</small>`:''}${httpUrl(x.url)?`<div class="credentialVerify">${ext(x.url,'자격 확인')}</div>`:''}</div>${x.name==='ICF PCC'?'<span class="premiumCredentialAccent" aria-hidden="true">✧</span>':''}</article>`).join('')}</div></section>`;
+  }).join('');
+}
 $('#showAllCredentials').onclick=()=>$('#credentialsDialog').showModal();$('#closeCredentials').onclick=()=>$('#credentialsDialog').close();
 function showActivity(el){const x=currentActivities[Number(el?.dataset.i)];if(!x)return;$('#activityModalMeta').textContent=[x.date,x.category].filter(Boolean).join(' · ');$('#activityModalTitle').innerHTML=richBody(x.title);$('#activityModalBody').innerHTML=richBody(x.body||x.desc||x.summary||'');const im=$('#activityModalImage'),url=safeImage(x.image);if(url){im.src=url;im.style.display='block'}else {im.removeAttribute('src');im.style.display='none'}renderDetailGallery('#activityModalGallery',x.gallery);$('#activityModalLink').innerHTML=ext(x.link,'관련 자료 보기');$('#activityDialog').showModal()}
 $('#activityGrid').addEventListener('click',e=>showActivity(e.target.closest('.activityClickable')));
