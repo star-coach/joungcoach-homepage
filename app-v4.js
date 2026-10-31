@@ -154,7 +154,7 @@ document.querySelector('#closeColumnDialog').addEventListener('click',()=>docume
 let activeData=DEFAULT_CONTENT;
 const renderOriginal=render;
 render= function(data){activeData=data;renderOriginal(data)};
-render(DEFAULT_CONTENT);
+// The initial render must run after credentialDefaults is initialized.
 $('#columnSearch').addEventListener('input',e=>{columnQuery=e.target.value.trim().toLowerCase();renderColumns(activeData.columns||[])});
 $('#columnCategory').addEventListener('change',e=>{columnCategory=e.target.value;renderColumns(activeData.columns||[])});
 $("#articleSearch").addEventListener("input",e=>{articleQuery=e.target.value.trim().toLowerCase();render(activeData)});
@@ -174,6 +174,8 @@ $('#activityGrid').addEventListener('click',e=>showActivity(e.target.closest('.a
 $('#activityGrid').addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){const item=e.target.closest('.activityClickable');if(item){e.preventDefault();showActivity(item)}}});
 $('#closeActivity').onclick=()=>$('#activityDialog').close();
 
+// All components and their defaults are ready before initial paint.
+render(DEFAULT_CONTENT);
 const badge=$('#loadBadge');
 onValue(ref(db,'homepage'), snap=>{ if(snap.exists()){render(normalized(snap.val())); badge.textContent='Firebase 실시간 연결'; badge.className='loadBadge ok'; setTimeout(()=>badge.classList.add('hide'),1800);} else {badge.textContent='초기 데이터가 없어 기본 내용을 표시 중'; badge.className='loadBadge warn';} }, err=>{console.error(err); badge.textContent='Firebase 읽기 실패 · 기본 내용을 표시 중'; badge.className='loadBadge warn';});
 
