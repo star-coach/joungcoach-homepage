@@ -11,10 +11,11 @@ const values = obj => obj ? Object.entries(obj).map(([id,v])=>({id,...v})) : [];
 const byDateDesc = (a,b)=>String(b.date||'').localeCompare(String(a.date||''));
 const byYearDesc = (a,b) => String(b.year || '').localeCompare(String(a.year || '')) || String(b.date || '').localeCompare(String(a.date || ''));
 const byOrder = (a,b)=>(Number(a.sortOrder)||999)-(Number(b.sortOrder)||999);
-let currentArticles = []; let articleQuery = ""; let columnQuery="", columnCategory="";
+let currentActivities = []; let currentArticles = []; let articleQuery = ""; let columnQuery="", columnCategory="";
 const httpUrl = s => {try {const u=new URL(s);return ["https:","http:"].includes(u.protocol)?u.href:""}catch{return ""}};
 const imageStyle=(x,kind='')=>{const book=kind==='education';const def={aspect:book?'3/4':'4/3',fit:book?'contain':'cover',position:'center'};const v={...def,...(x?.imageDisplay||{})};return `style="aspect-ratio:${['1/1','4/3','16/9','3/4'].includes(v.aspect)?v.aspect:def.aspect};object-fit:${v.fit==='contain'?'contain':'cover'};object-position:${['top','center','bottom'].includes(v.position)?v.position:'center'}"`};
-const imageWithSettings=(x,cls,kind='')=>httpUrl(x.image)?`<img loading="lazy" class="${cls}" ${imageStyle(x,kind)} src="${esc(httpUrl(x.image))}" alt="">`:'';
+const safeImage=s=>httpUrl(s)||(String(s||'').startsWith('assets/images/')?String(s):'');
+const imageWithSettings=(x,cls,kind='')=>safeImage(x.image)?`<img loading="lazy" class="${cls}" ${imageStyle(x,kind)} src="${esc(safeImage(x.image))}" alt="">`:'';
 const img = (url,cls="") => httpUrl(url)?`<img loading="lazy" class="${cls}" src="${esc(httpUrl(url))}" alt="">`:"";
 const ext = (url,label) => httpUrl(url)?`<a href="${esc(httpUrl(url))}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`:"";
 
@@ -37,7 +38,7 @@ function normalized(data){
   const typography = {};
   for(const [k,v] of Object.entries(DEFAULT_CONTENT.typography)) typography[k] = {...v,...(rawTypo[k]||{})};
   return {
-    profile: {...DEFAULT_CONTENT.profile,...(data.profile||{})},
+    profile: {...DEFAULT_CONTENT.profile,...(data.profile||{})}, credentialItems: Array.isArray(data.credentialItems)?data.credentialItems:null,
     philosophy: {...DEFAULT_CONTENT.philosophy,...(data.philosophy||{})},
     sectionCopy: {...DEFAULT_CONTENT.sectionCopy,...(data.sectionCopy||{})},
     theme: {...DEFAULT_CONTENT.theme,...(data.theme||{})},
@@ -77,10 +78,10 @@ function render(C){
   $('#heroRoles').textContent='JOUNG COACH · COACHING LEADERSHIP · PUBLIC SERVICE COACHING';
   $('#heroNameKo').textContent=C.profile.nameKo||'';
   $('#heroNameEn').textContent=C.profile.nameEn||'';
-  $('#heroDegree').textContent='Coaching Ph.D.';
-  $('#heroCredentials').textContent=String(C.profile.credentials||'').trim() || DEFAULT_CONTENT.profile.credentials;
-  $('#heroHeadline').textContent='코칭으로 사람을 성장시키고, 리더십으로 조직을 변화시킵니다';
-  $('#heroIntro').textContent='정코치 JOUNG COACH | 코칭리더십 · 공직코칭 · 공공기관 코칭 · 코칭교육 전문가. 연구와 현장의 경험을 사람과 조직의 변화로 연결합니다.';
+  $('#heroDegree').textContent=C.profile.degree||'Coaching Ph.D.';
+  renderCredentials(C.credentialItems,C.profile.credentials);
+  $('#heroHeadline').textContent=C.profile.headline||DEFAULT_CONTENT.profile.headline;
+  $('#heroIntro').textContent=C.profile.intro||DEFAULT_CONTENT.profile.intro;
   $('#heroPhoto').src=C.profile.photo||'assets/images/profile.jpg';
   $('#philEyebrow').textContent=C.philosophy.eyebrow||'';
   $('#philTitle').textContent=C.philosophy.title||'';
@@ -92,8 +93,10 @@ function render(C){
   $('#insightsTitle').textContent=C.sectionCopy.insightsTitle||'';
   $('#contactTitle').textContent=C.sectionCopy.contactTitle||'';
   $('#areaCards').innerHTML=visibleItems(C.areas,{count:C.displaySettings?.areas?.count??3,mode:C.displaySettings?.areas?.mode}).map((x,i)=>`<article class="card">${imageWithSettings(x,"areaThumb")}<div class="cardNo">0${i+1}</div><h3>${richBody(x.title)}</h3><strong>${richBody(x.summary??x.subtitle)}</strong><p>${richBody(x.body)}</p></article>`).join('');
-  archivedResearch=publicItems(C.research); archivedNow=publicItems(C.nowEntries||[]); if(C.now?.published!==false&&(C.now?.title||C.now?.body)) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'}); $('#researchList').innerHTML=visibleItems(archivedResearch,C.displaySettings?.research).map(x=>`<article class="timelineItem"><div class="year">${esc(x.year)}</div><div>${imageWithSettings(x,"researchThumb")}<h3>${richBody(x.title)}</h3><div class="meta">${richBody(x.summary??x.meta)}</div>${x.date?`<div class="recordDate">${esc(x.date)}</div>`:""}<p>${richBody(x.body??x.desc)}</p>${ext(x.link,"자료 보기")}</div></article>`).join('');
-  $('#activityGrid').innerHTML=visibleItems(C.activities,{count:C.displaySettings?.activities?.count??6,mode:C.displaySettings?.activities?.mode}).map(x=>`<article class="activity">${x.image?`<img src="${esc(x.image)}" ${imageStyle(x)} alt="">`:''}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${richBody(x.title)}</h3><p>${richBody(x.summary||x.desc)}</p>${x.body&&x.body!==x.summary?`<p class="activityDetail">${richBody(x.body)}</p>`:""}${ext(x.link,"관련 기록")}</div></article>`).join('');
+  archivedResearch=publicItems(C.research); archivedNow=publicItems(C.nowEntries||[]); if(C.now?.published!==false&&(C.now?.title||C.now?.body)) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'}); $('#researchList').innerHTML=visibleItems(archivedResearch,C.displaySettings?.research).map(x=>`<article class="timelineItem"><div class="year">${esc(x.year)}</div><div>${imageWithSettings(x,"researchThumb")}<h3>${richBody(x.title)}</h3><div class="meta">${richBody(x.summary??x.meta)}</div>${x.date?`<div class="recordDate">${esc(x.date)}</div>`:""}<p>${richBody(x.body??x.desc)}</p>${ext(x.link,"자료 보기")}${x.id?`<a class="researchDetailLink" href="archive.html?type=research&item=${encodeURIComponent(x.id)}">사진과 전체 기록 보기 →</a>`:""}</div></article>`).join('');
+  currentActivities=visibleItems(C.activities,{count:C.displaySettings?.activities?.count??6,mode:C.displaySettings?.activities?.mode});
+  $('#activityGrid').innerHTML=currentActivities.map((x,i)=>`<article class="activity activityClickable" role="button" tabindex="0" data-i="${i}" aria-label="${esc(x.title||'활동')} 상세 보기">${imageWithSettings(x,'activityThumb')}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${richBody(x.title)}</h3><p>${richBody(x.summary||x.desc)}</p><span class="activityReadMore">사진과 전체 기록 보기 →</span></div></article>`).join('');
+
   renderColumns(visibleItems(C.columns,{count:C.displaySettings?.columns?.count??6,mode:C.displaySettings?.columns?.mode}));
   currentArticles=publicItems(C.articles);
   const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';if(['AX·공공혁신','AX혁신','공공혁신','AX·공공혁신 사례'].includes(c))return 'ax';return 'notes';};
@@ -133,7 +136,7 @@ function openColumnCard(card){
   const src=httpUrl(item.image);
   if(src){picture.src=src;picture.style.display='block';picture.alt=(item.title||'칼럼')+' 이미지';}
   else{picture.removeAttribute('src');picture.style.display='none';}
-  document.querySelector('#columnModalLink').innerHTML=ext(item.url,'원문 읽기 ↗');
+  document.querySelector('#columnModalLink').innerHTML=ext(item.url,'원문 읽기');renderDetailGallery('#columnModalGallery',item.gallery);
   d.showModal();
 }
 const columnGrid=document.querySelector('#columnGrid');
@@ -156,11 +159,21 @@ $('#columnSearch').addEventListener('input',e=>{columnQuery=e.target.value.trim(
 $('#columnCategory').addEventListener('change',e=>{columnCategory=e.target.value;renderColumns(activeData.columns||[])});
 $("#articleSearch").addEventListener("input",e=>{articleQuery=e.target.value.trim().toLowerCase();render(activeData)});
 $('#year').textContent=new Date().getFullYear();
-function showArticle(el){if(!el)return;const a=currentArticles[Number(el.dataset.index)];if(!a)return;$('#modalMeta').textContent=`${a.date||''} · ${a.category||''}`;$('#modalTitle').innerHTML=richBody(a.title||'');$('#modalBody').innerHTML=richBody(a.body||a.summary||'');$('#modalLink').innerHTML=ext(a.link,'관련 자료 보기');const im=$('#modalImage');if(httpUrl(a.image)){im.src=httpUrl(a.image);im.style.display='block'}else{im.removeAttribute('src');im.style.display='none'}$('#articleDialog').showModal();}
+function showArticle(el){if(!el)return;const a=currentArticles[Number(el.dataset.index)];if(!a)return;$('#modalMeta').textContent=`${a.date||''} · ${a.category||''}`;$('#modalTitle').innerHTML=richBody(a.title||'');$('#modalBody').innerHTML=richBody(a.body||a.summary||'');$('#modalLink').innerHTML=ext(a.link,'관련 자료 보기');const im=$('#modalImage');if(httpUrl(a.image)){im.src=httpUrl(a.image);im.style.display='block'}else{im.removeAttribute('src');im.style.display='none'}renderDetailGallery('#modalGallery',a.gallery);$('#articleDialog').showModal();}
 ['#articleGrid','#educationGrid','#caseGrid','#axGrid'].forEach(sel=>{$(sel).addEventListener('click',e=>showArticle(e.target.closest('.article')));$(sel).addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const el=e.target.closest('.article');if(el){e.preventDefault();showArticle(el)}}});});
 $('#closeDialog').onclick=()=>$('#articleDialog').close();
 $('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');
 $('#nav').addEventListener('click',()=>$('#nav').classList.remove('open'));
+
+function renderDetailGallery(selector,gallery){const target=$(selector);if(!target)return;const photos=Array.isArray(gallery)?gallery.filter(x=>httpUrl(x?.url)):[];target.innerHTML=photos.length?'<h3>현장 사진 더 보기</h3><div class="detailGalleryGrid">'+photos.map((p,i)=>`<figure><img loading="lazy" src="${esc(httpUrl(p.url))}" alt="${esc(p.caption||'추가 사진 '+(i+1))}"><figcaption>${esc(p.caption||'')}</figcaption></figure>`).join('')+'</div>':'';}
+const credentialDefaults=[{name:'ICF PCC',issuer:'International Coaching Federation',featured:true,visible:true},{name:'KSC',issuer:'한국코치협회',featured:true,visible:true},{name:'KPCC',issuer:'',visible:true},{name:'중등학교 정교사 2급',issuer:'',visible:true}];
+function renderCredentials(data,legacy){const entries=(Array.isArray(data)?data:credentialDefaults).filter(x=>x&&x.visible!==false&&x.name);const featured=entries.filter(x=>x.featured).slice(0,2);$('#heroCredentials').textContent=featured.map(x=>x.name).join(' · ')||String(legacy||'');$('#showAllCredentials').hidden=entries.length===0;$('#credentialsFullList').innerHTML=entries.map(x=>`<div class="credentialItem"><div class="credentialIcon">${httpUrl(x.badgeUrl)?`<img src="${esc(httpUrl(x.badgeUrl))}" alt="${esc(x.name)} 인증 이미지">`:`<span>${esc(x.name==='ICF PCC'?'PCC':x.name.slice(0,4))}</span>`}</div><div><strong>${esc(x.name)}</strong>${x.issuer?`<small>${esc(x.issuer)}</small>`:''}${httpUrl(x.url)?ext(x.url,'자격 확인'):''}</div></div>`).join('');}
+$('#showAllCredentials').onclick=()=>$('#credentialsDialog').showModal();$('#closeCredentials').onclick=()=>$('#credentialsDialog').close();
+function showActivity(el){const x=currentActivities[Number(el?.dataset.i)];if(!x)return;$('#activityModalMeta').textContent=[x.date,x.category].filter(Boolean).join(' · ');$('#activityModalTitle').innerHTML=richBody(x.title);$('#activityModalBody').innerHTML=richBody(x.body||x.desc||x.summary||'');const im=$('#activityModalImage'),url=safeImage(x.image);if(url){im.src=url;im.style.display='block'}else {im.removeAttribute('src');im.style.display='none'}renderDetailGallery('#activityModalGallery',x.gallery);$('#activityModalLink').innerHTML=ext(x.link,'관련 자료 보기');$('#activityDialog').showModal()}
+$('#activityGrid').addEventListener('click',e=>showActivity(e.target.closest('.activityClickable')));
+$('#activityGrid').addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){const item=e.target.closest('.activityClickable');if(item){e.preventDefault();showActivity(item)}}});
+$('#closeActivity').onclick=()=>$('#activityDialog').close();
+
 const badge=$('#loadBadge');
 onValue(ref(db,'homepage'), snap=>{ if(snap.exists()){render(normalized(snap.val())); badge.textContent='Firebase 실시간 연결'; badge.className='loadBadge ok'; setTimeout(()=>badge.classList.add('hide'),1800);} else {badge.textContent='초기 데이터가 없어 기본 내용을 표시 중'; badge.className='loadBadge warn';} }, err=>{console.error(err); badge.textContent='Firebase 읽기 실패 · 기본 내용을 표시 중'; badge.className='loadBadge warn';});
 
