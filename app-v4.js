@@ -182,11 +182,24 @@ function credentialCategory(x){
   if(x.category==='coach'||x.category==='education')return x.category;
   return /교사|강사|교육|부모코치|보육|지도사|교원/.test(x.name||'')?'education':'coach';
 }
+// Only known, built-in SVG shapes are rendered; colors are restricted to hex values.
+const credentialIconPaths={
+  medal:'<circle cx="16" cy="12" r="8"/><path d="M12.5 12.2 15 14.7l4.8-5M11 19 9 28l7-3 7 3-2-9"/>',
+  award:'<circle cx="16" cy="10" r="7"/><path d="m11 16-3 12 8-4 8 4-3-12"/><path d="m13 10 2 2 4-4"/>',
+  star:'<path d="m16 3 4 9 10 1-7.5 7 2 10-8.5-5-8.5 5 2-10L2 13l10-1z"/>',
+  book:'<path d="M16 8c-4-3-9-3-13-2v19c5-1 10 0 13 3 3-3 8-4 13-3V6c-4-1-9-1-13 2ZM16 8v20"/>',
+  graduation:'<path d="m2 12 14-8 14 8-14 8zM8 16v8c5 4 11 4 16 0v-8M29 13v10"/>',
+  compass:'<circle cx="16" cy="16" r="13"/><path d="m20.5 11.5-3 7-6 2.5 2.5-6z"/>',
+  check:'<circle cx="16" cy="16" r="12"/><path d="m10 16 4 4 8-9"/>',
+  spark:'<path d="M16 2 19.5 12.5 30 16l-10.5 3.5L16 30l-3.5-10.5L2 16l10.5-3.5z"/>'
+};
+function credentialHex(value,fallback){return /^#[0-9a-fA-F]{6}$/.test(value||'')?value:fallback}
 function credentialMark(x){
-  if(httpUrl(x.badgeUrl))return `<span class="premiumCredentialBadge image"><img loading="lazy" src="${esc(httpUrl(x.badgeUrl))}" alt="${esc(x.name)} 이미지"></span>`;
-  const abbr=(x.name||'').trim();
-  const short=/^[A-Za-z]{2,5}$/.test(abbr)||abbr==='ICF PCC';
-  return short?`<span class="premiumCredentialBadge initials">${esc(abbr==='ICF PCC'?'PCC':abbr)}</span>`:`<span class="premiumCredentialBadge symbol" aria-hidden="true">${credentialCategory(x)==='education'?'✦':'◇'}</span>`;
+ const bg=credentialHex(x.circleColor,x.name==='ICF PCC'?'#203e68':'#f6f8fb');
+ const line=credentialHex(x.iconColor,x.name==='ICF PCC'?'#ffffff':'#446083');
+ const icon=Object.prototype.hasOwnProperty.call(credentialIconPaths,x.iconType)?x.iconType:'medal';
+ const image=x.iconType==='custom'?httpUrl(x.iconImageUrl):'';
+ return `<span class="premiumCredentialBadge uniform" style="background:${bg};border-color:${bg};color:${line}" aria-hidden="true">${image?`<img src="${esc(image)}" loading="lazy" alt="">`:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">${credentialIconPaths[icon]||credentialIconPaths.medal}</svg>`}</span>`;
 }
 function renderCredentials(data,legacy){
   const entries=(Array.isArray(data)?data:credentialDefaults).filter(x=>x&&x.visible!==false&&x.name);
@@ -197,7 +210,7 @@ function renderCredentials(data,legacy){
   $('#credentialsFullList').innerHTML=groups.map(([key,title,en])=>{
     const items=entries.filter(x=>credentialCategory(x)===key);
     if(!items.length)return '';
-    return `<section class="premiumCredentialGroup"><div class="premiumCredentialGroupHead"><div><span>${en}</span><h3>${title}</h3></div><em>${items.length}개</em></div><div class="premiumCredentialList">${items.map(x=>`<article class="premiumCredentialItem${x.name==='ICF PCC'?' isPcc':''}">${credentialMark(x)}<div class="premiumCredentialInfo"><strong>${esc(x.name)}</strong>${x.issuer?`<small>${esc(x.issuer)}</small>`:''}${httpUrl(x.url)?`<div class="credentialVerify">${ext(x.url,'자격 확인')}</div>`:''}</div>${x.name==='ICF PCC'?'<span class="premiumCredentialAccent" aria-hidden="true">✧</span>':''}</article>`).join('')}</div></section>`;
+    return `<section class="premiumCredentialGroup"><div class="premiumCredentialGroupHead"><div><span>${en}</span><h3>${title}</h3></div><em>${items.length}개</em></div><div class="premiumCredentialList">${items.map(x=>`<article class="premiumCredentialItem${x.name==='ICF PCC'?' isPcc':''}">${credentialMark(x)}<div class="premiumCredentialInfo"><strong>${esc(x.name)}</strong>${x.issuer?`<small>${esc(x.issuer)}</small>`:''}${httpUrl(x.url)?`<div class="credentialVerify">${ext(x.url,'자격 확인')}</div>`:''}${httpUrl(x.badgeUrl)?`<div class="credentialVerify">${ext(x.badgeUrl,'인증 배지 보기')}</div>`:''}</div></article>`).join('')}</div></section>`;
   }).join('');
 }
 $('#showAllCredentials').onclick=()=>$('#credentialsDialog').showModal();$('#closeCredentials').onclick=()=>$('#credentialsDialog').close();

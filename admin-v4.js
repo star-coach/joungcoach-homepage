@@ -440,16 +440,85 @@ function setupEntryMoveControls(){
 setupEntryMoveControls();
 
 // 자격·인증 항목 독립 관리: 기존 프로필 저장과 충돌하지 않습니다.
-const credentialBox=document.createElement('section');credentialBox.className='credentialsEditor';credentialBox.innerHTML=`<h3>자격·인증 관리</h3><p>분류는 ‘코치 자격’과 ‘교육/기타 자격’ 두 가지입니다. 대표 표시·공개·순서·이미지를 관리하세요.</p><div id="credentialRows"></div><button type="button" class="ghost" id="addCredential">+ 자격 추가</button> <button type="button" class="primary" id="saveCredentials">자격 목록 저장</button><p id="credentialMsg" class="msg"></p>`;
+const credentialBox=document.createElement('section');credentialBox.className='credentialsEditor';credentialBox.innerHTML=`<h3>자격·인증 관리</h3><p>분류는 ‘코치 자격’과 ‘교육/기타 자격’ 두 가지입니다. 각 자격별 원 배경색, 아이콘 선 색상, 아이콘 형태를 선택하거나 내 이미지를 올릴 수 있습니다. 변경 후 하단 저장 버튼을 누르세요.</p><div id="credentialRows"></div><button type="button" class="ghost" id="addCredential">+ 자격 추가</button> <button type="button" class="primary" id="saveCredentials">자격 목록 저장</button><p id="credentialMsg" class="msg"></p>`;
 document.getElementById('profileForm').after(credentialBox);
 const defaultCredentialItems=[{name:'ICF PCC',issuer:'International Coaching Federation',category:'coach',featured:true,visible:true},{name:'KSC',issuer:'한국코치협회',category:'coach',featured:true,visible:true},{name:'KPCC',issuer:'',category:'coach',featured:false,visible:true},{name:'중등학교 정교사 2급',issuer:'',category:'education',featured:false,visible:true}];
 let credentialDraft=[];
 function credentialGuessCategory(x){return x.category==='coach'||x.category==='education'?x.category:(/교사|강사|교육|부모코치|보육|지도사|교원/.test(x.name||'')?'education':'coach')}
 function credentialLoad(){if(document.activeElement?.closest('.credentialsEditor'))return;credentialDraft=Array.isArray(cache.credentialItems)?cache.credentialItems.map(x=>({...x})):defaultCredentialItems.map(x=>({...x}));credentialRender()}
-function credentialRender(){const root=document.getElementById('credentialRows');root.replaceChildren();credentialDraft.forEach((x,i)=>{const row=document.createElement('div');row.className='credentialRow';row.innerHTML=`<div class="credentialFields"><label>자격명<input data-field="name" placeholder="예: ICF PCC"></label><label>발급·인증기관<input data-field="issuer" placeholder="기관명"></label><label>분류<select data-field="category"><option value="coach">코치 자격</option><option value="education">교육/기타 자격</option></select></label><label>뱃지·증명 이미지 URL (선택)<input data-field="badgeUrl" placeholder="https://..."></label><label>링크 (선택)<input data-field="url" placeholder="https://..."></label></div><div class="credentialRowActions"><label><input type="checkbox" data-field="featured"> 첫 화면 대표</label><label><input type="checkbox" data-field="visible"> 공개</label><button type="button" data-action="up">↑</button><button type="button" data-action="down">↓</button><button type="button" data-action="delete">삭제</button></div>`;row.dataset.i=i;for(const input of row.querySelectorAll('[data-field]')){const k=input.dataset.field;if(input.type==='checkbox')input.checked=x[k]!==false && (k!=='featured'||!!x[k]);else input.value=k==='category'?credentialGuessCategory(x):(x[k]||'');input.addEventListener('input',()=>{x[k]=input.type==='checkbox'?input.checked:input.value});input.addEventListener('change',()=>{x[k]=input.type==='checkbox'?input.checked:input.value})}root.append(row)})}
+const credentialIconPathsAdmin={
+ medal:'<circle cx="16" cy="12" r="8"/><path d="M12.5 12.2 15 14.7l4.8-5M11 19 9 28l7-3 7 3-2-9"/>',
+ award:'<circle cx="16" cy="10" r="7"/><path d="m11 16-3 12 8-4 8 4-3-12"/><path d="m13 10 2 2 4-4"/>',
+ star:'<path d="m16 3 4 9 10 1-7.5 7 2 10-8.5-5-8.5 5 2-10L2 13l10-1z"/>',
+ book:'<path d="M16 8c-4-3-9-3-13-2v19c5-1 10 0 13 3 3-3 8-4 13-3V6c-4-1-9-1-13 2ZM16 8v20"/>',
+ graduation:'<path d="m2 12 14-8 14 8-14 8zM8 16v8c5 4 11 4 16 0v-8M29 13v10"/>',
+ compass:'<circle cx="16" cy="16" r="13"/><path d="m20.5 11.5-3 7-6 2.5 2.5-6z"/>',
+ check:'<circle cx="16" cy="16" r="12"/><path d="m10 16 4 4 8-9"/>',
+ spark:'<path d="M16 2 19.5 12.5 30 16l-10.5 3.5L16 30l-3.5-10.5L2 16l10.5-3.5z"/>'
+};
+const credentialValidHex=(v,defaultColor)=>/^#[0-9a-fA-F]{6}$/.test(v||'')?v:defaultColor;
+function credentialUpdatePreview(row,x){
+ const preview=row.querySelector('.credentialLivePreview');if(!preview)return;
+ const bg=credentialValidHex(x.circleColor,x.name==='ICF PCC'?'#203e68':'#f6f8fb');
+ const fg=credentialValidHex(x.iconColor,x.name==='ICF PCC'?'#ffffff':'#446083');
+ preview.style.backgroundColor=bg;preview.style.color=fg;preview.style.borderColor=bg;
+ const path=credentialIconPathsAdmin[x.iconType]||credentialIconPathsAdmin.medal;
+ preview.innerHTML=`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+ if(x.iconType==='custom'){
+  const url=x.iconImageUrl||x.iconFilePreview;
+  if(url && (/^https?:\/\//.test(url)||url.startsWith('blob:'))){preview.replaceChildren();const img=document.createElement('img');img.src=url;img.alt='사용자 이미지 미리보기';preview.append(img)}
+  else preview.textContent='이미지';
+ }
+ row.querySelector('.credentialColorHexBg').textContent=bg.toUpperCase();
+ row.querySelector('.credentialColorHexFg').textContent=fg.toUpperCase();
+ row.querySelector('.credentialCustomUpload').hidden=x.iconType!=='custom';
+}
+function credentialRender(){
+ const root=document.getElementById('credentialRows');root.replaceChildren();
+ credentialDraft.forEach((x,i)=>{
+  const row=document.createElement('div');row.className='credentialRow';row.dataset.i=i;
+  row.innerHTML=`<div class="credentialEditorMain"><div class="credentialLivePreview" aria-label="인증 아이콘 미리보기"></div><div class="credentialFields"><label>자격명<input data-field="name" placeholder="예: ICF PCC"></label><label>발급·인증기관<input data-field="issuer" placeholder="기관명"></label><label>분류<select data-field="category"><option value="coach">코치 자격</option><option value="education">교육/기타 자격</option></select></label><label>자격 확인 링크 (선택)<input data-field="url" placeholder="https://..."></label></div></div>
+  <div class="credentialVisualControls"><label>원 배경색 <span class="credentialColorHexBg"></span><input data-field="circleColor" type="color"></label><label>아이콘 선 색상 <span class="credentialColorHexFg"></span><input data-field="iconColor" type="color"></label><label>원 안쪽 이미지<select data-field="iconType"><option value="medal">인증 메달</option><option value="award">리본</option><option value="star">별</option><option value="book">책</option><option value="graduation">학사모</option><option value="compass">나침반</option><option value="check">체크 원</option><option value="spark">반짝임</option><option value="custom">내 이미지 사용</option></select></label></div>
+  <div class="credentialCustomUpload" hidden><label>직접 이미지 업로드 (PNG/JPG/WebP 권장)<input type="file" class="credentialIconFile" accept="image/png,image/jpeg,image/webp,image/gif"></label><label>또는 이미지 URL<input data-field="iconImageUrl" placeholder="https://..."></label><small>내 이미지를 사용하면 원 배경색은 적용되지만, 이미지 내부의 색상은 원본 그대로입니다. 새 파일은 목록 저장 시 업로드됩니다.</small></div>
+  <div class="credentialRowActions"><label><input type="checkbox" data-field="featured"> 첫 화면 대표</label><label><input type="checkbox" data-field="visible"> 공개</label><button type="button" data-action="up">↑</button><button type="button" data-action="down">↓</button><button type="button" data-action="delete">삭제</button></div>`;
+  for(const input of row.querySelectorAll('[data-field]')){
+   const k=input.dataset.field;
+   if(input.type==='checkbox')input.checked=k==='featured'?!!x[k]:x[k]!==false;
+   else if(k==='category')input.value=credentialGuessCategory(x);
+   else if(k==='iconType')input.value=x.iconType||'medal';
+   else if(k==='circleColor')input.value=credentialValidHex(x.circleColor,x.name==='ICF PCC'?'#203e68':'#f6f8fb');
+   else if(k==='iconColor')input.value=credentialValidHex(x.iconColor,x.name==='ICF PCC'?'#ffffff':'#446083');
+   else input.value=x[k]||'';
+   const change=()=>{x[k]=input.type==='checkbox'?input.checked:input.value;credentialUpdatePreview(row,x)};
+   input.addEventListener('input',change);input.addEventListener('change',change);
+  }
+  row.querySelector('.credentialIconFile').addEventListener('change',e=>{
+   const file=e.target.files?.[0];if(!file)return;
+   if(!['image/png','image/jpeg','image/webp','image/gif'].includes(file.type)||file.size>10*1024*1024){alert('PNG, JPG, WebP, GIF 이미지 10MB 이하만 허용됩니다.');e.target.value='';return}
+   if(x.iconFilePreview)URL.revokeObjectURL(x.iconFilePreview);
+   x.iconFile=file;x.iconFilePreview=URL.createObjectURL(file);x.iconType='custom';x.iconImageUrl='';
+   row.querySelector('[data-field="iconType"]').value='custom';row.querySelector('[data-field="iconImageUrl"]').value='';credentialUpdatePreview(row,x);
+  });
+  root.append(row);credentialUpdatePreview(row,x);
+ });
+}
 document.getElementById('addCredential').onclick=()=>{credentialDraft.push({name:'',issuer:'',category:'coach',visible:true,featured:false});credentialRender()};
-document.getElementById('credentialRows').addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;const i=Number(b.closest('.credentialRow').dataset.i),act=b.dataset.action;if(act==='delete')credentialDraft.splice(i,1);else {const j=i+(act==='up'?-1:1);if(j<0||j>=credentialDraft.length)return;[credentialDraft[i],credentialDraft[j]]=[credentialDraft[j],credentialDraft[i]]}credentialRender()});
-document.getElementById('saveCredentials').onclick=async()=>{try{const items=credentialDraft.filter(x=>x.name.trim()).map(x=>({...x,name:x.name.trim(),category:credentialGuessCategory(x)}));await set(ref(db,'homepage/credentialItems'),items);message(document.getElementById('credentialMsg'),'자격 목록이 저장되었습니다. 홈페이지에 실시간 반영됩니다.')}catch(e){message(document.getElementById('credentialMsg'),'저장 실패: '+e.message,false)}};
+document.getElementById('credentialRows').addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;const i=Number(b.closest('.credentialRow').dataset.i),act=b.dataset.action;if(act==='delete'){if(credentialDraft[i].iconFilePreview)URL.revokeObjectURL(credentialDraft[i].iconFilePreview);credentialDraft.splice(i,1);}else {const j=i+(act==='up'?-1:1);if(j<0||j>=credentialDraft.length)return;[credentialDraft[i],credentialDraft[j]]=[credentialDraft[j],credentialDraft[i]]}credentialRender()});
+document.getElementById('saveCredentials').onclick=async()=>{
+ const btn=document.getElementById('saveCredentials');btn.disabled=true;
+ try{
+  const items=[];
+  for(const x of credentialDraft.filter(x=>String(x.name||'').trim())){
+   const item={name:x.name.trim(),issuer:String(x.issuer||'').trim(),category:credentialGuessCategory(x),visible:x.visible!==false,featured:!!x.featured,url:String(x.url||'').trim(),badgeUrl:String(x.badgeUrl||'').trim(),circleColor:credentialValidHex(x.circleColor,x.name==='ICF PCC'?'#203e68':'#f6f8fb'),iconColor:credentialValidHex(x.iconColor,x.name==='ICF PCC'?'#ffffff':'#446083'),iconType:x.iconType||'medal',iconImageUrl:String(x.iconImageUrl||'').trim()};
+   if(x.iconType==='custom'&&x.iconFile)item.iconImageUrl=await upload(x.iconFile,'credentials/icons');
+   if(item.iconImageUrl&&!/^https?:\/\//.test(item.iconImageUrl))throw Error('이미지 URL은 http 또는 https 주소여야 합니다.');
+   items.push(item);
+  }
+  await set(ref(db,'homepage/credentialItems'),items);
+  credentialDraft=items.map(x=>({...x}));credentialRender();
+  message(document.getElementById('credentialMsg'),'저장 완료! 홈페이지의 자격 배지에 반영됩니다.');
+ }catch(e){message(document.getElementById('credentialMsg'),'저장 실패: '+e.message,false)}finally{btn.disabled=false}
+};
 // 실시간 수신 때 편집하던 값을 잃지 않도록, 비활성 상태에서만 갱신
 const oldRenderAll=renderAll;
 renderAll=function(){oldRenderAll();credentialLoad();updateVisibilityAudit()};

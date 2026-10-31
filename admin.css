@@ -40,3 +40,17 @@
 .credentialsEditor select[data-field="category"]{width:100%;min-height:39px;border:1px solid #cbd5e1;border-radius:8px;padding:8px;background:#fff;color:#253449}
 
 .activityAdminFilterLabel{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:14px 0;font-weight:700}.activityAdminFilterLabel select{max-width:230px;padding:9px 12px;border:1px solid #cdd7e5;border-radius:8px}
+
+/* Per-credential icon & color editor */
+.credentialEditorMain{display:grid;grid-template-columns:65px minmax(0,1fr);gap:18px;align-items:center}
+.credentialLivePreview{width:55px;height:55px;display:grid;place-items:center;border-radius:50%;border:1px solid #d9e2ec;box-sizing:border-box;overflow:hidden;font-size:11px;text-align:center}
+.credentialLivePreview svg{width:28px;height:28px}.credentialLivePreview img{width:66%;height:66%;object-fit:contain}
+.credentialVisualControls{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:14px;margin:16px 0 8px;padding:13px;background:#fff;border:1px solid #e0e6f0;border-radius:11px}
+.credentialVisualControls label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:650}
+.credentialVisualControls input[type=color]{width:100%;height:38px;cursor:pointer;padding:3px;border:1px solid #cbd5e1;border-radius:8px;background:white}
+.credentialVisualControls select{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:8px;background:white;min-height:38px}
+.credentialColorHexBg,.credentialColorHexFg{font-size:10px;color:#718096;font-weight:400}
+.credentialCustomUpload:not([hidden]){display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.credentialCustomUpload label{font-size:12px;min-width:0}.credentialCustomUpload input{width:100%;box-sizing:border-box;margin-top:5px}
+.credentialCustomUpload small{grid-column:1/-1;color:#6b778a}
+@media(max-width:640px){.credentialVisualControls{grid-template-columns:1fr 1fr}.credentialVisualControls label:last-child{grid-column:1/-1}.credentialCustomUpload:not([hidden]){grid-template-columns:1fr}.credentialCustomUpload small{grid-column:1}.credentialFields{grid-template-columns:1fr}.credentialEditorMain{grid-template-columns:55px minmax(0,1fr)}}
