@@ -112,7 +112,7 @@ function render(C){
   archivedContent={education,cases,ax,notes:mapped.filter(x=>kind(x)==='notes')};$('#axGrid').innerHTML=ax.length?visibleItems(ax,C.displaySettings?.ax).map(articleCard).join(''):'<p style="color:#d6dfed">등록된 AX·공공혁신 사례가 없습니다. 관리자에서 사례를 등록해 주세요.</p>';
   $('#caseGrid').innerHTML=cases.length?visibleItems(cases,C.displaySettings?.cases).map(articleCard).join(''):'<p class="emptyPortfolio">공개 가능한 코칭사례를 정리 중입니다.</p>';
   const now=C.now||{};
-  const featuredNow=visibleItems(archivedNow,C.displaySettings?.now); $('#nowContent').innerHTML=featuredNow.length?featuredNow.map(x=>`<article class="nowRecord">${img(x.image,'nowPhoto')}<div><small>${esc(x.date||'')}</small><h3>${richBody(x.title)}</h3>${authorByline()}<p>${richBody(x.body)}</p></div></article>`).join(''):`${now.published===false?"":img(now.image,'nowPhoto')}<div><h3>${richBody(now.title||'현재의 관심을 기록하는 공간')}</h3><p>${richBody(now.body||'코칭과 연구, 현장에서 발견한 질문을 기록합니다.')}</p></div>`;
+  const featuredNow=visibleItems(archivedNow,C.displaySettings?.now); $('#nowContent').innerHTML=featuredNow.length?featuredNow.map(x=>`<article class="nowRecord">${img(x.image,'nowPhoto')}<div><small>${esc(x.date||'')}</small><h3>${richBody(x.title)}</h3>${authorByline(x,true)}<p>${richBody(x.body)}</p></div></article>`).join(''):`${now.published===false?"":img(now.image,'nowPhoto')}<div><h3>${richBody(now.title||'현재의 관심을 기록하는 공간')}</h3><p>${richBody(now.body||'코칭과 연구, 현장에서 발견한 질문을 기록합니다.')}</p></div>`;
   const sns=C.social||{};const channelNames={blog:'블로그',youtube:'YouTube',instagram:'Instagram',facebook:'Facebook',linkedin:'LinkedIn',threads:'Threads'};
   $('#socialLinks').innerHTML=Object.entries(channelNames).map(([key,name])=>ext(sns[key],name)).join('')+ext(sns.otherUrl,sns.otherName||'다른 채널');
   $('#contactMessage').textContent=C.contact.message||'';
@@ -137,7 +137,7 @@ function embeddedPdf(x){
  return `<section class="pdfPublicBlock"><div class="pdfPublicHeader"><strong>원문 PDF 읽기</strong><span>${escPdf(x.pdfName||'첨부 PDF')}</span></div><iframe class="pdfPublicFrame" title="원문 PDF 미리보기" loading="lazy" src="${escPdf(viewer)}"></iframe><a class="pdfFullLink" href="${escPdf(viewer)}" target="_blank" rel="noopener">전체 화면으로 읽기 ↗</a></section>`;
 }
 function displayPdfInModal(selector,item){const el=document.querySelector(selector);if(!el)return;el.innerHTML=embeddedPdf(item);}
-function authorByline(){return '<div class="authorByline"><span class="bylineMark">정</span><span class="bylineText"><strong>글 정을균</strong><small>코칭학 박사 · KSC · ICF PCC</small></span></div>'}
+function authorByline(item,isNow=false){const owned=isNow||item?.authorName==='정을균'||/wr_id=(63|67|71)(?:\\D|$)/.test(item?.url||'');if(!owned)return '';const name=item?.authorName||'글 정을균',bio=item?.authorBio||'코칭학 박사 · KSC · ICF PCC';return `<div class="authorByline"><span class="bylineMark">정</span><span class="bylineText"><strong>${esc(name)}</strong><small>${esc(bio)}</small></span></div>`}
 function renderColumns(items){
   const categories=[...new Set(items.map(x=>x.category).filter(Boolean))];const categorySelect=$('#columnCategory');
   categorySelect.innerHTML='<option value="">전체 주제</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');categorySelect.value=categories.includes(columnCategory)?columnCategory:'';
@@ -150,7 +150,7 @@ function openColumnCard(card){
   if(!item)return;
   const d=document.querySelector('#columnDialog');
   document.querySelector('#columnModalMeta').textContent=[item.publisher,item.date,item.category].filter(Boolean).join(' · ');
-  document.querySelector('#columnModalTitle').innerHTML=richBody(item.title||'');document.querySelector('#columnModalAuthor').innerHTML=authorByline();
+  document.querySelector('#columnModalTitle').innerHTML=richBody(item.title||'');document.querySelector('#columnModalAuthor').innerHTML=authorByline(item);
   document.querySelector('#columnModalBody').innerHTML=richBody(item.body||item.summary||'');
   const picture=document.querySelector('#columnModalImage');
   const src=httpUrl(item.image);
