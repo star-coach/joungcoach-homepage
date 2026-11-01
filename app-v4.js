@@ -137,7 +137,7 @@ function embeddedPdf(x){
  return `<section class="pdfPublicBlock"><div class="pdfPublicHeader"><strong>원문 PDF 읽기</strong><span>${escPdf(x.pdfName||'첨부 PDF')}</span></div><iframe class="pdfPublicFrame" title="원문 PDF 미리보기" loading="lazy" src="${escPdf(viewer)}"></iframe><a class="pdfFullLink" href="${escPdf(viewer)}" target="_blank" rel="noopener">전체 화면으로 읽기 ↗</a></section>`;
 }
 function displayPdfInModal(selector,item){const el=document.querySelector(selector);if(!el)return;el.innerHTML=embeddedPdf(item);}
-function authorByline(item,isNow=false){const owned=isNow||item?.authorName==='정을균'||/wr_id=(63|67|71)(?:&|$)/.test(item?.url||'');if(!owned)return '';const name=item?.authorName||'글 정을균',bio=item?.authorBio||'코칭학 박사 · KSC · ICF PCC';return `<div class="authorByline"><span class="bylineMark">정</span><span class="bylineText"><strong>${esc(name)}</strong><small>${esc(bio)}</small></span></div>`}
+function authorByline(item,isNow=false){const owned=isNow||item?.authorName==='정을균'||/wr_id=(63|67|71)(?:&|$)/.test(item?.url||'');if(!owned)return '';const name=item?.authorName||'정을균';return `<p class="authorByline">작성자: <strong>${esc(name)}</strong></p>`}
 function renderColumns(items){
   const categories=[...new Set(items.map(x=>x.category).filter(Boolean))];const categorySelect=$('#columnCategory');
   categorySelect.innerHTML='<option value="">전체 주제</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');categorySelect.value=categories.includes(columnCategory)?columnCategory:'';
