@@ -112,7 +112,7 @@ function render(C){
   archivedContent={education,cases,ax,notes:mapped.filter(x=>kind(x)==='notes')};$('#axGrid').innerHTML=ax.length?visibleItems(ax,C.displaySettings?.ax).map(articleCard).join(''):'<p style="color:#d6dfed">등록된 AX·공공혁신 사례가 없습니다. 관리자에서 사례를 등록해 주세요.</p>';
   $('#caseGrid').innerHTML=cases.length?visibleItems(cases,C.displaySettings?.cases).map(articleCard).join(''):'<p class="emptyPortfolio">공개 가능한 코칭사례를 정리 중입니다.</p>';
   const now=C.now||{};
-  const featuredNow=visibleItems(archivedNow,C.displaySettings?.now); $('#nowContent').innerHTML=featuredNow.length?featuredNow.map(x=>`<article class="nowRecord">${img(x.image,'nowPhoto')}<div><small>${esc(x.date||'')}</small><h3>${richBody(x.title)}</h3>${authorByline(x,true)}<p>${richBody(x.body)}</p></div></article>`).join(''):`${now.published===false?"":img(now.image,'nowPhoto')}<div><h3>${richBody(now.title||'현재의 관심을 기록하는 공간')}</h3><p>${richBody(now.body||'코칭과 연구, 현장에서 발견한 질문을 기록합니다.')}</p></div>`;
+  const featuredNow=visibleItems(archivedNow,C.displaySettings?.now); $('#nowContent').innerHTML=featuredNow.length?featuredNow.map(x=>`<article class="nowRecord">${nowPhotoMarkup(x)}<div><small>${esc(x.date||'')}</small><h3>${richBody(x.title)}</h3>${authorByline(x,true)}<p>${richBody(x.body)}</p></div></article>`).join(''):`${now.published===false?"":img(now.image,'nowPhoto')}<div><h3>${richBody(now.title||'현재의 관심을 기록하는 공간')}</h3><p>${richBody(now.body||'코칭과 연구, 현장에서 발견한 질문을 기록합니다.')}</p></div>`;
   const sns=C.social||{};const channelNames={blog:'블로그',youtube:'YouTube',instagram:'Instagram',facebook:'Facebook',linkedin:'LinkedIn',threads:'Threads'};
   $('#socialLinks').innerHTML=Object.entries(channelNames).map(([key,name])=>ext(sns[key],name)).join('')+ext(sns.otherUrl,sns.otherName||'다른 채널');
   $('#contactMessage').textContent=C.contact.message||'';
@@ -138,6 +138,13 @@ function embeddedPdf(x){
 }
 function displayPdfInModal(selector,item){const el=document.querySelector(selector);if(!el)return;el.innerHTML=embeddedPdf(item);}
 function authorByline(item,isNow=false){const owned=isNow||item?.authorName==='정을균'||/wr_id=(63|67|71)(?:&|$)/.test(item?.url||'');if(!owned)return '';const name=item?.authorName||'정을균';return `<p class="authorByline">작성자: <strong>${esc(name)}</strong></p>`}
+function nowPhotoMarkup(item){
+  const lead=httpUrl(item.image);
+  const photos=[...(lead?[{url:lead,caption:''}]:[]),...normalizedGallery(item.gallery).slice(0,2)].slice(0,3);
+  if(!photos.length)return '';
+  if(photos.length===1)return img(photos[0].url,'nowPhoto');
+  return '<div class="nowPhotoMosaic" aria-label="일상 기록 사진">'+photos.map((p,i)=>`<figure class="${i===0?'nowPhotoLead':''}"><img loading="lazy" src="${esc(httpUrl(p.url))}" alt="${esc(p.caption||((item.title||'일상 기록')+' 사진 '+(i+1)))}">${p.caption?`<figcaption>${esc(p.caption)}</figcaption>`:''}</figure>`).join('')+'</div>';
+}
 function renderColumns(items){
   const categories=[...new Set(items.map(x=>x.category).filter(Boolean))];const categorySelect=$('#columnCategory');
   categorySelect.innerHTML='<option value="">전체 주제</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');categorySelect.value=categories.includes(columnCategory)?columnCategory:'';
