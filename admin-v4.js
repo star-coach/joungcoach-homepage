@@ -24,12 +24,12 @@ async function uploadPdfPagePreviews(file,kind,id){
  const lib=await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.mjs');
  lib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.mjs';
  const bytes=new Uint8Array(await file.arrayBuffer());
- const document=await lib.getDocument({data:bytes}).promise;
- if(document.numPages>60)throw Error('60페이지 초과 문서는 이미지 열람을 지원하지 않습니다.');
+ const pdfDocument=await lib.getDocument({data:bytes}).promise;
  const result=[];
  try{
-  for(let page=1;page<=document.numPages;page++){
-   const pdfPage=await document.getPage(page),base=pdfPage.getViewport({scale:1});
+  if(pdfDocument.numPages>60)throw Error('60페이지 초과 문서는 이미지 열람을 지원하지 않습니다.');
+  for(let page=1;page<=pdfDocument.numPages;page++){
+   const pdfPage=await pdfDocument.getPage(page),base=pdfPage.getViewport({scale:1});
    const view=pdfPage.getViewport({scale:Math.min(1.6,1400/base.width)});
    const canvas=document.createElement('canvas');canvas.width=Math.ceil(view.width);canvas.height=Math.ceil(view.height);
    const context=canvas.getContext('2d',{alpha:false});
@@ -44,7 +44,7 @@ async function uploadPdfPagePreviews(file,kind,id){
    canvas.width=canvas.height=0;
   }
   return result;
- }finally{await document.destroy()}
+ }finally{await pdfDocument.destroy()}
 }
 async function savePdf(form,kind,id,old={}){
  const input=form.querySelector('.pdfFileInput');
