@@ -16,7 +16,7 @@ function pdfEditor(form,data={}){
  if(!input)return;
  input.value=''; remove.checked=false;
  const url=String(data.pdfUrl||'');
- info.textContent=url?'등록된 원문: '+(data.pdfName||'PDF 파일')+(Array.isArray(data.pdfPages)&&data.pdfPages.length?' · 열람용 이미지 '+data.pdfPages.length+'페이지':' · 열람용 이미지 미생성'):'등록된 PDF 없음';
+ info.textContent=url?'등록된 원문: '+(data.pdfName||'PDF 파일')+(Array.isArray(data.pdfPages)&&data.pdfPages.length?' · 열람용 이미지 '+data.pdfPages.length+'페이지':' · 열람용 이미지 없음: 같은 PDF를 다시 업로드해 주세요'):'등록된 PDF 없음';
 }
 // PDF.js renders preview images locally from the selected File. Public pages display these images
 // via ordinary <img> elements, avoiding cross-origin PDF.js reads from Firebase Storage.
@@ -56,10 +56,12 @@ async function savePdf(form,kind,id,old={}){
   const r=sRef(storage,`homepage/${kind}/pdf/${id}/${Date.now()}_${safeName(file.name)}`);
   await uploadBytes(r,file,{contentType:'application/pdf',customMetadata:{originalName:file.name}});
   const pdfUrl=await getDownloadURL(r);
-  // A preview error must never prevent saving a successfully uploaded PDF.
+  // 원문 공개 시 다운로드 대신 페이지를 볼 수 있어야 합니다.
+  // 생성 실패 시 기존 게시글을 덮어쓰지 않고 오류를 명확히 안내합니다.
   let pdfPages=[];
   try{pdfPages=await uploadPdfPagePreviews(file,kind,id)}
-  catch(error){console.warn('PDF preview generation failed:',error);}
+  catch(error){throw Error('PDF 페이지 미리보기를 생성하지 못했습니다. 기존 글은 유지됩니다. 다시 시도하거나 PDF 용량·형식을 확인해 주세요. 상세 오류: '+error.message);}
+  if(!pdfPages.length)throw Error('PDF 페이지 미리보기가 생성되지 않아 저장하지 않았습니다.');
   return {pdfUrl,pdfName:file.name,pdfPages};
  }
  if(form.querySelector('.pdfRemove')?.checked)return {pdfUrl:'',pdfName:'',pdfPages:[]};

@@ -24,7 +24,7 @@ const publicItems=items=>(items||[]).filter(x=>x.published!==false);
 const visibleItems=(items,setting)=>{const mode=setting?.mode||'latest', count=Math.max(0,Math.min(100,Number(setting?.count??3)));return publicItems(items).sort((a,b)=>(Number(!!(b.pinned||b.featured))-Number(!!(a.pinned||a.featured)))||String(b.date||b.year||'').localeCompare(String(a.date||a.year||''))).slice(0,count)};
 const plainBreak=s=>esc(s).replace(/\r?\n/g,'<br>');
 // 사용자 본문은 먼저 HTML 이스케이프 처리하고 허용된 굵게/색상 태그만 표현합니다.
-const richBody=s=>plainBreak(s).replace(/\[b\]([\s\S]*?)\[\/b\]/gi,'<strong>$1</strong>').replace(/\[color=(#[0-9a-fA-F]{6})\]([\s\S]*?)\[\/color\]/gi,(_,color,value)=>`<span style="color:${color}">${value}</span>`).replace(/\[small\]([\s\S]*?)\[\/small\]/gi,'<span class="inlineSmall">$1</span>').replace(/\[muted\]([\s\S]*?)\[\/muted\]/gi,'<span class="inlineMuted">$1</span>').replace(/\[size=(\d{1,2})\]([\s\S]*?)\[\/size\]/gi,(_,size,value)=>`<span style="font-size:${Math.max(10,Math.min(48,Number(size)))}px">${value}</span>`);
+const richBody=s=>plainBreak(String(s??'').replace(/<\/?(?:b|strong)>/gi,t=>/^<\//.test(t)?'[/b]':'[b]').replace(/\*\*([^*\n]+)\*\*/g,'[b]$1[/b]')).replace(/\[b\]([\s\S]*?)\[\/b\]/gi,'<strong>$1</strong>').replace(/\[color=(#[0-9a-fA-F]{6})\]([\s\S]*?)\[\/color\]/gi,(_,color,value)=>`<span style="color:${color}">${value}</span>`).replace(/\[small\]([\s\S]*?)\[\/small\]/gi,'<span class="inlineSmall">$1</span>').replace(/\[muted\]([\s\S]*?)\[\/muted\]/gi,'<span class="inlineMuted">$1</span>').replace(/\[size=(\d{1,2})\]([\s\S]*?)\[\/size\]/gi,(_,size,value)=>`<span style="font-size:${Math.max(10,Math.min(48,Number(size)))}px">${value}</span>`);
 let archivedResearch=[],archivedNow=[],archivedContent={education:[],cases:[],notes:[]},archiveType='research';
 const fontStacks = {
   sans: 'Inter,"Noto Sans KR",sans-serif',
@@ -85,8 +85,8 @@ function render(C){
   $('#heroIntro').textContent=C.profile.intro||DEFAULT_CONTENT.profile.intro;
   $('#heroPhoto').src=C.profile.photo||'assets/images/profile.jpg';
   $('#philEyebrow').textContent=C.philosophy.eyebrow||'';
-  $('#philTitle').textContent=C.philosophy.title||'';
-  $('#philBody').textContent=C.philosophy.body||'';
+  $('#philTitle').innerHTML=richBody(C.philosophy.title||'');
+  $('#philBody').innerHTML=richBody(C.philosophy.body||'');
   $('#aboutTitle').textContent=C.sectionCopy.aboutTitle||'';
   $('#researchTitle').textContent=C.sectionCopy.researchTitle||'';
   $('#coachingTitle').textContent=C.sectionCopy.coachingTitle||'';
@@ -149,8 +149,8 @@ function openColumnCard(card){
   if(!item)return;
   const d=document.querySelector('#columnDialog');
   document.querySelector('#columnModalMeta').textContent=[item.publisher,item.date,item.category].filter(Boolean).join(' · ');
-  document.querySelector('#columnModalTitle').textContent=item.title||'';
-  document.querySelector('#columnModalBody').textContent=item.body||item.summary||'';
+  document.querySelector('#columnModalTitle').innerHTML=richBody(item.title||'');
+  document.querySelector('#columnModalBody').innerHTML=richBody(item.body||item.summary||'');
   const picture=document.querySelector('#columnModalImage');
   const src=httpUrl(item.image);
   if(src){picture.src=src;picture.style.display='block';picture.alt=(item.title||'칼럼')+' 이미지';}
