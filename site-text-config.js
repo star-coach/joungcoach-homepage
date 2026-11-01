@@ -116,13 +116,13 @@ export const SITE_TEXT_FIELDS = [
   },
   {
     "key": "nowTitle",
-    "label": "요즘의 관심 · 제목",
-    "default": "요즘의 관심과 생각"
+    "label": "일상의 발견 · 제목",
+    "default": "일상의 발견"
   },
   {
     "key": "nowDesc",
-    "label": "요즘의 관심 · 설명",
-    "default": "현재 탐구하고 있는 주제와 진행 중인 활동을 기록합니다."
+    "label": "일상의 발견 · 설명",
+    "default": "사진 한 장에서 시작하는 짧은 관찰과 생각을 기록합니다."
   },
   {
     "key": "researchMore",
@@ -156,7 +156,7 @@ export const SITE_TEXT_FIELDS = [
   },
   {
     "key": "nowMore",
-    "label": "버튼 · 관심 기록 전체 보기",
-    "default": "전체 관심 기록 보기 ↗"
+    "label": "버튼 · 일상의 발견 더 보기",
+    "default": "일상의 발견 더 보기 ↗"
   }
 ];
