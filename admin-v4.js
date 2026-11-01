@@ -210,8 +210,8 @@ function selectAdminNav(b){
   const nextCategory=b.dataset.category||'교육·교재';
   if(nextCategory!==currentArticleCategory){$('#articleForm').hidden=true;$('#articleForm').reset();$('#articleForm').elements.id.value='';}
   currentArticleCategory=nextCategory;
-  const t=document.querySelector('#articleSectionTitle');if(t)t.textContent=({'연구노트':'생각·성찰','코칭사례':'코칭 현장사례'}[currentArticleCategory]||currentArticleCategory)+' 관리';
-  const badge=document.querySelector('#articleCategoryBadge');if(badge)badge.textContent=currentArticleCategory+' 전용 작성 · 이 메뉴의 기록만 저장됩니다.';
+  const t=document.querySelector('#articleSectionTitle');if(t)t.textContent=({'연구노트':'생각·성찰 (연구노트)','코칭사례':'코칭 현장사례'}[currentArticleCategory]||currentArticleCategory)+' 관리';
+  const badge=document.querySelector('#articleCategoryBadge');if(badge)badge.textContent=({'연구노트':'생각·성찰 (연구노트)','코칭사례':'코칭 현장사례'}[currentArticleCategory]||currentArticleCategory)+' 전용 작성 · 이 메뉴의 기록만 저장됩니다.';
   renderArticleSection();fillArticlePrefs();
  }
 }
@@ -426,7 +426,7 @@ for(const [fid,{input}] of Object.entries(imageSettingsFor)){document.getElement
 
 // 각 홈페이지 섹션 노출 갯수 및 대표 게시물 설정
 const articlePrefKey=()=>({'교육·교재':'education','코칭사례':'cases','AX·공공혁신':'ax','연구노트':'notes'})[currentArticleCategory]||'notes';
-function fillArticlePrefs(){const v=cache.displaySettings?.[articlePrefKey()]||{};const h=$('#articlePrefsHeading');if(h)h.textContent=`${({"연구노트":"생각·성찰","코칭사례":"코칭 현장사례"}[currentArticleCategory]||currentArticleCategory)} · 홈페이지 첫 화면 표시 설정`;const m=$('#articleMode'),c=$('#articleCount');if(m&&document.activeElement!==m)m.value=v.mode||'latest';if(c&&document.activeElement!==c)c.value=v.count??3;}
+function fillArticlePrefs(){const v=cache.displaySettings?.[articlePrefKey()]||{};const h=$('#articlePrefsHeading');if(h)h.textContent=`${({"연구노트":"생각·성찰 (연구노트)","코칭사례":"코칭 현장사례"}[currentArticleCategory]||currentArticleCategory)} · 홈페이지 첫 화면 표시 설정`;const m=$('#articleMode'),c=$('#articleCount');if(m&&document.activeElement!==m)m.value=v.mode||'latest';if(c&&document.activeElement!==c)c.value=v.count??3;}
 $('#articlePrefsSave').addEventListener('click',async()=>{try{await set(ref(db,`homepage/displaySettings/${articlePrefKey()}`),{mode:$('#articleMode').value,count:Math.max(0,Math.min(30,Number($('#articleCount').value)||0))});message($('#articlePrefsMsg'),`${currentArticleCategory} 첫 화면 표시 설정이 저장되었습니다.`)}catch(e){message($('#articlePrefsMsg'),'저장 실패: '+e.message,false)}});
 // 제목·요약·본문에서 선택한 부분만 작게/옅게 표시 (문자열 보존 방식)
 // 선택 영역은 서식 버튼을 클릭하기 직전 상태로 유지합니다.
@@ -481,8 +481,8 @@ onValue(ref(db,'visitorStats'),s=>renderVisitorStats(s.val()),err=>{console.warn
 const MOVE_DESTINATIONS=[
  ['research','','학술연구'],['columns','','칼럼·기고·인터뷰'],
  ['articles','교육·교재','교육·교재'],['articles','코칭사례','코칭 현장사례'],
- ['articles','AX·공공혁신','AX·공공혁신'],['articles','연구노트','생각·성찰'],
- ['activities','','활동'],['areas','','핵심 영역'],['nowEntries','','요즘의 관심']
+ ['articles','AX·공공혁신','AX·공공혁신'],['articles','연구노트','생각·성찰 (연구노트)'],
+ ['activities','','활동·현장 기록'],['areas','','코칭 전문영역'],['nowEntries','','요즘의 관심과 생각']
 ];
 const MOVE_FORMS={research:'researchForm',columns:'columnForm',articles:'articleForm',activities:'activityForm',areas:'areaForm',nowEntries:'nowEntryForm'};
 function moveLocation(type,item){return type==='articles'?`${type}|${normalizedArticleCategory(item.category)}`:`${type}|`;}
