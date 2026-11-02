@@ -107,8 +107,13 @@ function render(C){
   const mapped=publicItems(C.articles).map((x,i)=>({...x,originalIndex:i}));
   // Keep the featured solution-focused note from appearing a second time in the homepage list.
   const featuredNoteTitle='단기해결코칭, 작은 변화를 실행으로 연결하다';
-  const notes=mapped.filter(x=>kind(x)==='notes'&&String(x.title||'').trim()!==featuredNoteTitle&&[x.title,x.summary,x.body,x.category].join(' ').toLowerCase().includes(articleQuery));
-  $('#articleGrid').innerHTML=notes.length?visibleItems(notes,C.displaySettings?.notes).map(articleCard).join(''):'<p class="emptyPortfolio">등록된 연구노트가 없습니다.</p>';
+  const homepageNotes=mapped.filter(x=>kind(x)==='notes'&&String(x.title||'').trim()!==featuredNoteTitle);
+  const notes=homepageNotes.filter(x=>[x.title,x.summary,x.body,x.category].join(' ').toLowerCase().includes(articleQuery));
+  const showHomepageNoteList=homepageNotes.length>0;
+  const noteSearch=$('#articleSearch').closest('.searchLabel');
+  if(noteSearch)noteSearch.style.display=showHomepageNoteList?'':'none';
+  $('#articleGrid').style.display=showHomepageNoteList?'':'none';
+  $('#articleGrid').innerHTML=notes.length?visibleItems(notes,C.displaySettings?.notes).map(articleCard).join(''):(showHomepageNoteList?'<p class="emptyPortfolio">검색 결과가 없습니다.</p>':'');
   const education=mapped.filter(x=>kind(x)==='education'),cases=mapped.filter(x=>kind(x)==='cases'),ax=mapped.filter(x=>kind(x)==='ax');
   $('#educationGrid').innerHTML=education.length?visibleItems(education,C.displaySettings?.education).map(articleCard).join(''):'<p class="emptyPortfolio">교육 프로그램과 교재 소개가 준비 중입니다.</p>';
   archivedContent={education,cases,ax,notes:mapped.filter(x=>kind(x)==='notes')};$('#axGrid').innerHTML=ax.length?visibleItems(ax,C.displaySettings?.ax).map(articleCard).join(''):'<p style="color:#d6dfed">등록된 AX·공공혁신 사례가 없습니다. 관리자에서 사례를 등록해 주세요.</p>';
