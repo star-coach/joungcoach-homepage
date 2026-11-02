@@ -105,7 +105,9 @@ function render(C){
   const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';if(['AX·공공혁신','AX혁신','공공혁신','AX·공공혁신 사례'].includes(c))return 'ax';return 'notes';};
   const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${imageWithSettings(x,'articleThumb',kind(x)==='education'?'education':'')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3 class="articleCardTitle" style="color:#172033">${richBody(x.title)}</h3><p>${richBody(x.summary)}</p></article>`;
   const mapped=publicItems(C.articles).map((x,i)=>({...x,originalIndex:i}));
-  const notes=mapped.filter(x=>kind(x)==='notes'&&[x.title,x.summary,x.body,x.category].join(' ').toLowerCase().includes(articleQuery));
+  // Keep the featured solution-focused note from appearing a second time in the homepage list.
+  const featuredNoteTitle='단기해결코칭, 작은 변화를 실행으로 연결하다';
+  const notes=mapped.filter(x=>kind(x)==='notes'&&String(x.title||'').trim()!==featuredNoteTitle&&[x.title,x.summary,x.body,x.category].join(' ').toLowerCase().includes(articleQuery));
   $('#articleGrid').innerHTML=notes.length?visibleItems(notes,C.displaySettings?.notes).map(articleCard).join(''):'<p class="emptyPortfolio">등록된 연구노트가 없습니다.</p>';
   const education=mapped.filter(x=>kind(x)==='education'),cases=mapped.filter(x=>kind(x)==='cases'),ax=mapped.filter(x=>kind(x)==='ax');
   $('#educationGrid').innerHTML=education.length?visibleItems(education,C.displaySettings?.education).map(articleCard).join(''):'<p class="emptyPortfolio">교육 프로그램과 교재 소개가 준비 중입니다.</p>';
