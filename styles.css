@@ -239,3 +239,14 @@ footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self
 .researchFeatureContent .researchFeatureMeta{font-size:12px;color:#778399}
 .researchFeatureAction{display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-top:auto;padding-top:15px;color:#234dc2;font-size:13px;font-weight:750}
 @media(max-width:760px){.researchFeatureGrid{grid-template-columns:1fr;gap:19px}.researchFeatureMedia{height:235px}.researchFeatureContent{padding:22px}.researchFeatureHeading{margin-top:20px}}
+
+/* Aligned two-card research note reading layout: empathy and solution-focused coaching */
+.researchFeatureCard .researchFeatureContent{padding:24px;display:flex;flex-direction:column;flex:1;gap:0}
+.researchFeatureReadable{margin:8px 0 12px;padding:17px 18px;background:#f5f8f9;border:1px solid #e6ecf1;border-radius:12px;flex:1}
+.researchFeatureReadable strong{display:block;font-size:13px;color:#243751;margin:12px 0 3px}
+.researchFeatureReadable strong:first-child{margin-top:0}
+.researchFeatureReadable p{font-size:13px;line-height:1.75;color:#5c6c7f;margin:0}
+.researchFeatureReadable b{color:#234f81}
+.researchFeatureAction{margin-top:auto;padding-top:14px;font-weight:750}
+.researchFeatureMedia,.researchFeatureMedia.bookFeatureMedia{height:240px}
+@media(max-width:760px){.researchFeatureMedia,.researchFeatureMedia.bookFeatureMedia{height:225px}.researchFeatureCard .researchFeatureContent{padding:21px}.researchFeatureReadable{padding:15px}}
