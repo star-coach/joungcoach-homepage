@@ -30,6 +30,11 @@ export const SITE_TEXT_FIELDS = [
     "default": "생각·성찰"
   },
   {
+    "key": "navNow",
+    "label": "메뉴 · 일상의 발견",
+    "default": "일상의 발견"
+  },
+  {
     "key": "navAx",
     "label": "메뉴 · 공공혁신",
     "default": "AX·공공혁신"
