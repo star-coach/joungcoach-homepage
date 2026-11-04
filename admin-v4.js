@@ -8,7 +8,7 @@ import { DEFAULT_CONTENT } from "./default-content.js";
 const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getDatabase(app), storage=getStorage(app); const $=s=>document.querySelector(s); let cache={};
 const vals=o=>o?Object.entries(o).map(([id,v])=>({id,...v})):[]; const safeName=n=>n.replace(/[^a-zA-Z0-9._-]/g,'_');
 function message(el,t,ok=true){el.textContent=t;el.style.color=ok?'#067647':'#b42318'}
-async function upload(file,folder){ if(!file) return ''; if(!file.type.startsWith('image/'))throw Error('이미지 파일만 등록 가능합니다.');if(file.size>10*1024*1024)throw Error('사진은 10MB 이하로 선택하세요.'); const r=sRef(storage,`homepage/${folder}/${Date.now()}_${safeName(file.name)}`); await uploadBytes(r,file); return await getDownloadURL(r); }
+async function upload(file,folder){ if(!file) return ''; if(!Number.isFinite(file.size)||file.size<=0)throw Error('선택한 이미지 파일이 비어 있습니다. 원본 파일을 다시 선택해 주세요.'); if(!file.type.startsWith('image/'))throw Error('이미지 파일만 등록 가능합니다.');if(file.size>10*1024*1024)throw Error('사진은 10MB 이하로 선택하세요.'); const r=sRef(storage,`homepage/${folder}/${Date.now()}_${safeName(file.name)}`); await uploadBytes(r,file); return await getDownloadURL(r); }
 // PDF는 이미지 경로와 분리하여 업로드합니다. 게시글을 수정할 때 기존 URL이 보존됩니다.
 const PDF_MAX_SIZE=20*1024*1024;
 function pdfEditor(form,data={}){
