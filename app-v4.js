@@ -8,7 +8,8 @@ const db = getDatabase(app);
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]));
 const values = obj => obj ? Object.entries(obj).map(([id,v])=>({id,...v})) : [];
-const byDateDesc = (a,b)=>String(b.date||'').localeCompare(String(a.date||''));
+const dateSortValue = value => { const m=String(value||'').trim().match(/^(\d{4})(?:\D+(\d{1,2}))?(?:\D+(\d{1,2}))?/); if(!m)return 0; const year=Number(m[1]),month=Number(m[2]||0),day=Number(m[3]||0); if(year<1900||year>2099||month>12||day>31)return 0; return year*10000+month*100+day; };
+const byDateDesc = (a,b)=>dateSortValue(b.date||b.year)-dateSortValue(a.date||a.year) || String(b.date||b.year||'').localeCompare(String(a.date||a.year||''));
 const byYearDesc = (a,b) => String(b.year || '').localeCompare(String(a.year || '')) || String(b.date || '').localeCompare(String(a.date || ''));
 const byOrder = (a,b)=>(Number(a.sortOrder)||999)-(Number(b.sortOrder)||999);
 let coachingFilter = "all", coachingActivities = []; let currentActivities = []; let currentArticles = []; let articleQuery = ""; let columnQuery="", columnCategory="";
@@ -21,7 +22,7 @@ const ext = (url,label) => httpUrl(url)?`<a href="${esc(httpUrl(url))}" target="
 
 const activityGroup=x=>{const c=String(x?.category||'').toLowerCase().replace(/\s/g,'');if(c.includes('슈퍼비전')||c.includes('멘토코칭')||c.includes('supervision')||c.includes('mentorcoaching'))return'supervision';if(['개인·그룹코칭','코칭활동','coaching','그룹코칭','개인코칭','1:1코칭'].some(v=>c===v.toLowerCase().replace(/\s/g,'')))return'coaching';return'other'};
 const publicItems=items=>(items||[]).filter(x=>x.published!==false);
-const visibleItems=(items,setting)=>{const mode=setting?.mode||'latest', count=Math.max(0,Math.min(100,Number(setting?.count??3)));return publicItems(items).sort((a,b)=>(Number(!!(b.pinned||b.featured))-Number(!!(a.pinned||a.featured)))||String(b.date||b.year||'').localeCompare(String(a.date||a.year||''))).slice(0,count)};
+const visibleItems=(items,setting)=>{const mode=setting?.mode||'latest',count=Math.max(0,Math.min(100,Number(setting?.count??3)));return publicItems(items).sort((a,b)=>{if(mode==='pinned'){const priority=Number(!!(b.pinned||b.featured))-Number(!!(a.pinned||a.featured));if(priority)return priority;}return byDateDesc(a,b)}).slice(0,count)};
 const plainBreak=s=>esc(s).replace(/\r?\n/g,'<br>');
 // 사용자 본문은 먼저 HTML 이스케이프 처리하고 허용된 굵게/색상 태그만 표현합니다.
 const richBody=s=>plainBreak(String(s??'').replace(/<\/?(?:b|strong)>/gi,t=>/^<\//.test(t)?'[/b]':'[b]').replace(/\*\*([^*\n]+)\*\*/g,'[b]$1[/b]')).replace(/\[b\]([\s\S]*?)\[\/b\]/gi,'<strong>$1</strong>').replace(/\[color=(#[0-9a-fA-F]{6})\]([\s\S]*?)\[\/color\]/gi,(_,color,value)=>`<span style="color:${color}">${value}</span>`).replace(/\[small\]([\s\S]*?)\[\/small\]/gi,'<span class="inlineSmall">$1</span>').replace(/\[muted\]([\s\S]*?)\[\/muted\]/gi,'<span class="inlineMuted">$1</span>').replace(/\[size=(\d{1,2})\]([\s\S]*?)\[\/size\]/gi,(_,size,value)=>`<span style="font-size:${Math.max(10,Math.min(48,Number(size)))}px">${value}</span>`);
