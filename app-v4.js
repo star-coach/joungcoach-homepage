@@ -247,7 +247,7 @@ async function showArticle(el){
    const snap=await get(ref(db,'homepage/articles/'+a.id));
    if(request!==articleDetailRequest||!$('#articleDialog').open||!snap.exists())return;
    const fresh=snap.val();
-   renderDetailGallery('#modalGallery',fresh.gallery);displayPdfInModal('#modalPdf',fresh,'articles');
+   renderDetailGallery('#modalGallery',fresh.gallery);displayPdfInModal('#modalPdf',{...fresh,id:snap.key},'articles');
  }catch(error){console.warn('추가 사진 서버 조회 실패:',error);}
 } 
 ['#articleGrid','#educationGrid','#caseGrid','#axGrid'].forEach(sel=>{$(sel).addEventListener('click',e=>showArticle(e.target.closest('.article')));$(sel).addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const el=e.target.closest('.article');if(el){e.preventDefault();showArticle(el)}}});});
