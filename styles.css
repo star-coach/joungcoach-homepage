@@ -261,3 +261,5 @@ footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self
 .nowPreviewSummary{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;margin:0 0 14px}
 .nowPreviewRead{align-self:flex-start;margin-top:auto;color:#174ea6;font-size:14px;font-weight:700}
 .nowPreviewLink:hover .nowPreviewRead{text-decoration:underline}
+
+.moreRecords[data-archive-count]::after{content:attr(data-archive-count);display:inline-block;margin-inline-start:.6em;font-size:.85em;white-space:nowrap}

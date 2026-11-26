@@ -76,6 +76,11 @@ function applyTypography(typography){
   });
 }
 
+function showArchiveCount(type,total,visible){
+  const link=document.querySelector(`.moreRecords[href="archive.html?type=${type}"]`);
+  if(link)link.dataset.archiveCount=`추가 ${Math.max(0,total-visible)}건`;
+}
+
 function render(C){
   applyTheme(C.theme); applyTypography(C.typography);
   $('#heroRoles').textContent='JOUNG COACH · COACHING LEADERSHIP · PUBLIC SERVICE COACHING';
@@ -125,6 +130,19 @@ function render(C){
   $('#nowContent').innerHTML=featuredNow.length
     ? featuredNow.map(nowCard).join('')
     : '<div><h3>현재의 관심을 기록하는 공간</h3><p>코칭과 연구, 현장에서 발견한 질문을 기록합니다.</p></div>';
+  [
+    ['research',archivedResearch,'#researchList .timelineItem'],
+    ['activities',publicItems(C.activities).filter(x=>activityGroup(x)==='other'),'#activityGrid .activity'],
+    ['education',education,'#educationGrid .article'],
+    ['cases',cases,'#caseGrid .article'],
+    ['ax',ax,'#axGrid .article'],
+    ['now',archivedNow,'#nowContent .nowRecord']
+  ].forEach(([type,items,selector])=>showArchiveCount(type,items.length,document.querySelectorAll(selector).length));
+  // The two featured research notes are also included in the archive.
+  const isAdditionalNote=x=>!/단기해결코칭|Coaching with Empathy/i.test(String(x.title||''));
+  const archiveNotes=archivedContent.notes.filter(isAdditionalNote);
+  const shownNotes=visibleItems(notes,C.displaySettings?.notes).filter(isAdditionalNote);
+  showArchiveCount('notes',archiveNotes.length,shownNotes.length);
   const sns=C.social||{};const channelNames={blog:'블로그',youtube:'YouTube',instagram:'Instagram',facebook:'Facebook',linkedin:'LinkedIn',threads:'Threads'};
   $('#socialLinks').innerHTML=Object.entries(channelNames).map(([key,name])=>ext(sns[key],name)).join('')+ext(sns.otherUrl,sns.otherName||'다른 채널');
   $('#contactMessage').textContent=C.contact.message||'';
@@ -170,6 +188,7 @@ function renderColumns(items){
   const categories=[...new Set(items.map(x=>x.category).filter(Boolean))];const categorySelect=$('#columnCategory');
   categorySelect.innerHTML='<option value="">전체 주제</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');categorySelect.value=categories.includes(columnCategory)?columnCategory:'';
   const matching=publicItems(items).filter(x=>[x.title,x.publisher,x.category,x.summary].join(' ').toLowerCase().includes(columnQuery)&&(!columnCategory||x.category===columnCategory));
+  showArchiveCount('columns',publicItems(activeData.columns).length,matching.length);
   $('#columnGrid').innerHTML=matching.length?matching.map(x=>`<article class="columnCard" role="button" tabindex="0" data-column-id="${esc(x.id||'')}" aria-label="${esc(x.title||'칼럼')} 상세보기">${imageWithSettings(x,'columnThumb')}<div class="columnContent"><div class="meta">${esc(x.publisher||'외부 기고')} ${x.date?' · '+esc(x.date):''} · ${esc(x.category||'칼럼')}</div><h3>${richBody(x.title||'제목 미등록')}</h3><p>${richBody(x.summary||'')}</p><div class="columnBottom">${x.featured?'<span class="featuredTag">대표 글</span>':''}${ext(x.url,'원문 읽기')}</div></div></article>`).join(''):'<p class="columnsEmpty">등록된 칼럼이 없거나 검색 결과가 없습니다.</p>';
 }
 // 칼럼 카드도 교육 카드와 동일하게 내용 전체를 보여주는 상세 창을 엽니다.
