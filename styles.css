@@ -250,3 +250,14 @@ footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self
 .researchFeatureAction{margin-top:auto;padding-top:14px;font-weight:750}
 .researchFeatureMedia,.researchFeatureMedia.bookFeatureMedia{height:240px}
 @media(max-width:760px){.researchFeatureMedia,.researchFeatureMedia.bookFeatureMedia{height:225px}.researchFeatureCard .researchFeatureContent{padding:21px}.researchFeatureReadable{padding:15px}}
+
+.nowRecord.nowPreview{padding:0;overflow:hidden}
+.nowPreviewLink{display:flex;flex-direction:column;height:100%;color:inherit;text-decoration:none}
+.nowPreviewLink:focus-visible{outline:2px solid #174ea6;outline-offset:-3px}
+.nowPreviewPhoto{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#f4f7fb}
+.nowPreviewPhoto.nowPreviewContain{object-fit:contain}
+.nowPreviewText{display:flex;flex:1;flex-direction:column;padding:20px}
+.nowPreviewText small{color:#64748b}
+.nowPreviewSummary{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;margin:0 0 14px}
+.nowPreviewRead{align-self:flex-start;margin-top:auto;color:#174ea6;font-size:14px;font-weight:700}
+.nowPreviewLink:hover .nowPreviewRead{text-decoration:underline}

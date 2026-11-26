@@ -120,7 +120,10 @@ function render(C){
   archivedContent={education,cases,ax,notes:mapped.filter(x=>kind(x)==='notes')};$('#axGrid').innerHTML=ax.length?visibleItems(ax,C.displaySettings?.ax).map(articleCard).join(''):'<p style="color:#d6dfed">등록된 AX·공공혁신 사례가 없습니다. 관리자에서 사례를 등록해 주세요.</p>';
   $('#caseGrid').innerHTML=cases.length?visibleItems(cases,C.displaySettings?.cases).map(articleCard).join(''):'<p class="emptyPortfolio">공개 가능한 코칭사례를 정리 중입니다.</p>';
   const now=C.now||{};
-  const featuredNow=visibleItems(archivedNow,C.displaySettings?.now); $('#nowContent').innerHTML=featuredNow.length?featuredNow.map(x=>`<article class="nowRecord">${nowLeadPhotoMarkup(x)}<div><small>${esc(x.date||'')}</small><h3>${richBody(x.title)}</h3>${authorByline(x,true)}<p>${richBody(x.body)}</p></div>${nowExtraPhotosMarkup(x)}</article>`).join(''):`${now.published===false?"":img(now.image,'nowPhoto')}<div><h3>${richBody(now.title||'현재의 관심을 기록하는 공간')}</h3><p>${richBody(now.body||'코칭과 연구, 현장에서 발견한 질문을 기록합니다.')}</p></div>`;
+  const featuredNow=visibleItems(archivedNow,C.displaySettings?.now);
+  $('#nowContent').innerHTML=featuredNow.length
+    ? featuredNow.map(nowCard).join('')
+    : '<div><h3>현재의 관심을 기록하는 공간</h3><p>코칭과 연구, 현장에서 발견한 질문을 기록합니다.</p></div>';
   const sns=C.social||{};const channelNames={blog:'블로그',youtube:'YouTube',instagram:'Instagram',facebook:'Facebook',linkedin:'LinkedIn',threads:'Threads'};
   $('#socialLinks').innerHTML=Object.entries(channelNames).map(([key,name])=>ext(sns[key],name)).join('')+ext(sns.otherUrl,sns.otherName||'다른 채널');
   $('#contactMessage').textContent=C.contact.message||'';
@@ -146,10 +149,23 @@ function embeddedPdf(x){
 }
 function displayPdfInModal(selector,item){const el=document.querySelector(selector);if(!el)return;el.innerHTML=embeddedPdf(item);}
 function authorByline(item,isNow=false){const owned=isNow||item?.authorName==='정을균'||/wr_id=(63|67|71)(?:&|$)/.test(item?.url||'');if(!owned)return '';const name=item?.authorName||'정을균';return `<p class="authorByline">작성자: <strong>${esc(name)}</strong></p>`}
-function nowLeadPhotoMarkup(item){const lead=httpUrl(item.image);return lead?img(lead,'nowPhoto'):''}
-function nowExtraPhotosMarkup(item){
-  const photos=normalizedGallery(item.gallery);if(!photos.length)return '';
-  return '<div class="nowPhotoGallery">'+photos.map((p,i)=>`<figure><img loading="lazy" src="${esc(httpUrl(p.url))}" alt="${esc(p.caption||((item.title||'일상 기록')+' 사진 '+(i+2)))}">${p.caption?`<figcaption>${esc(p.caption)}</figcaption>`:''}</figure>`).join('')+'</div>';
+function nowCard(item){
+  const summary=String(item.summary||'').trim()||String(item.body||'').trim().split(/\n\s*\n/)[0];
+  const photo=safeImage(item.image);
+  const fit=item.imageDisplay?.fit==='contain'?' nowPreviewContain':'';
+  const position=['top','bottom'].includes(item.imageDisplay?.position)?item.imageDisplay.position:'center';
+  const detailUrl=item.id?'archive.html?type=now&item='+encodeURIComponent(item.id):'archive.html?type=now';
+  return `<article class="nowRecord nowPreview">
+    <a class="nowPreviewLink" href="${detailUrl}">
+      ${photo?`<img class="nowPreviewPhoto${fit}" src="${esc(photo)}" alt="" loading="lazy" style="object-position:${position}">`:''}
+      <div class="nowPreviewText">
+        ${item.date?`<small>${esc(item.date)}</small>`:''}
+        <h3>${richBody(item.title||'제목 없는 기록')}</h3>
+        ${summary?`<p class="nowPreviewSummary">${richBody(summary)}</p>`:''}
+        <span class="nowPreviewRead">자세히 보기 →</span>
+      </div>
+    </a>
+  </article>`;
 }
 function renderColumns(items){
   const categories=[...new Set(items.map(x=>x.category).filter(Boolean))];const categorySelect=$('#columnCategory');
