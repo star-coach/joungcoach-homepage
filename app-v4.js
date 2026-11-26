@@ -14,9 +14,10 @@ const byYearDesc = (a,b) => String(b.year || '').localeCompare(String(a.year || 
 const byOrder = (a,b)=>(Number(a.sortOrder)||999)-(Number(b.sortOrder)||999);
 let coachingFilter = "all", coachingActivities = []; let currentActivities = []; let currentArticles = []; let articleQuery = ""; let columnQuery="", columnCategory="";
 const httpUrl = s => {try {const u=new URL(s);return ["https:","http:"].includes(u.protocol)?u.href:""}catch{return ""}};
-const imageStyle=(x,kind='')=>{const book=kind==='education';const def={aspect:book?'3/4':'4/3',fit:book?'contain':'cover',position:'center'};const v={...def,...(x?.imageDisplay||{})};return `style="aspect-ratio:${['1/1','4/3','16/9','3/4'].includes(v.aspect)?v.aspect:def.aspect};object-fit:${v.fit==='contain'?'contain':'cover'};object-position:${['top','center','bottom'].includes(v.position)?v.position:'center'}"`};
+const imagePosition=x=>['top','bottom'].includes(x.imageDisplay?.position)?x.imageDisplay.position:'center';
+const imageStyle=x=>`style="aspect-ratio:4/3;object-fit:cover;object-position:${imagePosition(x)}"`;
 const safeImage=s=>httpUrl(s)||(String(s||'').startsWith('assets/images/')?String(s):'');
-const imageWithSettings=(x,cls,kind='')=>safeImage(x.image)?`<img loading="lazy" class="${cls}" ${imageStyle(x,kind)} src="${esc(safeImage(x.image))}" alt="">`:'';
+const imageWithSettings=(x,cls)=>safeImage(x.image)?`<img loading="lazy" class="${cls}" ${imageStyle(x)} src="${esc(safeImage(x.image))}" alt="">`:'';
 const img = (url,cls="") => httpUrl(url)?`<img loading="lazy" class="${cls}" src="${esc(httpUrl(url))}" alt="">`:"";
 const ext = (url,label) => httpUrl(url)?`<a href="${esc(httpUrl(url))}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`:"";
 
@@ -104,7 +105,7 @@ function render(C){
   renderColumns(visibleItems(C.columns,{count:C.displaySettings?.columns?.count??6,mode:C.displaySettings?.columns?.mode}));
   currentArticles=publicItems(C.articles);
   const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';if(['AX·공공혁신','AX혁신','공공혁신','AX·공공혁신 사례'].includes(c))return 'ax';return 'notes';};
-  const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${imageWithSettings(x,'articleThumb',kind(x)==='education'?'education':'')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3 class="articleCardTitle" style="color:#172033">${richBody(x.title)}</h3><p>${richBody(x.summary)}</p></article>`;
+  const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${imageWithSettings(x,'articleThumb')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3 class="articleCardTitle" style="color:#172033">${richBody(x.title)}</h3><p>${richBody(x.summary)}</p></article>`;
   const mapped=publicItems(C.articles).map((x,i)=>({...x,originalIndex:i}));
   // Keep the featured solution-focused note from appearing a second time in the homepage list.
   const featuredNoteTitle='단기해결코칭, 작은 변화를 실행으로 연결하다';
@@ -152,12 +153,10 @@ function authorByline(item,isNow=false){const owned=isNow||item?.authorName==='�
 function nowCard(item){
   const summary=String(item.summary||'').trim()||String(item.body||'').trim().split(/\n\s*\n/)[0];
   const photo=safeImage(item.image);
-  const fit=item.imageDisplay?.fit==='contain'?' nowPreviewContain':'';
-  const position=['top','bottom'].includes(item.imageDisplay?.position)?item.imageDisplay.position:'center';
   const detailUrl=item.id?'archive.html?type=now&item='+encodeURIComponent(item.id):'archive.html?type=now';
   return `<article class="nowRecord nowPreview">
     <a class="nowPreviewLink" href="${detailUrl}">
-      ${photo?`<img class="nowPreviewPhoto${fit}" src="${esc(photo)}" alt="" loading="lazy" style="object-position:${position}">`:''}
+      ${photo?`<img class="nowPreviewPhoto" src="${esc(photo)}" alt="" loading="lazy" style="object-position:${imagePosition(item)}">`:''}
       <div class="nowPreviewText">
         ${item.date?`<small>${esc(item.date)}</small>`:''}
         <h3>${richBody(item.title||'제목 없는 기록')}</h3>
