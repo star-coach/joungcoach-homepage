@@ -77,7 +77,7 @@ function applyTypography(typography){
 }
 
 function showArchiveCount(type,total,visible){
-  const link=document.querySelector(`.moreRecords[href="archive.html?type=${type}"]`);
+  const link=document.querySelector(`.moreRecords[data-archive-type="${type}"]`);
   if(link)link.dataset.archiveCount=`추가 ${Math.max(0,total-visible)}건`;
 }
 
