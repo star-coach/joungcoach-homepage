@@ -288,3 +288,24 @@ footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self
 #researchList .researchListItem h3 span{color:#2760b5;font-size:.78em}
 .researchListSource{font-size:.83rem;color:#52647b;line-height:1.5}
 #researchList .researchListPreview{white-space:normal;margin:7px 0 0;line-height:1.55;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+
+/* Main navigation paths and research collection */
+.workOverviewGrid,.researchLibraryGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.workOverviewGrid a{display:grid;gap:7px;padding:20px;border:1px solid #dce4ed;border-radius:12px;text-decoration:none;color:#263951;background:#fff}
+.workOverviewGrid strong{font-size:1.15rem;color:#224f8d}
+.workOverviewGrid a:hover,.workOverviewGrid a:focus-visible{border-color:#285399}
+.researchSection.researchLibrary{display:block}
+.researchLibraryGrid>section{min-width:0;padding:20px;background:#fff;border:1px solid #dce4ed;border-radius:12px;}
+.researchLibraryGrid>section>h3{margin:0 0 8px;font-size:1.2rem}
+.researchShelfItem{padding:15px 0;border-top:1px solid #dce4ed;overflow-wrap:anywhere}
+.researchShelfItem h4{margin:0 0 5px;line-height:1.45;font-size:1rem}
+.researchShelfItem h4 a{color:#173b66;text-decoration:none}
+.researchShelfItem h4 a:hover,.researchShelfItem h4 a:focus-visible{text-decoration:underline}
+.researchShelfItem p{margin:6px 0 0;line-height:1.6;color:#52647b;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.researchShelfEmpty{color:#52647b}
+.libraryMore{font-size:.9rem;color:#24528d}
+.publicWorkSection{background:var(--paper)}
+.publicWorkSection .activityGrid{margin-top:20px}
+@media(max-width:850px){.workOverviewGrid,.researchLibraryGrid{grid-template-columns:1fr;gap:14px}}
+
+.workExpertise{margin-top:20px;color:#263951}.workExpertise summary{cursor:pointer}.workExpertise:not([open]) .cards{display:none}
