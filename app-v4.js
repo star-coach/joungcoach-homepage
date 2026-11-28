@@ -113,9 +113,7 @@ function render(C){
   const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';if(['AX·공공혁신','AX혁신','공공혁신','AX·공공혁신 사례'].includes(c))return 'ax';return 'notes';};
   const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${imageWithSettings(x,'articleThumb')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3 class="articleCardTitle" style="color:#172033">${richBody(x.title)}</h3><p>${richBody(x.summary)}</p></article>`;
   const mapped=publicItems(C.articles).map((x,i)=>({...x,originalIndex:i}));
-  // Keep the featured solution-focused note from appearing a second time in the homepage list.
-  const featuredNoteTitle='단기해결코칭, 작은 변화를 실행으로 연결하다';
-  const homepageNotes=mapped.filter(x=>kind(x)==='notes'&&String(x.title||'').trim()!==featuredNoteTitle);
+  const homepageNotes=mapped.filter(x=>kind(x)==='notes');
   const notes=homepageNotes.filter(x=>[x.title,x.summary,x.body,x.category].join(' ').toLowerCase().includes(articleQuery));
   const showHomepageNoteList=homepageNotes.length>0;
   const noteSearch=$('#articleSearch').closest('.searchLabel');
@@ -238,7 +236,7 @@ async function showArticle(el){
  $('#modalMeta').textContent=`${a.date||''} · ${a.category||''}`;
  $('#modalTitle').innerHTML=richBody(a.title||'');
  $('#modalBody').innerHTML=renderArticleLinks(a.body||a.summary||'',richBody,esc);
- $('#modalLink').innerHTML=ext(a.link,'관련 자료 보기');displayPdfInModal('#modalPdf',a,'articles');
+ $('#modalLink').innerHTML=ext(a.link,/^https:\/\/(?:app\.notion\.com|www\.notion\.so)\//i.test(a.link||'')?'노션에서 더 보기':'관련 자료 보기');displayPdfInModal('#modalPdf',a,'articles');
  const im=$('#modalImage');if(httpUrl(a.image)){im.src=httpUrl(a.image);im.style.display='block'}else{im.removeAttribute('src');im.style.display='none'}
  renderDetailGallery('#modalGallery',a.gallery);
  $('#articleDialog').showModal();
