@@ -326,3 +326,5 @@ footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self
 #nav a[href="#coaching"]{color:#176451}
 #nav a[href="#columns"]{color:#86511c}
 #public-ai .portfolioGrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),380px))}
+
+.profilePhilosophy{margin-top:24px}.profilePhilosophy summary{width:fit-content;cursor:pointer;font-weight:700}.profilePhilosophy .manifesto{margin-top:16px}.coachingSubtitle:empty{display:none}.caseSubsection{margin-top:48px;padding-top:32px;border-top:1px solid #dce4ed}.caseSubsection>h3,.writingSection .sectionHead>h3{font-size:clamp(22px,3vw,32px);margin:0 0 12px}.caseSubsection>p{color:var(--muted);margin:0 0 20px}.writingSection .sectionHead>h2{margin-bottom:24px}.writingSection #now{padding-top:48px}.writingSection .activityGrid{margin-top:20px}.topbar #nav a[href="#writing"]{color:#86511c}
