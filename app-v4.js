@@ -13,7 +13,7 @@ const dateSortValue = value => { const m=String(value||'').trim().match(/^(\d{4}
 const byDateDesc = (a,b)=>dateSortValue(b.date||b.year)-dateSortValue(a.date||a.year) || String(b.date||b.year||'').localeCompare(String(a.date||a.year||''));
 const byYearDesc = (a,b) => String(b.year || '').localeCompare(String(a.year || '')) || String(b.date || '').localeCompare(String(a.date || ''));
 const byOrder = (a,b)=>(Number(a.sortOrder)||999)-(Number(b.sortOrder)||999);
-let coachingFilter = "all", coachingActivities = []; let currentActivities = []; let currentArticles = []; let columnQuery="", columnCategory="";
+let coachingFilter = "all", coachingActivities = []; let currentArticles = []; let columnQuery="", columnCategory="";
 const httpUrl = s => {try {const u=new URL(s);return ["https:","http:"].includes(u.protocol)?u.href:""}catch{return ""}};
 const imagePosition=x=>['top','bottom'].includes(x.imageDisplay?.position)?x.imageDisplay.position:'center';
 const imageStyle=x=>`style="aspect-ratio:4/3;object-fit:cover;object-position:${imagePosition(x)}"`;
@@ -122,8 +122,6 @@ function render(C){
   archivedResearch=publicItems(C.research); archivedNow=publicItems(C.nowEntries||[]); if(C.now?.published!==false&&(C.now?.title||C.now?.body)) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'});
   coachingActivities=[]; // 고객 코칭 기록은 공개 렌더링에서 제외
   renderCoachingActivities();
-  currentActivities=visibleItems(C.activities.filter(x=>activityGroup(x)==='other'),{count:C.displaySettings?.activities?.count??6,mode:C.displaySettings?.activities?.mode});
-  $('#activityGrid').innerHTML=currentActivities.map((x,i)=>`<article class="activity activityClickable" role="button" tabindex="0" data-i="${i}" aria-label="${esc(x.title||'활동')} 상세 보기">${imageWithSettings(x,'activityThumb')}<div class="activityBody"><div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3>${richBody(x.title)}</h3><p>${richBody(x.summary||x.desc)}</p><span class="activityReadMore">사진과 전체 기록 보기 →</span></div></article>`).join('');
 
   renderColumns(visibleItems(C.columns,{count:C.displaySettings?.columns?.count??6,mode:C.displaySettings?.columns?.mode}));
   currentArticles=publicItems(C.articles);
@@ -137,7 +135,6 @@ function render(C){
   renderResearchShelf('#researchList', [...papers, ...paperNotes], researchSettings?.count, researchSettings?.mode);
   renderResearchShelf('#researchBooks', resources.filter(item=>item.noteType==='도서'), researchSettings?.bookCount);
   renderResearchShelf('#articleGrid', resources.filter(item=>!['논문','도서'].includes(item.noteType)), researchSettings?.noteCount);
-  $('#activityRecords').hidden=!currentActivities.length;
   const education=mapped.filter(x=>kind(x)==='education'),cases=mapped.filter(x=>kind(x)==='cases'),ax=mapped.filter(x=>kind(x)==='ax');
   $('#educationGrid').innerHTML=education.length?visibleItems(education,C.displaySettings?.education).map(articleCard).join(''):'<p class="emptyPortfolio">교육 프로그램과 교재 소개가 준비 중입니다.</p>';
   archivedContent={education,cases,ax,notes:mapped.filter(x=>kind(x)==='notes')};$('#axGrid').innerHTML=ax.length?visibleItems(ax,C.displaySettings?.ax).map(articleCard).join(''):'<p class="emptyPortfolio">공개된 공공혁신 사례가 없습니다.</p>';
@@ -148,7 +145,6 @@ function render(C){
     ? featuredNow.map(nowCard).join('')
     : '<div><h3>현재의 관심을 기록하는 공간</h3><p>코칭과 연구, 현장에서 발견한 질문을 기록합니다.</p></div>';
   [
-    ['activities',publicItems(C.activities).filter(x=>activityGroup(x)==='other'),'#activityGrid .activity'],
     ['education',education,'#educationGrid .article'],
     ['cases',cases,'#caseGrid .article'],
     ['ax',ax,'#axGrid .article'],
@@ -313,10 +309,6 @@ function renderCredentials(data,legacy){
   }).join('');
 }
 $('#showAllCredentials').onclick=()=>$('#credentialsDialog').showModal();$('#closeCredentials').onclick=()=>$('#credentialsDialog').close();
-function showActivity(el){const x=currentActivities[Number(el?.dataset.i)];if(!x)return;$('#activityModalMeta').textContent=[x.date,x.category].filter(Boolean).join(' · ');$('#activityModalTitle').innerHTML=richBody(x.title);$('#activityModalBody').innerHTML=richBody(x.body||x.desc||x.summary||'');const im=$('#activityModalImage'),url=safeImage(x.image);if(url){im.src=url;im.style.display='block'}else {im.removeAttribute('src');im.style.display='none'}renderDetailGallery('#activityModalGallery',x.gallery);$('#activityModalLink').innerHTML=ext(x.link,'관련 자료 보기');displayPdfInModal('#activityModalPdf',x,'activities');$('#activityDialog').showModal()}
-$('#activityGrid').addEventListener('click',e=>showActivity(e.target.closest('.activityClickable')));
-$('#activityGrid').addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){const item=e.target.closest('.activityClickable');if(item){e.preventDefault();showActivity(item)}}});
-$('#closeActivity').onclick=()=>$('#activityDialog').close();
 
 // All components and their defaults are ready before initial paint.
 render(DEFAULT_CONTENT);
