@@ -19,7 +19,7 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Newsreader:opsz,wght@6..72,500;6..72,600&amp;family=Noto+Sans+KR:wght@400;500;600;700;800&amp;family=Noto+Serif+KR:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20261128sitepaths2" rel="stylesheet"/>
+<link href="styles.css?v=20261128shelfcolor" rel="stylesheet"/>
 <style>[data-site-text]{white-space:pre-line}.siteTextHidden{display:none!important}</style><link rel="stylesheet" href="image-lightbox.css?v=20261008a"></head>
 <body>
 <header class="topbar">
@@ -28,7 +28,7 @@
 <span class="brandWords"><strong>JOUNG COACH <em>정코치</em></strong><small>PERSONAL RESEARCH · COACHING · EDUCATION</small></span>
 </a>
 <button aria-label="메뉴 열기" class="menuBtn" id="menuBtn">☰</button>
-<nav id="nav"><a href="#home">소개</a><a href="#research">연구</a><a href="#coaching">코칭·교육</a><a href="#public-ai">공공혁신</a><a href="#columns">글·기록</a><a href="#contact">연락처</a></nav>
+<nav id="nav"><a href="#home">소개</a><a href="#research">연구</a><a href="#coaching">코칭·교육</a><a href="#columns">글·기록</a><a href="#contact">연락처</a></nav>
 </header>
 <main>
 <section class="hero" id="home">
@@ -54,11 +54,11 @@
 </div>
 </section>
 <section class="section workOverview" id="about">
-<div class="sectionHead left"><h2>연구, 코칭·교육, 공공혁신</h2></div>
+<div class="sectionHead left"><h2>연구, 코칭·교육, 글·기록</h2></div>
 <div class="workOverviewGrid">
 <a href="#research"><strong>연구</strong><span>코칭과 조직의 변화를 논문·책·노트로 공부합니다.</span></a>
 <a href="#coaching"><strong>코칭·교육</strong><span>배운 내용을 코칭 대화와 교육 현장에서 적용합니다.</span></a>
-<a href="#public-ai"><strong>공공혁신</strong><span>공직 현장에서 발견한 문제를 실제 업무 개선으로 연결합니다.</span></a>
+<a href="#columns"><strong>글·기록</strong><span>칼럼과 인터뷰, 공직 현장에서 진행한 업무개선 프로젝트를 모았습니다.</span></a>
 </div></section>
 <section class="section researchSection researchLibrary" id="research">
 <div class="sectionHead left wide"><h2 class="editableTitle" data-typo="researchTitle" id="researchTitle">연구 자료</h2><p>코칭과 조직의 변화를 다룬 논문, 책, 연구노트를 모았습니다.</p></div>
@@ -94,16 +94,18 @@
 <div class="sectionHead left wide"><p class="eyebrow">COACHING PRACTICE</p><h2 data-site-text="caseTitle">코칭 현장사례</h2><p data-site-text="caseDesc">코칭 과정에서 얻은 배움과 변화의 경험을 사례로 정리합니다. 개인·기관 식별 정보는 제외하거나 동의를 받은 자료만 공개합니다.</p></div>
 <div class="portfolioGrid" id="caseGrid"></div>
 <div class="sectionMore"><a class="moreRecords" data-site-text="casesMore" href="archive.html?type=cases" data-archive-type="cases">전체 코칭사례 보기 ↗</a></div></section>
+
+<section class="section columnsSection" id="columns">
+<div class="sectionHead left wide"><p class="eyebrow">COLUMNS &amp; PUBLICATIONS</p><h2 data-site-text="columnTitle">칼럼·기고·인터뷰</h2><p data-site-text="columnDesc">칼럼, 기고문, 인터뷰와 외부 매체에 소개된 활동을 기록합니다. 원문은 게재 기관에서 확인할 수 있습니다.</p></div>
+<a class="textLink" href="#public-ai">공직 실무 프로젝트 보기 →</a>
+<div class="columnTools"><label>칼럼 검색 <input id="columnSearch" placeholder="제목 · 기관 · 주제로 검색" type="search"/></label><label>주제 선택 <select id="columnCategory"><option value="">전체 주제</option></select></label></div>
+<div aria-live="polite" class="columnGrid" id="columnGrid"></div><div class="sectionMore"><a class="moreRecords" data-site-text="columnsMore" href="archive.html?type=columns" data-archive-type="columns">전체 칼럼·기고·인터뷰 보기 ↗</a></div>
+</section>
 <section class="section publicWorkSection" id="public-ai">
-<div class="sectionHead left wide"><h2 class="editableTitle" data-typo="publicAiTitle" id="publicAiTitle">공공혁신 프로젝트</h2><p>행정 현장의 문제를 발견하고, AI와 디지털 도구로 업무를 개선한 사례입니다.</p></div>
+<div class="sectionHead left wide"><h2 class="editableTitle" data-typo="publicAiTitle" id="publicAiTitle">공직 실무 프로젝트</h2><p>공직 현장에서 발견한 문제를 AI와 디지털 도구로 개선한 사례입니다. 바이브 코딩으로 개발한 개별주택가격 업무지원 플랫폼을 소개합니다.</p></div>
 <div class="portfolioGrid" id="axGrid"></div>
 <div class="sectionMore"><a class="moreRecords" href="archive.html?type=ax">공공혁신 사례 전체 보기 →</a></div>
 <div class="sectionMore" id="activityRecords"><a class="moreRecords" href="archive.html?type=activities">활동·현장 기록 보기 →</a><div class="activityGrid" id="activityGrid"></div></div>
-</section>
-<section class="section columnsSection" id="columns">
-<div class="sectionHead left wide"><p class="eyebrow">COLUMNS &amp; PUBLICATIONS</p><h2 data-site-text="columnTitle">칼럼·기고·인터뷰</h2><p data-site-text="columnDesc">칼럼, 기고문, 인터뷰와 외부 매체에 소개된 활동을 기록합니다. 원문은 게재 기관에서 확인할 수 있습니다.</p></div>
-<div class="columnTools"><label>칼럼 검색 <input id="columnSearch" placeholder="제목 · 기관 · 주제로 검색" type="search"/></label><label>주제 선택 <select id="columnCategory"><option value="">전체 주제</option></select></label></div>
-<div aria-live="polite" class="columnGrid" id="columnGrid"></div><div class="sectionMore"><a class="moreRecords" data-site-text="columnsMore" href="archive.html?type=columns" data-archive-type="columns">전체 칼럼·기고·인터뷰 보기 ↗</a></div>
 </section>
 <section class="section nowSection" id="now"><div class="sectionHead left wide"><p class="eyebrow">NOW / CURRENT FOCUS</p><h2 data-site-text="nowTitle">요즘의 관심과 생각</h2><p data-site-text="nowDesc">현재 탐구하고 있는 주제와 진행 중인 활동을 기록합니다.</p></div><div class="nowContent" id="nowContent"></div><div class="sectionMore"><a class="moreRecords" data-site-text="nowMore" href="archive.html?type=now" data-archive-type="now" id="openNowArchive">전체 관심 기록 보기 ↗</a></div></section>
 <section class="manifesto" id="philosophy">
@@ -119,6 +121,6 @@
 <dialog id="articleDialog"><button class="closeBtn" id="closeDialog">×</button><p class="eyebrow" id="modalMeta"></p><h2 id="modalTitle"></h2><img alt="" class="modalImage" id="modalImage"/><div class="modalBody" id="modalBody"></div><div class="detailGallery" id="modalGallery"></div><div id="modalPdf"></div><div class="modalRelated" id="modalLink"></div></dialog>
 <dialog id="columnDialog" aria-label="칼럼·기고·인터뷰 상세보기"><button type="button" class="closeBtn" id="closeColumnDialog" aria-label="닫기">×</button><p class="eyebrow" id="columnModalMeta"></p><h2 id="columnModalTitle"></h2><div id="columnModalAuthor"></div><img alt="" class="modalImage" id="columnModalImage"/><div class="modalBody" id="columnModalBody"></div><div class="detailGallery" id="columnModalGallery"></div><div id="columnModalPdf"></div><div class="modalRelated" id="columnModalLink"></div></dialog>
 <dialog id="credentialsDialog" class="credentialsDialog"><button type="button" class="closeBtn" id="closeCredentials">×</button><p class="eyebrow">CERTIFICATIONS & CREDENTIALS</p><h2>자격·인증</h2><div id="credentialsFullList"></div></dialog><dialog id="activityDialog"><button type="button" class="closeBtn" id="closeActivity">×</button><p class="eyebrow" id="activityModalMeta"></p><h2 id="activityModalTitle"></h2><img alt="" class="modalImage" id="activityModalImage"><div class="modalBody" id="activityModalBody"></div><div class="detailGallery" id="activityModalGallery"></div><div id="activityModalPdf"></div><div class="modalRelated" id="activityModalLink"></div></dialog><div class="loadBadge" id="loadBadge">Firebase 연결 중…</div>
-<script src="app-v4.js?v=20261128sitepaths2" type="module"></script>
+<script src="app-v4.js?v=20261128shelfcolor" type="module"></script>
 <script src="site-text.js?v=20261008a" type="module"></script><script defer src="image-lightbox.js?v=20261008columnmodal2"></script></body>
 </html>
