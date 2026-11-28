@@ -1,3 +1,4 @@
+import { renderArticleLinks } from './article-links.js?v=20261128';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getDatabase, ref, onValue, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 import { firebaseConfig } from "./firebase-config.js";
@@ -201,7 +202,7 @@ function openColumnCard(card){
   const d=document.querySelector('#columnDialog');
   document.querySelector('#columnModalMeta').textContent=[item.publisher,item.date,item.category].filter(Boolean).join(' · ');
   document.querySelector('#columnModalTitle').innerHTML=richBody(item.title||'');document.querySelector('#columnModalAuthor').innerHTML=authorByline(item);
-  document.querySelector('#columnModalBody').innerHTML=richBody(item.body||item.summary||'');
+  document.querySelector('#columnModalBody').innerHTML=renderArticleLinks(item.body||item.summary||'',richBody,esc);
   const picture=document.querySelector('#columnModalImage');
   const src=httpUrl(item.image);
   if(src){picture.src=src;picture.style.display='block';picture.alt=(item.title||'칼럼')+' 이미지';}
@@ -236,7 +237,7 @@ async function showArticle(el){
  const request=++articleDetailRequest;
  $('#modalMeta').textContent=`${a.date||''} · ${a.category||''}`;
  $('#modalTitle').innerHTML=richBody(a.title||'');
- $('#modalBody').innerHTML=richBody(a.body||a.summary||'');
+ $('#modalBody').innerHTML=renderArticleLinks(a.body||a.summary||'',richBody,esc);
  $('#modalLink').innerHTML=ext(a.link,'관련 자료 보기');displayPdfInModal('#modalPdf',a,'articles');
  const im=$('#modalImage');if(httpUrl(a.image)){im.src=httpUrl(a.image);im.style.display='block'}else{im.removeAttribute('src');im.style.display='none'}
  renderDetailGallery('#modalGallery',a.gallery);
