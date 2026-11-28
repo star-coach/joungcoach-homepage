@@ -112,10 +112,24 @@ function render(C){
   currentArticles=publicItems(C.articles);
   const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';if(['AX·공공혁신','AX혁신','공공혁신','AX·공공혁신 사례'].includes(c))return 'ax';return 'notes';};
   const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${imageWithSettings(x,'articleThumb')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3 class="articleCardTitle" style="color:#172033">${richBody(x.title)}</h3><p>${richBody(x.summary)}</p></article>`;
-  const noteCard=x=>`<a class="article" style="display:block;text-decoration:none;color:inherit" href="archive.html?type=notes&amp;item=${encodeURIComponent(x.id)}">${imageWithSettings(x,'articleThumb')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3 class="articleCardTitle" style="color:#172033">${richBody(x.title)}</h3><p>${richBody(x.summary)}</p></a>`;
+  const noteCard = note => {
+    const type = note.noteType || '연구노트';
+    const image = safeImage(note.image);
+    const cover = type === '도서' || note.imageDisplay?.fit === 'contain';
+    const url = 'archive.html?type=notes&item=' + encodeURIComponent(note.id);
+    return `<a class="noteCard" href="${esc(url)}">
+      <div class="noteCardMedia${cover ? ' noteCardCover' : ''}">${image ? `<img src="${esc(image)}" alt="" loading="lazy">` : ''}</div>
+      <div class="noteCardContent">
+        <div class="noteCardMeta"><span>${esc(type)}</span><time>${esc(note.date)}</time></div>
+        <h3>${richBody(note.title)}</h3>
+        <p>${richBody(note.summary)}</p>
+        <strong>연구노트 읽기 <span aria-hidden="true">↗</span></strong>
+      </div>
+    </a>`;
+  };
   const mapped=publicItems(C.articles).map((x,i)=>({...x,originalIndex:i}));
   const homepageNotes=mapped.filter(x=>kind(x)==='notes');
-  const notes=homepageNotes.filter(x=>[x.title,x.summary,x.body,x.category].join(' ').toLowerCase().includes(articleQuery));
+  const notes=homepageNotes.filter(x=>[x.title,x.summary,x.body,x.category,x.noteType].join(' ').toLowerCase().includes(articleQuery));
   const showHomepageNoteList=homepageNotes.length>0;
   const noteSearch=$('#articleSearch').closest('.searchLabel');
   if(noteSearch)noteSearch.style.display=showHomepageNoteList?'':'none';
