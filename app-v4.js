@@ -13,11 +13,26 @@ const dateSortValue = value => { const m=String(value||'').trim().match(/^(\d{4}
 const byDateDesc = (a,b)=>dateSortValue(b.date||b.year)-dateSortValue(a.date||a.year) || String(b.date||b.year||'').localeCompare(String(a.date||a.year||''));
 const byYearDesc = (a,b) => String(b.year || '').localeCompare(String(a.year || '')) || String(b.date || '').localeCompare(String(a.date || ''));
 const byOrder = (a,b)=>(Number(a.sortOrder)||999)-(Number(b.sortOrder)||999);
-let coachingFilter = "all", coachingActivities = []; let currentActivities = []; let currentArticles = []; let articleQuery = ""; let columnQuery="", columnCategory="";
+let coachingFilter = "all", coachingActivities = []; let currentActivities = []; let currentArticles = []; let columnQuery="", columnCategory="";
 const httpUrl = s => {try {const u=new URL(s);return ["https:","http:"].includes(u.protocol)?u.href:""}catch{return ""}};
 const imagePosition=x=>['top','bottom'].includes(x.imageDisplay?.position)?x.imageDisplay.position:'center';
 const imageStyle=x=>`style="aspect-ratio:4/3;object-fit:cover;object-position:${imagePosition(x)}"`;
 const safeImage=s=>httpUrl(s)||(String(s||'').startsWith('assets/images/')?String(s):'');
+function renderResearchShelf(selector, items, count, mode) {
+  const selected=visibleItems(items,{count:Math.min(3,count??3),mode});
+  $(selector).innerHTML=selected.length?selected.map(item=>{
+    const archive=item.archive||'notes';
+    const href='archive.html?type='+archive+'&item='+encodeURIComponent(item.id);
+    const source=[item.year||item.date, archive==='research' ? item.summary||item.meta||item.category : item.noteType||'연구노트'].filter(Boolean).join(' · ');
+    const paragraphs=(item.body||item.desc||'').trim().split(/\n\s*\n/);
+    const preview=archive==='research'?(paragraphs.length>1&&paragraphs[0].length<64?paragraphs[1]:paragraphs[0]):item.summary;
+    return `<article class="researchShelfItem">
+      <h4><a href="${esc(href)}">${richBody(item.title)}</a></h4>
+      <div class="researchListSource">${richBody(source)}</div>
+      ${preview?`<p>${richBody(preview.replace(/\s+/g,' '))}</p>`:''}
+    </article>`;
+  }).join(''):'<p class="researchShelfEmpty">표시할 자료가 없습니다.</p>';
+}
 const imageWithSettings=(x,cls)=>safeImage(x.image)?`<img loading="lazy" class="${cls}" ${imageStyle(x)} src="${esc(safeImage(x.image))}" alt="">`:'';
 const img = (url,cls="") => httpUrl(url)?`<img loading="lazy" class="${cls}" src="${esc(httpUrl(url))}" alt="">`:"";
 const ext = (url,label) => httpUrl(url)?`<a href="${esc(httpUrl(url))}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`:"";
@@ -95,29 +110,11 @@ function render(C){
   $('#philEyebrow').textContent=C.philosophy.eyebrow||'';
   $('#philTitle').innerHTML=richBody(C.philosophy.title||'');
   $('#philBody').innerHTML=richBody(C.philosophy.body||'');
-  $('#aboutTitle').textContent=C.sectionCopy.aboutTitle||'';
-  $('#researchTitle').textContent=C.sectionCopy.researchTitle||'';
   $('#coachingTitle').textContent=C.sectionCopy.coachingTitle||'';
-  $('#publicAiTitle').textContent=C.sectionCopy.publicAiTitle||'';
-  $('#insightsTitle').textContent=C.sectionCopy.insightsTitle||'';
   $('#contactTitle').textContent=C.sectionCopy.contactTitle||'';
+
   $('#areaCards').innerHTML=visibleItems(C.areas,{count:C.displaySettings?.areas?.count??3,mode:C.displaySettings?.areas?.mode}).map((x,i)=>`<article class="card">${imageWithSettings(x,"areaThumb")}<div class="cardNo">0${i+1}</div><h3>${richBody(x.title)}</h3><strong>${richBody(x.summary??x.subtitle)}</strong><p>${richBody(x.body)}</p></article>`).join('');
   archivedResearch=publicItems(C.research); archivedNow=publicItems(C.nowEntries||[]); if(C.now?.published!==false&&(C.now?.title||C.now?.body)) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'});
-  const researchSettings = C.displaySettings?.research;
-  const researchCount = Math.min(6, researchSettings?.count ?? 6);
-  $('#researchList').innerHTML = visibleItems(archivedResearch, {...researchSettings, count: researchCount}).map(item => {
-    const title = richBody(item.title);
-    const href = 'archive.html?type=research&item=' + encodeURIComponent(item.id);
-    const source = item.summary || item.meta || item.category || '';
-    const body = item.body || item.desc || '';
-    const paragraphs = body.trim().split(/\n\s*\n/);
-    const preview = paragraphs.length > 1 && paragraphs[0].length < 64 ? paragraphs[1] : paragraphs[0];
-    return `<article class="timelineItem researchListItem">
-      <h3><a href="${esc(href)}">${title}<span aria-hidden="true"> ↗</span></a></h3>
-      <div class="researchListSource">${[esc(item.year),richBody(source)].filter(Boolean).join(' · ')}</div>
-      ${preview ? `<p class="researchListPreview">${richBody(preview.replace(/\s+/g,' '))}</p>` : ''}
-    </article>`;
-  }).join('');
   coachingActivities=[]; // 고객 코칭 기록은 공개 렌더링에서 제외
   renderCoachingActivities();
   currentActivities=visibleItems(C.activities.filter(x=>activityGroup(x)==='other'),{count:C.displaySettings?.activities?.count??6,mode:C.displaySettings?.activities?.mode});
@@ -127,32 +124,18 @@ function render(C){
   currentArticles=publicItems(C.articles);
   const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';if(['AX·공공혁신','AX혁신','공공혁신','AX·공공혁신 사례'].includes(c))return 'ax';return 'notes';};
   const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${imageWithSettings(x,'articleThumb')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3 class="articleCardTitle" style="color:#172033">${richBody(x.title)}</h3><p>${richBody(x.summary)}</p></article>`;
-  const noteCard = note => {
-    const type = note.noteType || '연구노트';
-    const image = safeImage(note.image);
-    const cover = type === '도서' || note.imageDisplay?.fit === 'contain';
-    const url = 'archive.html?type=notes&item=' + encodeURIComponent(note.id);
-    return `<a class="noteCard" href="${esc(url)}">
-      <div class="noteCardMedia${cover ? ' noteCardCover' : ''}">${image ? `<img src="${esc(image)}" alt="" loading="lazy">` : ''}</div>
-      <div class="noteCardContent">
-        <div class="noteCardMeta"><span>${esc(type)}</span><time>${esc(note.date)}</time></div>
-        <h3>${richBody(note.title)}</h3>
-        <p>${richBody(note.summary)}</p>
-        <strong>연구노트 읽기 <span aria-hidden="true">↗</span></strong>
-      </div>
-    </a>`;
-  };
   const mapped=publicItems(C.articles).map((x,i)=>({...x,originalIndex:i}));
-  const homepageNotes=mapped.filter(x=>kind(x)==='notes');
-  const notes=homepageNotes.filter(x=>[x.title,x.summary,x.body,x.category,x.noteType].join(' ').toLowerCase().includes(articleQuery));
-  const showHomepageNoteList=homepageNotes.length>0;
-  const noteSearch=$('#articleSearch').closest('.searchLabel');
-  if(noteSearch)noteSearch.style.display=showHomepageNoteList?'':'none';
-  $('#articleGrid').style.display=showHomepageNoteList?'':'none';
-  $('#articleGrid').innerHTML=notes.length?visibleItems(notes,C.displaySettings?.notes).map(noteCard).join(''):(showHomepageNoteList?'<p class="emptyPortfolio">검색 결과가 없습니다.</p>':'');
+  const resources=mapped.filter(item=>kind(item)==='notes');
+  const researchSettings=C.displaySettings?.research;
+  const papers=archivedResearch.map(item=>({...item, archive:'research'}));
+  const paperNotes=resources.filter(item=>item.noteType==='논문').map(item=>({...item, archive:'notes'}));
+  renderResearchShelf('#researchList', [...papers, ...paperNotes], researchSettings?.count, researchSettings?.mode);
+  renderResearchShelf('#researchBooks', resources.filter(item=>item.noteType==='도서'), researchSettings?.bookCount);
+  renderResearchShelf('#articleGrid', resources.filter(item=>!['논문','도서'].includes(item.noteType)), researchSettings?.noteCount);
+  $('#activityRecords').hidden=!currentActivities.length;
   const education=mapped.filter(x=>kind(x)==='education'),cases=mapped.filter(x=>kind(x)==='cases'),ax=mapped.filter(x=>kind(x)==='ax');
   $('#educationGrid').innerHTML=education.length?visibleItems(education,C.displaySettings?.education).map(articleCard).join(''):'<p class="emptyPortfolio">교육 프로그램과 교재 소개가 준비 중입니다.</p>';
-  archivedContent={education,cases,ax,notes:mapped.filter(x=>kind(x)==='notes')};$('#axGrid').innerHTML=ax.length?visibleItems(ax,C.displaySettings?.ax).map(articleCard).join(''):'<p style="color:#d6dfed">등록된 AX·공공혁신 사례가 없습니다. 관리자에서 사례를 등록해 주세요.</p>';
+  archivedContent={education,cases,ax,notes:mapped.filter(x=>kind(x)==='notes')};$('#axGrid').innerHTML=ax.length?visibleItems(ax,C.displaySettings?.ax).map(articleCard).join(''):'<p class="emptyPortfolio">공개된 공공혁신 사례가 없습니다.</p>';
   $('#caseGrid').innerHTML=cases.length?visibleItems(cases,C.displaySettings?.cases).map(articleCard).join(''):'<p class="emptyPortfolio">공개 가능한 코칭사례를 정리 중입니다.</p>';
   const now=C.now||{};
   const featuredNow=visibleItems(archivedNow,C.displaySettings?.now);
@@ -160,18 +143,12 @@ function render(C){
     ? featuredNow.map(nowCard).join('')
     : '<div><h3>현재의 관심을 기록하는 공간</h3><p>코칭과 연구, 현장에서 발견한 질문을 기록합니다.</p></div>';
   [
-    ['research',archivedResearch,'#researchList .timelineItem'],
     ['activities',publicItems(C.activities).filter(x=>activityGroup(x)==='other'),'#activityGrid .activity'],
     ['education',education,'#educationGrid .article'],
     ['cases',cases,'#caseGrid .article'],
     ['ax',ax,'#axGrid .article'],
     ['now',archivedNow,'#nowContent .nowRecord']
   ].forEach(([type,items,selector])=>showArchiveCount(type,items.length,document.querySelectorAll(selector).length));
-  // The two featured research notes are also included in the archive.
-  const isAdditionalNote=x=>!/단기해결코칭|Coaching with Empathy/i.test(String(x.title||''));
-  const archiveNotes=archivedContent.notes.filter(isAdditionalNote);
-  const shownNotes=visibleItems(notes,C.displaySettings?.notes).filter(isAdditionalNote);
-  showArchiveCount('notes',archiveNotes.length,shownNotes.length);
   const sns=C.social||{};const channelNames={blog:'블로그',youtube:'YouTube',instagram:'Instagram',facebook:'Facebook',linkedin:'LinkedIn',threads:'Threads'};
   $('#socialLinks').innerHTML=Object.entries(channelNames).map(([key,name])=>ext(sns[key],name)).join('')+ext(sns.otherUrl,sns.otherName||'다른 채널');
   $('#contactMessage').textContent=C.contact.message||'';
@@ -256,7 +233,7 @@ render= function(data){activeData=data;renderOriginal(data)};
 // The initial render must run after credentialDefaults is initialized.
 $('#columnSearch').addEventListener('input',e=>{columnQuery=e.target.value.trim().toLowerCase();renderColumns(activeData.columns||[])});
 $('#columnCategory').addEventListener('change',e=>{columnCategory=e.target.value;renderColumns(activeData.columns||[])});
-$("#articleSearch").addEventListener("input",e=>{articleQuery=e.target.value.trim().toLowerCase();render(activeData)});
+
 $('#year').textContent=new Date().getFullYear();
 let articleDetailRequest=0;
 async function showArticle(el){
