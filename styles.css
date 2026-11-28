@@ -279,3 +279,12 @@ footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self
 .noteCard h3{margin:0;font-size:clamp(18px,1.6vw,23px);line-height:1.4;overflow-wrap:anywhere}
 .noteCard p{margin:0;color:#516176;line-height:1.7}
 .noteCard strong{margin-top:auto;padding-top:6px;color:#24528d;font-size:.88rem}
+
+/* Compact research index on the homepage. */
+#researchList .researchListItem{display:block;padding:18px 0}
+#researchList .researchListItem h3{font-size:clamp(17px,1.6vw,21px);margin:0 0 5px}
+#researchList .researchListItem h3 a{margin:0;color:#172033;text-decoration:none}
+#researchList .researchListItem h3 a:hover,#researchList .researchListItem h3 a:focus-visible{text-decoration:underline}
+#researchList .researchListItem h3 span{color:#2760b5;font-size:.78em}
+.researchListSource{font-size:.83rem;color:#52647b;line-height:1.5}
+#researchList .researchListPreview{white-space:normal;margin:7px 0 0;line-height:1.55;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
