@@ -309,3 +309,20 @@ footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self
 @media(max-width:850px){.workOverviewGrid,.researchLibraryGrid{grid-template-columns:1fr;gap:14px}}
 
 .workExpertise{margin-top:20px;color:#263951}.workExpertise summary{cursor:pointer}.workExpertise:not([open]) .cards{display:none}
+
+/* Navy, teal and ochre tie the navigation and research shelves together. */
+.workOverviewGrid,.researchLibraryGrid{align-items:start}
+.workOverviewGrid>a,.researchLibraryGrid>div{--panel-accent:#234b79;--panel-tint:#eef4fa;border-top:4px solid var(--panel-accent)}
+.workOverviewGrid>a:nth-child(2),.researchLibraryGrid>div:nth-child(2){--panel-accent:#176451;--panel-tint:#eaf5ef}
+.workOverviewGrid>a:nth-child(3),.researchLibraryGrid>div:nth-child(3){--panel-accent:#86511c;--panel-tint:#fcf3e5}
+.workOverviewGrid>a{background:var(--panel-tint)}
+.workOverviewGrid>a>strong{color:var(--panel-accent)}
+.workOverviewGrid>a:hover,.workOverviewGrid>a:focus-visible{border-color:var(--panel-accent)}
+.researchLibraryGrid>div>h3{display:inline-block;padding:5px 12px;border-radius:6px;color:var(--panel-accent);background:var(--panel-tint)}
+.researchShelfIllustrated{display:grid;grid-template-columns:54px minmax(0,1fr);gap:12px;align-items:start}
+.researchShelfThumb{display:block;padding:4px;border-radius:5px;background:var(--panel-tint)}
+.researchShelfThumb img{width:100%;aspect-ratio:2/3;object-fit:contain;display:block}
+#nav a[href="#research"]{color:#234b79}
+#nav a[href="#coaching"]{color:#176451}
+#nav a[href="#columns"]{color:#86511c}
+#public-ai .portfolioGrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),380px))}
