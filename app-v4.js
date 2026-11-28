@@ -112,6 +112,7 @@ function render(C){
   currentArticles=publicItems(C.articles);
   const kind=x=>{const c=String(x.category||'').trim();if(['교육·교재','강의자료','교육','교재'].includes(c))return 'education';if(['코칭사례','사례'].includes(c))return 'cases';if(['AX·공공혁신','AX혁신','공공혁신','AX·공공혁신 사례'].includes(c))return 'ax';return 'notes';};
   const articleCard=x=>`<article class="article" tabindex="0" role="button" aria-label="${esc(x.title)} 상세보기" data-index="${x.originalIndex}">${imageWithSettings(x,'articleThumb')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3 class="articleCardTitle" style="color:#172033">${richBody(x.title)}</h3><p>${richBody(x.summary)}</p></article>`;
+  const noteCard=x=>`<a class="article" style="display:block;text-decoration:none;color:inherit" href="archive.html?type=notes&amp;item=${encodeURIComponent(x.id)}">${imageWithSettings(x,'articleThumb')}<div class="meta">${esc(x.date)} · ${esc(x.category)}</div><h3 class="articleCardTitle" style="color:#172033">${richBody(x.title)}</h3><p>${richBody(x.summary)}</p></a>`;
   const mapped=publicItems(C.articles).map((x,i)=>({...x,originalIndex:i}));
   const homepageNotes=mapped.filter(x=>kind(x)==='notes');
   const notes=homepageNotes.filter(x=>[x.title,x.summary,x.body,x.category].join(' ').toLowerCase().includes(articleQuery));
@@ -119,7 +120,7 @@ function render(C){
   const noteSearch=$('#articleSearch').closest('.searchLabel');
   if(noteSearch)noteSearch.style.display=showHomepageNoteList?'':'none';
   $('#articleGrid').style.display=showHomepageNoteList?'':'none';
-  $('#articleGrid').innerHTML=notes.length?visibleItems(notes,C.displaySettings?.notes).map(articleCard).join(''):(showHomepageNoteList?'<p class="emptyPortfolio">검색 결과가 없습니다.</p>':'');
+  $('#articleGrid').innerHTML=notes.length?visibleItems(notes,C.displaySettings?.notes).map(noteCard).join(''):(showHomepageNoteList?'<p class="emptyPortfolio">검색 결과가 없습니다.</p>':'');
   const education=mapped.filter(x=>kind(x)==='education'),cases=mapped.filter(x=>kind(x)==='cases'),ax=mapped.filter(x=>kind(x)==='ax');
   $('#educationGrid').innerHTML=education.length?visibleItems(education,C.displaySettings?.education).map(articleCard).join(''):'<p class="emptyPortfolio">교육 프로그램과 교재 소개가 준비 중입니다.</p>';
   archivedContent={education,cases,ax,notes:mapped.filter(x=>kind(x)==='notes')};$('#axGrid').innerHTML=ax.length?visibleItems(ax,C.displaySettings?.ax).map(articleCard).join(''):'<p style="color:#d6dfed">등록된 AX·공공혁신 사례가 없습니다. 관리자에서 사례를 등록해 주세요.</p>';
@@ -249,7 +250,7 @@ async function showArticle(el){
    renderDetailGallery('#modalGallery',fresh.gallery);displayPdfInModal('#modalPdf',{...fresh,id:snap.key},'articles');
  }catch(error){console.warn('추가 사진 서버 조회 실패:',error);}
 } 
-['#articleGrid','#educationGrid','#caseGrid','#axGrid'].forEach(sel=>{$(sel).addEventListener('click',e=>showArticle(e.target.closest('.article')));$(sel).addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const el=e.target.closest('.article');if(el){e.preventDefault();showArticle(el)}}});});
+['#educationGrid','#caseGrid','#axGrid'].forEach(sel=>{$(sel).addEventListener('click',e=>showArticle(e.target.closest('.article')));$(sel).addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const el=e.target.closest('.article');if(el){e.preventDefault();showArticle(el)}}});});
 $('#closeDialog').onclick=()=>$('#articleDialog').close();
 $('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');
 $('#nav').addEventListener('click',()=>$('#nav').classList.remove('open'));
