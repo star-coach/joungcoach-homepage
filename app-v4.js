@@ -26,10 +26,15 @@ function renderResearchShelf(selector, items, count, mode) {
     const source=[item.year||item.date, archive==='research' ? item.summary||item.meta||item.category : item.noteType||'연구노트'].filter(Boolean).join(' · ');
     const paragraphs=(item.body||item.desc||'').trim().split(/\n\s*\n/);
     const preview=archive==='research'?(paragraphs.length>1&&paragraphs[0].length<64?paragraphs[1]:paragraphs[0]):item.summary;
-    return `<article class="researchShelfItem">
-      <h4><a href="${esc(href)}">${richBody(item.title)}</a></h4>
+    const paperPage = item.noteType==='논문'
+      ? normalizedGallery(item.gallery).find(photo=>photo.caption==='논문 첫 페이지')
+      : null;
+    const thumbnail = safeImage(paperPage?.url || (item.noteType==='도서' ? item.image : ''));
+    return `<article class="researchShelfItem${thumbnail?' researchShelfIllustrated':''}">
+      ${thumbnail?`<a class="researchShelfThumb" href="${esc(href)}" tabindex="-1" aria-hidden="true"><img src="${esc(thumbnail)}" alt="" loading="lazy"></a>`:''}
+      <div class="researchShelfCopy"><h4><a href="${esc(href)}">${richBody(item.title)}</a></h4>
       <div class="researchListSource">${richBody(source)}</div>
-      ${preview?`<p>${richBody(preview.replace(/\s+/g,' '))}</p>`:''}
+      ${preview?`<p>${richBody(preview.replace(/\s+/g,' '))}</p>`:''}</div>
     </article>`;
   }).join(''):'<p class="researchShelfEmpty">표시할 자료가 없습니다.</p>';
 }
