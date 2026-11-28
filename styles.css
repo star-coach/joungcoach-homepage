@@ -311,7 +311,9 @@ footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self
 .workExpertise{margin-top:20px;color:#263951}.workExpertise summary{cursor:pointer}.workExpertise:not([open]) .cards{display:none}
 
 /* Navy, teal and ochre tie the navigation and research shelves together. */
-.workOverviewGrid,.researchLibraryGrid{align-items:start}
+.researchLibraryGrid{align-items:start}
+.workOverviewGrid{grid-auto-rows:1fr}
+.workOverviewGrid>a{align-content:start}
 .workOverviewGrid>a,.researchLibraryGrid>div{--panel-accent:#234b79;--panel-tint:#eef4fa;border-top:4px solid var(--panel-accent)}
 .workOverviewGrid>a:nth-child(2),.researchLibraryGrid>div:nth-child(2){--panel-accent:#176451;--panel-tint:#eaf5ef}
 .workOverviewGrid>a:nth-child(3),.researchLibraryGrid>div:nth-child(3){--panel-accent:#86511c;--panel-tint:#fcf3e5}
