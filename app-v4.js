@@ -102,7 +102,22 @@ function render(C){
   $('#insightsTitle').textContent=C.sectionCopy.insightsTitle||'';
   $('#contactTitle').textContent=C.sectionCopy.contactTitle||'';
   $('#areaCards').innerHTML=visibleItems(C.areas,{count:C.displaySettings?.areas?.count??3,mode:C.displaySettings?.areas?.mode}).map((x,i)=>`<article class="card">${imageWithSettings(x,"areaThumb")}<div class="cardNo">0${i+1}</div><h3>${richBody(x.title)}</h3><strong>${richBody(x.summary??x.subtitle)}</strong><p>${richBody(x.body)}</p></article>`).join('');
-  archivedResearch=publicItems(C.research); archivedNow=publicItems(C.nowEntries||[]); if(C.now?.published!==false&&(C.now?.title||C.now?.body)) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'}); $('#researchList').innerHTML=visibleItems(archivedResearch,C.displaySettings?.research).map(x=>`<article class="timelineItem"><div class="year">${esc(x.year)}</div><div>${imageWithSettings(x,"researchThumb")}<h3>${richBody(x.title)}</h3><div class="meta">${richBody(x.summary??x.meta)}</div>${x.date?`<div class="recordDate">${esc(x.date)}</div>`:""}<p>${richBody(x.body??x.desc)}</p>${ext(x.link,"자료 보기")}${x.id?`<a class="researchDetailLink" href="archive.html?type=research&item=${encodeURIComponent(x.id)}">사진과 전체 기록 보기 →</a>`:""}</div></article>`).join('');
+  archivedResearch=publicItems(C.research); archivedNow=publicItems(C.nowEntries||[]); if(C.now?.published!==false&&(C.now?.title||C.now?.body)) archivedNow.push({...C.now,date:C.now.date||'',id:'legacy-now'});
+  const researchSettings = C.displaySettings?.research;
+  const researchCount = Math.min(6, researchSettings?.count ?? 6);
+  $('#researchList').innerHTML = visibleItems(archivedResearch, {...researchSettings, count: researchCount}).map(item => {
+    const title = richBody(item.title);
+    const href = 'archive.html?type=research&item=' + encodeURIComponent(item.id);
+    const source = item.summary || item.meta || item.category || '';
+    const body = item.body || item.desc || '';
+    const paragraphs = body.trim().split(/\n\s*\n/);
+    const preview = paragraphs.length > 1 && paragraphs[0].length < 64 ? paragraphs[1] : paragraphs[0];
+    return `<article class="timelineItem researchListItem">
+      <h3><a href="${esc(href)}">${title}<span aria-hidden="true"> ↗</span></a></h3>
+      <div class="researchListSource">${[esc(item.year),richBody(source)].filter(Boolean).join(' · ')}</div>
+      ${preview ? `<p class="researchListPreview">${richBody(preview.replace(/\s+/g,' '))}</p>` : ''}
+    </article>`;
+  }).join('');
   coachingActivities=[]; // 고객 코칭 기록은 공개 렌더링에서 제외
   renderCoachingActivities();
   currentActivities=visibleItems(C.activities.filter(x=>activityGroup(x)==='other'),{count:C.displaySettings?.activities?.count??6,mode:C.displaySettings?.activities?.mode});
