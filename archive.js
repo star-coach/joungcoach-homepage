@@ -3,7 +3,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase
 import {getDatabase,ref,onValue} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
 import {firebaseConfig} from './firebase-config.js';
 const $=s=>document.querySelector(s);
-const names={activities:'활동·현장 기록',research:'학술연구',education:'교육·교재',cases:'코칭 현장사례',ax:'AX·공공혁신',notes:'생각·성찰',now:'일상의 발견',columns:'칼럼·기고·인터뷰'};
+const names={activities:'활동·현장 기록',research:'학술연구',education:'교육·교재',cases:'코칭 현장사례',ax:'AX 사례',notes:'생각·성찰',now:'일상의 발견',columns:'칼럼·기고·인터뷰'};
 const descriptions={activities:'교육·연구·코칭 현장의 활동과 사진을 모았습니다.',research:'코칭과 조직, 성장과 변화에 관한 연구를 기록합니다.',education:'강의와 교재, 교육현장의 경험을 소개합니다.',cases:'코칭 현장에서 발견한 가능성과 배움을 나눕니다.',ax:'현장의 문제를 발견하고 디지털 기술로 개선해 가는 과정입니다.',notes:'읽고 쓰고 성찰하며 쌓아 온 생각의 기록입니다.',now:'사진 한 장에서 시작하는 짧은 관찰과 생각을 기록합니다.',columns:'칼럼, 기고문, 인터뷰와 외부 매체에 소개된 활동을 기록합니다.'};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dateSortValue=value=>{const m=String(value||'').trim().match(/^(\d{4})(?:\D+(\d{1,2}))?(?:\D+(\d{1,2}))?/);if(!m)return 0;const year=Number(m[1]),month=Number(m[2]||0),day=Number(m[3]||0);if(year<1900||year>2099||month>12||day>31)return 0;return year*10000+month*100+day};
@@ -20,7 +20,7 @@ const noteAliases = new Map([
 ]);
 const param=()=>new URLSearchParams(location.search);
 let type='research',all=[],shown=[],data=null,siteText={};
-const titleKeys={research:'navResearch',education:'navEducation',cases:'navCases',ax:'navAx',notes:'navNotes',columns:'navColumns',now:'nowTitle'};
+const titleKeys={research:'navResearch',education:'navEducation',cases:'navCases',notes:'navNotes',columns:'navColumns'};
 function currentName(t){const entry=siteText[titleKeys[t]];return entry && typeof entry.value==='string' && entry.value.trim()?entry.value.trim():names[t];}
 function currentDescription(t){const key=t==='now'?'nowDesc':t==='columns'?'columnDesc':'';const entry=key?siteText[key]:null;if(entry&&typeof entry.value==='string'&&entry.value.trim())return entry.value.trim();return descriptions[t];}
 
