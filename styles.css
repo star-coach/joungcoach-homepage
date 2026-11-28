@@ -329,6 +329,6 @@ footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self
 
 .profilePhilosophy{margin-top:24px}.profilePhilosophy summary{width:fit-content;cursor:pointer;font-weight:700}.coachingSubtitle:empty{display:none}.caseSubsection{margin-top:48px;padding-top:32px;border-top:1px solid #dce4ed}.caseSubsection>h3,.writingSection .sectionHead>h3{font-size:clamp(22px,3vw,32px);margin:0 0 12px}.caseSubsection>p{color:var(--muted);margin:0 0 20px}.writingSection .sectionHead>h2{margin-bottom:24px}.writingSection #now{padding-top:48px}.writingSection .activityGrid{margin-top:20px}.topbar #nav a[href="#writing"]{color:#86511c}
 
-.philosophyPanel{margin-top:14px;padding:clamp(18px,3vw,32px);border:1px solid #dce4ed;border-left:4px solid #234b79;border-radius:12px;background:#eef4fa;color:#243951}
+.philosophyPanel{margin-top:14px;padding:clamp(18px,3vw,32px);border:1px solid var(--blue2);border-radius:12px;background:var(--blue2);color:#fff}
 .philosophyPanel h2{max-width:32em;margin:0 0 12px;font-size:clamp(20px,2.4vw,30px);line-height:1.4;word-break:keep-all;overflow-wrap:anywhere}
-.philosophyPanel #philBody{max-width:68ch;margin:0;line-height:1.8;word-break:keep-all;overflow-wrap:anywhere}
+.philosophyPanel #philBody{max-width:68ch;margin:0;color:#d8e0ff;line-height:1.8;word-break:keep-all;overflow-wrap:anywhere}
