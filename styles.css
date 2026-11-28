@@ -295,8 +295,8 @@ footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self
 .workOverviewGrid strong{font-size:1.15rem;color:#224f8d}
 .workOverviewGrid a:hover,.workOverviewGrid a:focus-visible{border-color:#285399}
 .researchSection.researchLibrary{display:block}
-.researchLibraryGrid>section{min-width:0;padding:20px;background:#fff;border:1px solid #dce4ed;border-radius:12px;}
-.researchLibraryGrid>section>h3{margin:0 0 8px;font-size:1.2rem}
+.researchLibraryGrid>div{min-width:0;padding:20px;background:#fff;border:1px solid #dce4ed;border-radius:12px;}
+.researchLibraryGrid>div>h3{margin:0 0 8px;font-size:1.2rem}
 .researchShelfItem{padding:15px 0;border-top:1px solid #dce4ed;overflow-wrap:anywhere}
 .researchShelfItem h4{margin:0 0 5px;line-height:1.45;font-size:1rem}
 .researchShelfItem h4 a{color:#173b66;text-decoration:none}
