@@ -332,3 +332,9 @@ footer .visitorMini{display:inline-flex;align-items:center;gap:10px;justify-self
 .philosophyPanel{margin-top:14px;padding:clamp(18px,3vw,32px);border:1px solid var(--blue2);border-radius:12px;background:var(--blue2);color:#fff}
 .philosophyPanel h2{max-width:32em;margin:0 0 12px;font-size:clamp(20px,2.4vw,30px);line-height:1.4;word-break:keep-all;overflow-wrap:anywhere}
 .philosophyPanel #philBody{max-width:68ch;margin:0;color:#d8e0ff;line-height:1.8;word-break:keep-all;overflow-wrap:anywhere}
+
+.philosophyPanel .icfNote{max-width:76ch;margin-top:22px;padding-top:16px;border-top:1px solid #ffffff55;color:#e7ecff;font-size:.875rem;line-height:1.75;word-break:keep-all;overflow-wrap:anywhere}
+.icfNote h3{margin:0 0 4px;color:#fff;font-size:inherit}
+.icfNote p{margin:0}
+.icfNote .icfSources{margin-top:6px}
+.icfNote a{color:#fff;text-underline-offset:3px}
